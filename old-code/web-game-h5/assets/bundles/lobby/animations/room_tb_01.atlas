@@ -1,0 +1,48 @@
+
+room_tb_01.png
+size: 468,213
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+415r15135@2x
+  rotate: true
+  xy: 360, 102
+  size: 109, 106
+  orig: 111, 108
+  offset: 1, 1
+  index: -1
+guang2
+  rotate: false
+  xy: 360, 7
+  size: 93, 93
+  orig: 93, 93
+  offset: 0, 0
+  index: -1
+tx_qua
+  rotate: false
+  xy: 193, 2
+  size: 51, 51
+  orig: 60, 58
+  offset: 5, 3
+  index: -1
+yb
+  rotate: false
+  xy: 246, 3
+  size: 77, 50
+  orig: 100, 101
+  offset: 11, 9
+  index: -1
+图层30@2x
+  rotate: false
+  xy: 2, 26
+  size: 189, 185
+  orig: 191, 186
+  offset: 1, 1
+  index: -1
+图层33@2x
+  rotate: true
+  xy: 193, 55
+  size: 156, 165
+  orig: 160, 168
+  offset: 2, 2
+  index: -1

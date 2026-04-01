@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "@types/decimal.js": "^7.4.0",
+    "@types/md5": "^2.3.5",
+    "@types/moment": "^2.13.0",
+    "@types/underscore": "^1.11.15",
+    "decimal.js": "^10.4.3",
+    "decimaljs": "^10.4.3",
+    "md5": "^2.3.0",
+    "md5js": "^1.0.7",
+    "moment": "^2.30.1",
+    "pako": "^2.1.0",
+    "underscore": "^1.13.7",
+    "web3": "^1.10.4"
+  },
+  "description": "德州"
+}

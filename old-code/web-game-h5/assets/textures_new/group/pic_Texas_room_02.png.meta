@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "517533ee-e670-4ea9-9cde-745e44c1b9bd",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 686,
+  "height": 201,
+  "platformSettings": {},
+  "subMetas": {
+    "pic_Texas_room_02": {
+      "ver": "1.0.6",
+      "uuid": "da7c1782-a27a-4fe9-85bb-b0867d00199b",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "517533ee-e670-4ea9-9cde-745e44c1b9bd",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 686,
+      "height": 201,
+      "rawWidth": 686,
+      "rawHeight": 201,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

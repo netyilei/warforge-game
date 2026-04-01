@@ -1,0 +1,13 @@
+{
+  "ver": "1.1.3",
+  "uuid": "036e1877-1647-456f-933e-25b6e4d7d94c",
+  "importer": "folder",
+  "isBundle": true,
+  "bundleName": "pokercommon",
+  "priority": 1,
+  "compressionType": {},
+  "optimizeHotUpdate": {},
+  "inlineSpriteFrames": {},
+  "isRemoteBundle": {},
+  "subMetas": {}
+}

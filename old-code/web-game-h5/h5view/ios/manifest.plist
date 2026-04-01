@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>items</key>
+  <array>
+    <dict>
+      <key>assets</key>
+      <array>
+        <dict>
+          <key>kind</key>
+          <string>software-package</string>
+          <!-- TODO: Replace with your HTTPS IPA URL -->
+          <key>url</key>
+          <string>https://wforge.net/download/ios/game.ipa</string>
+        </dict>
+        <dict>
+          <key>kind</key>
+          <string>display-image</string>
+          <!-- TODO: Replace with your app icon (57x57 or compatible) -->
+          <key>url</key>
+          <string>https://wforge.net/download/ios/icon57.png</string>
+        </dict>
+        <dict>
+          <key>kind</key>
+          <string>full-size-image</string>
+          <!-- TODO: Replace with your full-size app icon -->
+          <key>url</key>
+          <string>https://wforge.net/download/ios/icon512.png</string>
+        </dict>
+      </array>
+      <key>metadata</key>
+      <dict>
+        <key>bundle-identifier</key>
+        <string>com.warforge.game</string>
+        <key>bundle-version</key>
+        <string>1.0.0</string>
+        <key>kind</key>
+        <string>software</string>
+        <key>title</key>
+        <string>Warforge</string>
+      </dict>
+    </dict>
+  </array>
+</dict>
+</plist>

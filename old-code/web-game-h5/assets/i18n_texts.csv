@@ -1,0 +1,676 @@
+﻿key,zh_CN,en_US,zh_TW
+i18n_0599,- 在场景中创建按钮,-Create buttons in the scene,-在場景中創建按鈕
+i18n_0626,- 点击按钮进行测试,-Click the button to test,-點擊按鈕進行測試
+i18n_0645,- 绑定按钮点击事件到对应方法,-Bind button click event to corresponding method,-綁定按鈕點擊事件到對應方法
+i18n_0605,1. testSelectAnyFile() - 选择任意文件,1. testSelectAnyFile() - Select any file,1. testSelectAnyFile（）-選擇任意檔案
+i18n_0001,1个按钮,1 button,1個按鈕
+i18n_0002,1小时,1 hour,1小時
+i18n_0636,2. testSelectImage() - 选择图片,2. testSelectImage() - Select Image,2. testSelectImage（）-選擇圖片
+i18n_0578,3. testSelectImageBase64() - 选择图片转Base64,3. testSelectImageBase64() - Select image to Base64,3. testSelectImageBase64（）-選擇圖片轉Base64
+i18n_0632,4. testSelectTextFile() - 选择文本文件,4. testSelectTextFile() - Select a text file,4. testSelectTextFile（）-選擇文字檔
+i18n_0003,404错误,404 Error,404錯誤
+i18n_0604,5. testSelectPNG() - 仅选择PNG图片,5. testSelectPNg() - Select only PNG images,5. testSelectPNG（）-僅選擇PNG圖片
+i18n_0598,6. testPlatformDetection() - 平台检测,6. testPlatformDetection() - Platform Detection,6. testPlatformDetection（）-平臺檢測
+i18n_0588,7. clearLog() - 清除日志,7. clearLog() - Clear Log,7. clearLog（）-清除日誌
+i18n_0583,======== 文件选择功能测试帮助 ========,========File selection function testing help========,========檔案選擇功能測試幫助========
+i18n_0580,======== 测试：仅选择PNG图片 ========,========Test: Select only PNG images========,========測試：僅選擇PNG圖片========
+i18n_0616,======== 测试：平台检测 ========,========Testing: Platform detection========,========測試：平臺檢測========
+i18n_0643,======== 测试：选择任意文件 ========,========Test: Select any file========,========測試：選擇任意檔案========
+i18n_0602,======== 测试：选择图片并转Base64 ========,========Test: Select image and convert to Base64========,========測試：選擇圖片並轉Base64 ========
+i18n_0582,FilePickerTest 组件已加载,FilePickerTest component loaded,FilePickerTest組件已加載
+i18n_0587,JSB可用: false,JSB available: false,JSB可用：false
+i18n_0623,JSB可用: true,JSB available: true,JSB可用：true
+i18n_0004,PayPal账号不能为空,PayPal account cannot be empty,PayPal帳號不能為空
+i18n_0005,XXXX传奇大奖赛,XXXX Legendary Grand Prix,XXXX傳奇大獎賽
+i18n_0611,[FilePickerTest] 日志已清除,[FilePickerTest] log cleared,[FilePickerTest]日誌已清除
+i18n_0651,#奖励已发放到您的账户,#The reward has been distributed to your account,#獎勵已發放到您的帳戶
+i18n_0653,]中因未准备已出局，感谢您的参与,]has been eliminated due to lack of preparation. Thank you for your participation,]中因未準備已出局，感謝您的參與
+i18n_0659,]中因进入失败已出局，感谢您的参与,]Due to entry failure has been eliminated. Thank you for your participation,]中因進入失敗已出局，感謝您的參與
+i18n_0652,]中已出局，感谢您的参与,]has been eliminated. Thank you for your participation,]中已出局，感謝您的參與
+i18n_0654,]中获得了第,]Obtained the No.,]中獲得了第
+i18n_0655,]即将开始，请准备,]It's about to begin| please prepare,]即將開始，請準備
+i18n_0657,]已开始，请准备,]Started| please prepare,]已開始，請準備
+i18n_0010,coin不存在,Coin does not exist,coin不存在
+i18n_0011,from没有私钥,From does not have a private key,from沒有私密金鑰
+i18n_0012,itemID重复,Duplicate itemID,itemID重複
+i18n_0013,write失败,Write failed,write失敗
+i18n_0014,{$userCount}人,{$userCount} person,{$userCount}人
+i18n_0581,|error)#        } finally {#            this.sendingCode_ = false#        }#    }#    protected update(dt: number): void {#        if(this.codeTime_ > 0) {#            this.codeTime_ -= dt #            if(this.codeTime_ <= 0) {#                this.codeTime_ = 0#                this.btnSendCode.interactable = true #            }#        }#        this.lblCodeStatus.string = this.codeTime_ > 0 ? `重新发送(${Math.ceil(this.codeTime_)}s)` :,| error),| error)
+i18n_0617,⚠ 未设置预览Sprite，跳过图片显示,⚠  Preview Sprite not set| skipping image display,⚠  未設定預覽Sprite，跳過圖片顯示
+i18n_0015,⚠️ 上传被中止,⚠️  Upload aborted,⚠️  上傳被中止
+i18n_0016,✅ 上传成功:,✅  Upload successful:,✅  上傳成功：
+i18n_0620,✓ PNG图片选择成功,✓ PNG image selection successful,✓PNG圖片選擇成功
+i18n_0634,✓ 图片预览显示成功,✓ Image preview display successful,✓圖片預覽顯示成功
+i18n_0642,✗ 加载图片失败,✗ Image loading failed,✗加載圖片失敗
+i18n_0629,✗ 加载图片失败:,✗ Image loading failed:,✗加載圖片失敗：
+i18n_0017,❌ 上传失败，状态码:,❌  Upload failed| status code:,❌  上傳失敗，狀態碼：
+i18n_0591,❌ 上传异常:,❌  Upload exception:,❌  上傳异常：
+i18n_0610,❌ 网络错误,❌  Network error,❌  網絡錯誤
+i18n_0018,❌ 网络错误或跨域问题,❌  Network errors or cross domain issues,❌  網絡錯誤或跨域問題
+i18n_0019,一对,Pair,一對
+i18n_0020,三个按钮,Three buttons,三個按鈕
+i18n_0021,三条,Triple,三條
+i18n_0638,上一步,Previous step,上一步
+i18n_0022,上传凭证,Upload credentials,上傳憑證
+i18n_0023,上传失败,Upload failed,上傳失敗
+i18n_0024,上传成功,Upload successful,上傳成功
+i18n_0025,上传数据不存在,The uploaded data does not exist,上傳數據不存在
+i18n_0026,上传数据不正确,The uploaded data is incorrect,上傳數據不正確
+i18n_0027,上传证件,Upload ID,上傳證件
+i18n_0619,下一步,Next step,下一步
+i18n_0029,下注,Bet,下注
+i18n_0030,不支持后台手动操作,Cannot support manual operation in the background,不支持後臺手動操作
+i18n_0031,不支持的登录,Unsupported login,不支持的登入
+i18n_0032,不是成员,Not a member,不是成員
+i18n_0033,不能重复上传,Cannot upload repeatedly,不能重複上傳
+i18n_0034,不限,unlimited,不限
+i18n_0035,不限制,no restrictions,不限制
+i18n_0036,不限额,unlimited,不限額
+i18n_0037,世界杯足球,World Cup,世界盃足球
+i18n_0038,两对,Two pairs,兩對
+i18n_0039,个人信息,Personal Information,個人資訊
+i18n_0040,中,Medium,中
+i18n_0041,中级场,Medium,中級場
+i18n_0042,举报,Report,舉報
+i18n_0043,买入,Buyin,買入
+i18n_0044,买入失败,Purchase failed,買入失敗
+i18n_0045,二维码内容,QR code content,二維碼內容
+i18n_0046,五个按钮,Five buttons,五個按鈕
+i18n_0047,交互表情,Interactive emoticons,互動表情
+i18n_0595,交易密码,Transaction password,交易密碼
+i18n_0646,交易密码不能为空,The transaction password cannot be empty,交易密碼不能為空
+i18n_0618,交易密码错误,Transaction password error,交易密碼錯誤
+i18n_0589,交易密码长度不能小于6位,The length of the transaction password cannot be less than 6 digits,交易密碼長度不能小於6比特
+i18n_0048,人,Player,人
+i18n_0049,人数,Online,人數
+i18n_0050,人数:,Online:,人數：
+i18n_0051,从相册上传,Upload from album,從相册上傳
+i18n_0052,任务不存在,Task does not exist,任務不存在
+i18n_0053,作者:,Author:,作者：
+i18n_0054,你当前的状态可以随时退出当前房间，是否立即退出？,You can exit the current room at any time based on your current status. Do you want to exit now?,你當前的狀態可以隨時退出當前房間，是否立即退出？
+i18n_0055,你正在进行游戏中，需要申请退出后，在当前对局结束后才能离开房间，是否立即申请？,You are playing a game and need to apply to exit before you can leave the room after the current match ends. Do you want to apply now?,你正在進行遊戲中，需要申請退出後，在當前對局結束後才能離開房間，是否立即申請？
+i18n_0627,使用方法：,Usage:,使用方法：
+i18n_0056,修改个人信息,Personal Information,修改個人資訊
+i18n_0612,修改交易密码,Change Transaction Password,修改交易密碼
+i18n_0057,修改密码,Change Password,修改密碼
+i18n_0058,修改成功,Modified Successfully,修改成功
+i18n_0059,俱乐部,Club,俱樂部
+i18n_0060,俱乐部未找到,Club not found,俱樂部未找到
+i18n_0061,充值,Recharge,充值
+i18n_0062,充值上传记录不存在,Recharge upload record does not exist,充值上傳記錄不存在
+i18n_0063,充值凭证不存在,Recharge voucher does not exist,充值憑證不存在
+i18n_0064,充值地址,Recharge Address,充值地址
+i18n_0625,充值奖励,Recharge Rewards,充值獎勵
+i18n_0065,充值库存不存在,Recharge inventory does not exist,充值庫存不存在
+i18n_0066,充值方式不存在,Recharge method does not exist,充值管道不存在
+i18n_0067,充值订单不存在,Recharge order does not exist,充值訂單不存在
+i18n_0068,充值订单状态不正确,The status of the recharge order is incorrect,充值訂單狀態不正確
+i18n_0597,充值退款,Recharge and refund,充值退款
+i18n_0069,充值配置不存在,Recharge configuration does not exist,充值配寘不存在
+i18n_0070,充值金额不能大于,The recharge amount cannot exceed,充值金額不能大於
+i18n_0071,充值金额不能小于,The recharge amount cannot be less than,充值金額不能小於
+i18n_0072,充值金额过低,The recharge amount is too low,充值金額過低
+i18n_0073,充值金额过高,Recharge amount too high,充值金額過高
+i18n_0074,兑换比例:,Exchange rate:,兌換比例：
+i18n_0075,入,enter,入
+i18n_0076,入池率,Pot Entry Rate,入池率
+i18n_0077,全部,All,全部
+i18n_0078,公告,Notice,公告
+i18n_0079,关闭,Close,關閉
+i18n_0080,其他,Other,其他
+i18n_0081,内容,Content,內容
+i18n_0082,内容过长，限制500字以内,The content is too long| limited to 500 words or less,內容過長，限制500字以內
+i18n_0083,冤家牌，不好意思,Enemy card| sorry,冤家牌，不好意思
+i18n_0084,冻结失败,Freeze failed,凍結失敗
+i18n_0085,分,Divide,分
+i18n_0086,分数,Fraction,分數
+i18n_0087,切换线路,Switch Lines,切換線路
+i18n_0088,创建Paypal订单失败,Failed to create PayPal order,創建Paypal訂單失敗
+i18n_0089,创建失败,Creation failed,創建失敗
+i18n_0090,创建房间,Create Room,創建房間
+i18n_0091,创建房间失败,Failed to create room,創建房間失敗
+i18n_0092,初级场,Beginner,初級場
+i18n_0093,删除,Del,删除
+i18n_0094,删除失败,Deletion failed,删除失敗
+i18n_0095,到账数量,Quantity received,到賬數量
+i18n_0096,剩余数量:,Remaining Quantity:,剩餘數量：
+i18n_0097,加入,Join,加入
+i18n_0098,加入房间,Join Room,加入房間
+i18n_0099,加入错误,Adding error,加入錯誤
+i18n_0100,加入错误[2],Add error [2],加入錯誤[2]
+i18n_0101,加入错误[3],Add error [3],加入錯誤[3]
+i18n_0102,加注,Raise,加注
+i18n_0103,加载中,Loading,加載中
+i18n_0104,加载中... 0%,Loading in progress 0,加載中. .. 0%
+i18n_0105,加载完成,Loading completed,加載完成
+i18n_0106,匹配,Group,匹配
+i18n_0107,匹配中。。。,Matching in progress...,匹配中。。。
+i18n_0108,区块链,Blockchain,區塊鏈
+i18n_0109,区块链地址不能为空,The blockchain address cannot be empty,區塊鏈地址不能為空
+i18n_0110,单笔限额,Per-transaction limit,單筆限額
+i18n_0111,卡号：,Card Number:,卡號：
+i18n_0112,即将开始,Near Start,即將開始
+i18n_0113,即将开赛,Near Start,即將開賽
+i18n_0114,即将打开Paypal支付页面,We are about to open the PayPal payment page,即將打開Paypal支付頁面
+i18n_0115,即将提交提现申请,Submitting withdrawal application soon,即將提交提現申請
+i18n_0116,参数不正确,Incorrect parameter,參數不正確
+i18n_0117,参数错误,Parameter error,參數錯誤
+i18n_0118,双大盲,Double Blind,雙大盲
+i18n_0119,发起提现,Withdrawal,發起提現
+i18n_0120,发送验证码,Send,發送驗證碼
+i18n_0121,取消,Cancel,取消
+i18n_0122,只显示桌面玩家,Only display desktop players,只顯示案頭玩家
+i18n_0123,只有房主可以解散房间,Only the homeowner can dissolve the room,只有房主可以解散房間
+i18n_0124,只能删除未开始的比赛,Only games that have not started can be deleted,只能删除未開始的比賽
+i18n_0622,可用的测试方法：,Available testing methods:,可用的測試方法：
+i18n_0125,号,Number,號
+i18n_0126,同时播放items,Simultaneously play items,同時播放items
+i18n_0127,同花,Flush,同花
+i18n_0128,同花顺,Straight-Flush,同花順
+i18n_0129,名次,Ranking,名次
+i18n_0658,名，感谢您的参与,| thank you for your participation,名，感謝您的參與
+i18n_0130,启动失败,Startup failure,啟動失敗
+i18n_0131,响应不是 JSON,The response is not JSON,響應不是JSON
+i18n_0132,四个按钮,Four buttons,四個按鈕
+i18n_0133,四条,Four-of-a-kind,四條
+i18n_0134,圈,Round,圈
+i18n_0135,增加数量必须大于0,The increase in quantity must be greater than 0,新增數量必須大於0
+i18n_0136,处理失败,Processing failed,處理失敗
+i18n_0137,复制,copy,複製
+i18n_0138,复盘已结束,Review has ended,複盤已結束
+i18n_0139,大厅,Hall,大廳
+i18n_0140,大厅任务,Hall tasks,大廳任務
+i18n_0141,大厅抽奖,Hall lottery,大廳抽獎
+i18n_0142,大厅签到,Hall check-in,大廳簽到
+i18n_0631,大小,Size,大小
+i18n_0143,头像,Avatar,頭像
+i18n_0144,奖励,Reward,獎勵
+i18n_0145,奖池配置不存在,The prize pot configuration does not exist,獎池配寘不存在
+i18n_0146,奥马哈,Omaha,奧馬哈
+i18n_0147,好友房,Friend,好友房
+i18n_0148,定义在DefaultAudio里的名字,Name defined in Default Audio,定義在DefaultAudio裏的名字
+i18n_0149,实时战况,Realtime,實时戰況
+i18n_0150,审核数据不存在,Audit data does not exist,稽核數據不存在
+i18n_0151,客服,Customer,客服
+i18n_0152,客服功能未开放,Customer service function is not open,客服功能未開放
+i18n_0153,客服已接入,Customer service has been connected,客服已接入
+i18n_0154,密码,Password,密碼
+i18n_0155,密码不能为空,Password cannot be empty,密碼不能為空
+i18n_0156,密码修改,Change Password,密碼修改
+i18n_0157,密码强度,Strength,密碼强度
+i18n_0158,密码长度不正确,The password length is incorrect,密碼長度不正確
+i18n_0159,密码长度不能小于6位,Password length cannot be less than 6 digits,密碼長度不能小於6比特
+i18n_0592,密码验证,Password Verification,密碼驗證
+i18n_0160,对局ID:,Match ID:,對局ID:
+i18n_0161,对局明细,Match details,對局明細
+i18n_0162,对局查询,Match inquiry,對局査詢
+i18n_0163,对局记录,Game Record,對局記錄
+i18n_0164,对局详情,Match details,對局詳情
+i18n_0165,小时,hour,小時
+i18n_0166,小盲,SB,小盲
+i18n_0167,小盲/大盲,SB/BB,小盲/大盲
+i18n_0168,局,Games:,局
+i18n_0169,局数,Games:,局數
+i18n_0170,已为您转接至其他客服,We have transferred you to another customer service representative,已為您轉接至其他客服
+i18n_0171,已复制到剪贴板,Copy to clipboard,已複製到剪貼板
+i18n_0172,已报名,Signed,已報名
+i18n_0173,已有账号？,Already have an account?,已有帳號？
+i18n_0174,已经在房间中,Already in the room,已經在房間中
+i18n_0175,已结束,Ended,已結束
+i18n_0176,已结束，无法修改状态,Completed| unable to modify status,已結束，無法修改狀態
+i18n_0177,已领取,Claimed,已領取
+i18n_0178,币种没有公链配置,Currency without public chain configuration,幣種沒有公鏈配寘
+i18n_0179,带入,Buyin,帶入
+i18n_0180,带入:,Buyin:,帶入：
+i18n_0630,平台,platform,平臺
+i18n_0181,库存不存在,Inventory does not exist,庫存不存在
+i18n_0182,底分,base score,底分
+i18n_0183,底池,Pot,底池
+i18n_0184,底池:,Pot:,底池：
+i18n_0185,底池:100,Pot: 100,底池：100
+i18n_0186,底注,Ante,底注
+i18n_0187,开启定位,Turn on location,開啟定位
+i18n_0188,开始,Start,開始
+i18n_0189,弃,Fold,弃
+i18n_0190,弃/过,Fold#Check,弃/過
+i18n_0191,弃牌,Fold,弃牌
+i18n_0192,弱,Weak,弱
+i18n_0193,弹幕,Bullet Chat,彈幕
+i18n_0194,强,Strong,強
+i18n_0195,当前,Current,當前
+i18n_0633,当前平台,Current Platform,當前平臺
+i18n_0614,当前排名,Current Ranking,當前排名
+i18n_0196,当前时间无法报名,Cannot signup at the current time,當前時間無法報名
+i18n_0197,德州扑克,Texas,德州撲克
+i18n_0198,必须传入比赛ID,Competition ID must be entered,必須傳入比賽ID
+i18n_0199,快捷加注,Quick Bet,快捷加注
+i18n_0200,快捷语,Quick Phrase,快捷語
+i18n_0201,快速,Fast,快速
+i18n_0202,快速开始,Quick Start,快速開始
+i18n_0203,快速换桌,Quick Change,快速換桌
+i18n_0204,总买入,Total Buying,總買入
+i18n_0205,恭喜获得{%0}钻石和{%1}金币,Congratulations on obtaining {%0} diamonds and {%1} coins,恭喜獲得{%0}鑽石和{%1}金幣
+i18n_0656,您在比赛[,You are in the competition[,您在比賽[
+i18n_0207,您已经在比赛中，无法重新报名,You are already in the competition and cannot signup again,您已經在比賽中，無法重新報名
+i18n_0208,您已经达到最大进入次数，无法重新报名,You have reached the maximum number of entries and cannot signup again,您已經達到最大進入次數，無法重新報名
+i18n_0209,您当前是旁观状态，可以随时退出当前房间，是否立即退出？,You are currently in a spectator mode and can exit the current room at any time. Do you want to exit now?,您當前是旁觀狀態，可以隨時退出當前房間，是否立即退出？
+i18n_0660,您报名的比赛[,The competition you have signed up for[,您報名的比賽[
+i18n_0211,您有过多待处理充值订单，请稍后再试,You have too many pending recharge orders| please try again later,您有過多待處理充值訂單，請稍後再試
+i18n_0212,您的注册申请正在审核中，请勿重复提交,Your registration application is currently under review| please do not resubmit,您的註冊申請正在稽核中，請勿重複提交
+i18n_0213,我的,Mine,我的
+i18n_0214,我的赛事,My Events,我的賽事
+i18n_0215,房,Room,房
+i18n_0216,房主已发起解散#本局游戏结束后退出房间,The homeowner has initiated dissolution. After the end of this game exit the room,房主已發起解散#本局遊戲結束後退出房間
+i18n_0217,房主已解散房间,The homeowner has dissolved the room,房主已解散房間
+i18n_0218,房卡,Card,房卡
+i18n_0219,房间,Room,房間
+i18n_0220,房间ID:,Room ID:,房間ID:
+i18n_0221,房间不存在,The room does not exist,房間不存在
+i18n_0222,房间信息,Room information,房間資訊
+i18n_0223,房间创建成功，正在进入房间...,Room created successfully| entering the room ..,房間創建成功，正在進入房間. ..
+i18n_0224,房间号,Code:,房間號
+i18n_0225,房间号已复制到剪贴板,The room number has been copied to the clipboard,房間號已複製到剪貼板
+i18n_0226,房间已结束,The room has ended,房間已結束
+i18n_0227,房间详情,Room details,房間詳情
+i18n_0601,手机号,Mobile phone number,手機號
+i18n_0228,手续费：,Service Charge:,手續費：
+i18n_0229,扣除道具失败，无法提现,Deducting props failed| unable to withdraw,扣除道具失敗，無法提現
+i18n_0584,扩展名,File extension,副檔名
+i18n_0579,找不到充值配置,Unable to find recharge configuration,找不到充值配寘
+i18n_0230,找回密码,Forgot Password,找回密碼
+i18n_0231,抓,Straggle,抓
+i18n_0232,抓位,Straggle,抓比特
+i18n_0233,报名,SignUp,報名
+i18n_0234,报名成功,SignUp Successful,報名成功
+i18n_0235,报名道具不足,Insufficient SignUp Props,報名道具不足
+i18n_0236,抽水收入,Pumping income,抽水收入
+i18n_0237,拍照,take a photo,拍照
+i18n_0238,拖动到此区域取消加注,Drag to this area to cancel,拖動到此區域取消加注
+i18n_0239,持续时长,Duration,持續時長
+i18n_0240,按钮数量,Number of buttons,按鈕數量
+i18n_0241,按钮根节点,Button root node,按鈕根節點
+i18n_0242,排名,Ranking,排名
+i18n_0243,接收,Receive,接收
+i18n_0247,描述,Description,描述
+i18n_0248,提交信息,Commit Message,提交資訊
+i18n_0249,提交成功，等待审核,Submitted successfully| waiting for review,提交成功，等待稽核
+i18n_0250,提现,Withdraw,提現
+i18n_0251,提现失败,Withdrawal failed,提現失敗
+i18n_0252,提现数量错误,Withdrawal quantity error,提現數量錯誤
+i18n_0253,提现方式不存在,Withdrawal method does not exist,提現管道不存在
+i18n_0254,提现申请提交成功，等待审核,Withdrawal application submitted successfully| waiting for review,提現申請提交成功，等待稽核
+i18n_0255,提现订单不存在,Withdrawal order does not exist,提現訂單不存在
+i18n_0256,提现订单创建失败,Withdrawal order creation failed,提現訂單創建失敗
+i18n_0257,提现订单状态不正确,The status of the withdrawal order is incorrect,提現訂單狀態不正確
+i18n_0258,提现配置不存在,Withdrawal configuration does not exist,提現配寘不存在
+i18n_0259,提现金额不能大于,The withdrawal amount cannot exceed,提現金額不能大於
+i18n_0260,提现金额不能小于,The withdrawal amount cannot be less than,提現金額不能小於
+i18n_0261,提现金额过低,The withdrawal amount is too low,提現金額過低
+i18n_0262,提现金额过低，无法支付手续费,The withdrawal amount is too low to pay the handling fee,提現金額過低，無法支付手續費
+i18n_0263,提现金额过高,The withdrawal amount is too high,提現金額過高
+i18n_0264,提示,Prompt,提示
+i18n_0265,播放,Play,播放
+i18n_0266,操作失败,Operation Failed,操作失敗
+i18n_0267,操作时间,Operating Time,操作時間
+i18n_0268,操作超时,Operation Timeout,操作超時
+i18n_0269,支行名：,Branch Name:,支行名：
+i18n_0270,收藏,Collection,收藏
+i18n_0640,改名,Rename,改名
+i18n_0271,改名道具不足,Insufficient Renaming Props,改名道具不足
+i18n_0272,数据不存在,Data Does Not Exist,數據不存在
+i18n_0273,数据初始化失败,Data Initialization Failed,數據初始化失敗
+i18n_0274,数量,Quantity,數量
+i18n_0637,文件名,Filename,檔名
+i18n_0275,文件错误,File Error,檔案錯誤
+i18n_0276,斜杠/结尾,Slash/End,斜杠/結尾
+i18n_0277,新版本来袭！#点击确定下载新版本,A New Version is Coming! #Click OK to Download the New Version,新版本來襲！ #點擊確定下載新版本
+i18n_0278,新闻公告,News Announcement,新聞公告
+i18n_0279,旁观,Onlook,旁觀
+i18n_0280,旁观(2/3),Spectator (2/3),旁觀（2/3）
+i18n_0281,无效的上传数据,Invalid Upload Data,無效的上傳數據
+i18n_0282,无效的文件大小,Invalid File Size,無效的文件大小
+i18n_0283,无效的请求,Invalid Request,無效的請求
+i18n_0284,无效的请求2,Invalid Request 2,無效的請求2
+i18n_0285,无法修改,Cannot Be Modified,無法修改
+i18n_0286,无法修改到指定状态,Cannot Be Modified to the Specified State,無法修改到指定狀態
+i18n_0287,无法修改到相同状态,Cannot Be Modified to the Same State,無法修改到相同狀態
+i18n_0288,无法修改超管的权限,Cannot Modify the Permissions of the Super Manager,無法修改超管的許可權
+i18n_0289,无法创建房间,Unable to Create Room,無法創建房間
+i18n_0290,无法报名,Unable to SignUp,無法報名
+i18n_0291,无法操作,Unable to Operate,無法操作
+i18n_0292,无法操作超管权限,Unable to Operate Super Management Permissions,無法操作超管許可權
+i18n_0628,日志已清除#,The Log Has Been Cleared,日誌已清除#
+i18n_0293,时长,Duration,時長
+i18n_0294,时间,Time,時間
+i18n_0295,明细查询,Detail Inquiry,明細查詢
+i18n_0296,是否确认提交,Are you sure to submit,是否確認提交
+i18n_0297,昵称,Nickname,昵稱
+i18n_0298,昵称位置啊,Nickname location,昵稱位置啊
+i18n_0299,昵称和头像未修改,Nickname and avatar not modified,昵稱和頭像未修改
+i18n_0300,昵称长度不能大于15位,Nickname length cannot exceed 15 characters,昵稱長度不能大於15比特
+i18n_0301,昵称长度不能小于2位,Nickname length cannot be less than 2 digits,昵稱長度不能小於2比特
+i18n_0302,昵称长度过短,Nickname length is too short,昵稱長度過短
+i18n_0303,昵称长度过长,Nickname length too long,昵稱長度過長
+i18n_0586,显示图片预览失败:,Display image preview failed:,顯示圖片預覽失敗：
+i18n_0304,暂无数据,No Data Available,暫無數據
+i18n_0305,暂未开放,Not Yet Open,暫未開放
+i18n_0306,更多,More,更多
+i18n_0307,更新失败，稍后点击重试,Update failed| click retry later,更新失敗，稍後點擊重試
+i18n_0308,最低,Min,最低
+i18n_0310,最大#,Max#,最大#
+i18n_0309,最大#9999,Max,最大
+i18n_0311,最大买入,Max-Buyin,最大買入
+i18n_0313,最小#,Min#,最小#
+i18n_0312,最小#9999,Min,最小
+i18n_0314,最小买入,Min-Buyin,最小買入
+i18n_0315,服务器连接失败,Server Connection Failed,服務器連接失敗
+i18n_0316,未开放,Not Open,未開放
+i18n_0317,未找到,Not Found,未找到
+i18n_0318,未找到coin,Coin Not Found,未找到coin
+i18n_0319,未找到比赛房间,Competition Room Not Found,未找到比賽房間
+i18n_0608,未知,Unknown,未知
+i18n_0320,未知Paypal账户,Unknown PayPal Account,未知Paypal帳戶
+i18n_0321,未知物品,Unknown Item,未知物品
+i18n_0322,未知道具,Unknown Props,未知道具
+i18n_0323,未配置Paypal充值参数,PayPal Recharge Parameters Not Configured,未配寘Paypal充值參數
+i18n_0324,权限不足,Insufficient Permissions,許可權不足
+i18n_0325,标题,Title,標題
+i18n_0326,桌费收入,Table Fee Income,桌費收入
+i18n_0327,桌费消耗,Table Fee Consumption,桌費消耗
+i18n_0328,桌面,Desktop,案頭
+i18n_0329,桌面设置,Settings,案頭設定
+i18n_0330,正在加载,Loading,正在加載
+i18n_0609,正在加载图片预览（Blob）...,Loading image preview (Blob),正在加載圖片預覽（Blob）…
+i18n_0606,正在加载图片预览（Native）...,Loading image preview (Native),正在加載圖片預覽（Native）…
+i18n_0590,正在加载图片预览（Web）...,Loading image preview (web),正在加載圖片預覽（Web）…
+i18n_0331,正在加载资源,Loading Resources,正在加載資源
+i18n_0332,正在匹配,Matching in Progress,正在匹配
+i18n_0596,正在合桌，请稍后...,Closing the Table| Please Wait ..,正在合桌，請稍後. ..
+i18n_0333,正在更新...,Updating ..,正在更新. ..
+i18n_0334,正在獲取,Obtaining,正在獲取
+i18n_0335,正在请求,Requesting,正在請求
+i18n_0336,正在连接,Connecting,正在連接
+i18n_0337,比赛,Competition,比賽
+i18n_0338,比赛不存在,The Competition Does Not Exist,比賽不存在
+i18n_0339,比赛中,In the Competition,比賽中
+i18n_0615,比赛买入,Match Buying,比賽買入
+i18n_0603,比赛即将开始,The Competition Is About to Begin,比賽即將開始
+i18n_0600,比赛已出局,The Game Has Been Eliminated,比賽已出局
+i18n_0649,比赛已开始,The Match Has Begun.,比賽已開始
+i18n_0340,比赛已经开始，无法报名,The Competition Has Already Started| Unable to SignUp,比賽已經開始，無法報名
+i18n_0650,比赛已结束,The Competition Has Ended,比賽已結束
+i18n_0341,比赛房间已开始，请重新进入比赛,The Competition Room Has Started| Please Re-Enter the Competition,比賽房間已開始，請重新進入比賽
+i18n_0342,比赛报名,Competition SignUp,比賽報名
+i18n_0343,比赛排名,Competition Ranking,比賽排名
+i18n_0344,比赛模式无法退出,Competition Mode Cannot Be Exited,比賽模式無法退出
+i18n_0345,比赛结束,The Game Is Over.,比賽結束
+i18n_0346,比赛规则,Competition Rules,比賽規則
+i18n_0347,比赛规则比赛规则比赛规则比赛规则比赛规则比赛规则比赛规则比赛规则比赛规则比赛规则比赛规则比赛规则比赛规则,Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules Competition Rules,比賽規則比賽規則比賽規則比賽規則比賽規則比賽規則比賽規則比賽規則比賽規則比賽規則比賽規則比賽規則比賽規則
+i18n_0641,比赛通知,Competition Notice,比賽通知
+i18n_0348,没有下级关系,No subordinate relationship,沒有下級關係
+i18n_0349,没有主地址配置,No primary address configuration,沒有主地址配寘
+i18n_0350,没有公链配置,No public chain configuration,沒有公鏈配寘
+i18n_0351,没有币种配置,No currency configuration,沒有幣種配寘
+i18n_0352,没有建立配置,No configuration established,沒有建立配寘
+i18n_0353,没有成员,No members,沒有成員
+i18n_0354,没有控件被销毁了,No controls were destroyed,沒有控制項被銷毀了
+i18n_0355,没有权限,No permission,沒有許可權
+i18n_0356,没有权限操作,No permission to operate,沒有許可權操作
+i18n_0357,没有权限登录,No permission to log in,沒有許可權登入
+i18n_0358,注册,Register,注册
+i18n_0359,注册失败,Registration failed,注册失敗
+i18n_0361,注册账号,Register,註冊帳號
+i18n_0362,消息内容,message content,消息內容
+i18n_0363,消息列表,Message List,消息清單
+i18n_0364,消息标题,Message Title,消息標題
+i18n_0365,消息详情,Message Details,消息詳情
+i18n_0613,消息附件,Attachment,消息附件
+i18n_0366,添加数量必须大于0,The added quantity must be greater than 0,添加數量必須大於0
+i18n_0367,清空,Clear,清空
+i18n_0368,游客,Guest,遊客
+i18n_0369,游客ID登录,Guest ID Login,遊客ID登入
+i18n_0370,游客登录,Guest Login,遊客登錄
+i18n_0371,游戏,Game,遊戲
+i18n_0372,游戏场数,Number of Games Played,遊戲場數
+i18n_0373,游戏暂未开放，敬请期待,The Game Is Not Yet Open| Please Stay Tuned,遊戲暫未開放，敬請期待
+i18n_0374,游戏设置,Game Settings,遊戲設定
+i18n_0375,点击修改头像,Modify Avatar,點擊修改頭像
+i18n_0647,点击复制,Click To Copy,點擊複製
+i18n_0376,点击进入,Enter,點擊進入
+i18n_0377,牌型,Hand Pattern,牌型
+i18n_0378,牌局回顾,Hand Review,牌局回顧
+i18n_0379,牌局按钮,Buttons,牌局按鈕
+i18n_0380,牌局按钮设置,Buttons,牌局按鈕設定
+i18n_0381,牌局设置,Bet Settings,牌局設定
+i18n_0382,牌桌设置,Table Setting,牌桌設定
+i18n_0383,牌背,Back,牌背
+i18n_0384,牌背设置,Back Setting,牌背設定
+i18n_0385,牌面,Face,牌面
+i18n_0386,牌面设置,Face Setting,牌面設定
+i18n_0387,状态不正确,Incorrect Status,狀態不正確
+i18n_0388,玩家名字,Player Name,玩家名字
+i18n_0389,玩家名称,Player Name,玩家名稱
+i18n_0390,玩法,Playing Method,玩法
+i18n_0391,用户不存在,User Does Not Exist,用戶不存在
+i18n_0644,用户取消了选择,The User Has Cancelled the Selection,用戶取消了選擇
+i18n_0392,用户已经存在,The User Already Exists,用戶已經存在
+i18n_0393,用户昵称这个,User Nickname,用戶昵稱這個
+i18n_0394,用户没有登录权限,The User Does Not Have Login Permission,用戶沒有登錄許可權
+i18n_0395,登录,Log In,登入
+i18n_0396,登录失败,Login Failed,登入失敗
+i18n_0397,登录失败，无法使用客服功能,Login Failed| Unable to Use Customer Service Function,登入失敗，無法使用客服功能
+i18n_0639,登录密码,Login Password,登入密碼
+i18n_0398,皮肤设置,Skin Settings,皮膚設定
+i18n_0399,盈亏,Profit and Loss,盈虧
+i18n_0400,盲注:,Blind:,盲注：
+i18n_0401,短牌,Short Deck,短牌
+i18n_0402,确定,Confirm,確定
+i18n_0403,确认,Confirm,確認
+i18n_0404,确认修改,Confirm,確認修改
+i18n_0405,确认提交,Submission,確認提交
+i18n_0406,确认道具数量必须大于0,Confirm that the number of props must be greater than 0,確認道具數量必須大於0
+i18n_0407,确认金额必须大于0,The confirmed amount must be greater than 0,確認金額必須大於0
+i18n_0408,禁用聊天,Disable Chat,禁用聊天
+i18n_0409,秒,Second,秒
+i18n_0410,秒后重连,Reconnect in Seconds,秒後重連
+i18n_0411,立即申请,Apply Now,立即申請
+i18n_0412,立即退出,Exit,立即退出
+i18n_0413,站起围观,StandUp,站起圍觀
+i18n_0414,竞技赛,Competition,競技賽
+i18n_0415,竞技赛:,Competition:,競技賽：
+i18n_0416,第{$cur}/{$max}{$juType},{$cur}/{$max} {$juType},第{$cur}/{$max}{$juType}
+i18n_0417,等待,Wait,等待
+i18n_0418,签到失败,Sign-in Failed,簽到失敗
+i18n_0624,简体中文,Simplified Chinese,簡體中文
+i18n_0419,精彩对局,Exciting Match,精彩對局
+i18n_0420,系统,System,系統
+i18n_0421,系统设置,Settings,系統設置
+i18n_0422,系统邮件,System Email,系統郵件
+i18n_0423,索引,Index,索引
+i18n_0594,繁體中文,Trad-Chinese,繁體中文
+i18n_0425,网关服务获取失败,Gateway Service Acquisition Failed,閘道服務獲取失敗
+i18n_0426,网关登录失败,Gateway Login Failed,閘道登入失敗
+i18n_0427,聊天内容,Chat Content,聊天內容
+i18n_0428,胜率,Win Rate,勝率
+i18n_0429,自定义底池比例,Custom Pot Ratio,自定義底池比例
+i18n_0430,自由加注,Raise,自由加注
+i18n_0431,获取失败,Failed to obtain,獲取失敗
+i18n_0635,获取比赛信息失败,Failed to obtain competition information,獲取比賽資訊失敗
+i18n_0432,获取配置信息失败,Failed to obtain configuration information,獲取配寘資訊失敗
+i18n_0433,获取验证码,Get Verification Code,獲取驗證碼
+i18n_0434,葫芦,Full House,葫蘆
+i18n_0435,补盲,CallBB,補盲
+i18n_0436,表情,Emoji,表情
+i18n_0437,规则,Rule,規則
+i18n_0438,规则说明,Rules,規則說明
+i18n_0439,解散失败,Dissolution Failed,解散失敗
+i18n_0440,解散房间,Disband,解散房間
+i18n_0441,解锁,Unlock,解鎖
+i18n_0442,請求失敗,Request Failed,請求失敗
+i18n_0443,计划ID已存在,Plan ID Already Exists,計畫ID已存在
+i18n_0444,计划不存在,The Plan Does Not Exist,計畫不存在
+i18n_0445,让牌,Check,讓牌
+i18n_0446,记住密码,Remember Password,記住密碼
+i18n_0447,设置,Settings,設定
+i18n_0448,设置失败,Setup Failed,設定失敗
+i18n_0449,该比赛已有机器人计划,There Are Already Robot Plans for This Competition,該比賽已有機器人計畫
+i18n_0450,该申请已被处理,The Application Has Been Processed,該申請已被處理
+i18n_0451,语言设置已更改，重启应用后生效,The Language Settings Have Been Changed and Will Take Effect After Restarting the Application,語言設定已更改，重啓應用後生效
+i18n_0452,语言：,Language,語言：
+i18n_0453,语音设置,Audio Settings,語音設定
+i18n_0454,请,Please,請
+i18n_0455,请上传证件照片,Please upload a photo of your identification document,請上傳證件照片
+i18n_0456,请上传转账凭证图片,Please upload a picture of the transfer voucher,請上傳轉帳憑證圖片
+i18n_0457,请勿重复点击,Please do not click again,請勿重複點擊
+i18n_0458,请勿频繁发送验证码,Do Not Send Verification Codes Frequently,請勿頻繁發送驗證碼
+i18n_0459,请求充值地址失败,Request for Recharge Address Failed,請求充值地址失敗
+i18n_0460,请求失败,Request Failed,請求失敗
+i18n_0461,请稍后,Please Wait,請稍後
+i18n_0462,请稍后...,Please Wait a Moment ..,請稍後. ..
+i18n_0463,请输入,Please Enter,請輸入
+i18n_0464,请输入6位房间码,Please Enter the 6-Digit Room Code,請輸入6比特房間碼
+i18n_0465,请输入Paypal邮箱地址,Please Enter Your PayPal Email Address,請輸入Paypal郵箱地址
+i18n_0466,请输入买入额度,Buy in,請輸入買入額度
+i18n_0607,请输入交易密码,Please Enter the Transaction Password,請輸入交易密碼
+i18n_0467,请输入内容,Please Enter Content,請輸入內容
+i18n_0468,请输入正确的提现金额,Please Enter the Correct Withdrawal Amount,請輸入正確的提現金額
+i18n_0469,请输入正确的邮箱地址,Please Enter the Correct Email Address,請輸入正確的郵箱地址
+i18n_0470,请输入聊天信息,Please Enter Chat Information,請輸入聊天資訊
+i18n_0471,请输入账号,Please Enter Your Account,請輸入帳號
+i18n_0472,请输入账户名,Please Enter the Account Name,請輸入帳戶名
+i18n_0473,请选择区块链和币种,Please Select Blockchain and Currency,請選擇區塊鏈和幣種
+i18n_0474,请选择正确的国家代码,Please Select the Correct Country Code,請選擇正確的國家代碼
+i18n_0475,请选择银行信息,Please Select Bank Information,請選擇銀行資訊
+i18n_0476,请选择银行和支行,Please Select Bank and Branch,請選擇銀行和支行
+i18n_0477,账号,Account,帳號
+i18n_0478,账号不能为空,Account Cannot Be Empty,帳號不能為空
+i18n_0479,账号格式不正确|请使用邮箱,The Account Format Is Incorrect. Please Use Email,帳號格式不正確，請使用郵箱
+i18n_0480,账号格式不正确|请使用邮箱注册,The Account Format Is Incorrect. Please Register Using Email,帳號格式不正確，請使用郵箱註冊
+i18n_0481,账号长度不能小于6位,The Account Length Cannot Be Less Than 6 Characters,帳號長度不能小於6比特
+i18n_0482,账号长度过短,The Account Length Is Too Short,帳號長度過短
+i18n_0483,账号长度过长,The Account Length Is Too Long,帳號長度過長
+i18n_0484,账户余额,Balance,帳戶餘額
+i18n_0485,账户名：,Account:,帳戶名：
+i18n_0486,账户长度不能小于6,The Account Length Cannot Be Less Than 6,帳戶長度不能小於6
+i18n_0487,资源加载失败,Resource Loading Failed,資源加載失敗
+i18n_0488,资源加载失败，点击重试,Resource Loading Failed| Click Retry,資源加載失敗，點擊重試
+i18n_0489,资讯,Info,資訊
+i18n_0490,资讯不存在,Information Does Not Exist,資訊不存在
+i18n_0491,赛事,Events,賽事
+i18n_0492,赠送,Give as a Gift,贈送
+i18n_0493,赠送失败,Failed to Send,贈送失敗
+i18n_0494,跟,Call,跟
+i18n_0495,跳转到Paypal,Jump to PayPal,跳轉到Paypal
+i18n_0496,转动失败,Rotation Failed,轉動失敗
+i18n_0497,转账凭证,Transfer Voucher,轉帳憑證
+i18n_0498,输,Lose,輸
+i18n_0499,输入Paypal收款邮箱,PayPal Email,輸入Paypal收款郵箱
+i18n_0500,输入不正确,Incorrect Input,輸入不正確
+i18n_0501,输入充值数量,Recharge Quantity,輸入充值數量
+i18n_0502,输入提现地址,Withdrawal Address,輸入提現地址
+i18n_0503,输入提现数量,Withdrawal Quantity,輸入提現數量
+i18n_0504,输入收款账户名称,Receiving Account Name,輸入收款帳戶名稱
+i18n_0505,输入收款银行卡号,Receiving Bank Card Number,輸入收款銀行卡號
+i18n_0506,输入新密码,New Password,輸入新密碼
+i18n_0507,输入邮箱,Email Address,輸入郵箱
+i18n_0508,输入错误,Input Error,輸入錯誤
+i18n_0509,输赢,Win or Lose,輸贏
+i18n_0510,过,Check,過
+i18n_0511,返回,Return,返回
+i18n_0512,这里是内容,This Is the Content,這裡是內容
+i18n_0513,这里是提示内容,This Is the Prompt Content,這裡是提示內容
+i18n_0514,进入,Enter,進入
+i18n_0515,进入匹配,Enter Matching,進入匹配
+i18n_0516,进入比赛,Engage in a Contest,進入比賽
+i18n_0517,进入游戏失败,Failed to Enter the Game,進入遊戲失敗
+i18n_0518,连接失败,Connection Failed,連接失敗
+i18n_0519,连接已断开,Connection Disconnected,連接已斷開
+i18n_0520,连接成功,Connection Successful,連接成功
+i18n_0521,连接未就绪,Connection Not Ready,連接未就緒
+i18n_0522,退出游戏,Exit,退出遊戲
+i18n_0523,退出牌局,Exit,退出牌局
+i18n_0524,退出登录,Log out,登出
+i18n_0525,退出请求已发送，请等待本局结束,The exit request has been sent. Please wait for the end of this session,退出請求已發送，請等待本局結束
+i18n_0621,选择PNG图片失败:,Failed to select PNG image:,選擇PNG圖片失敗：
+i18n_0526,选择充值信息,Select recharge information,選擇充值資訊
+i18n_0527,选择公链和币种,Choose Public Chain and Currency,選擇公鏈和幣種
+i18n_0528,选择可用的银行,Select Available Banks,選擇可用的銀行
+i18n_0529,选择银行账户,Select Bank Account,選擇銀行帳戶
+i18n_0530,选择项,Option,選擇項
+i18n_0531,邀请好友,Invite Friends,邀請好友
+i18n_0532,邀请码,Invitation Code,邀請碼
+i18n_0533,邀请码已复制到剪贴板,The invitation code has been copied to the clipboard,邀請碼已複製到剪貼板
+i18n_0534,邀请链接,Invitation Link,邀請連結
+i18n_0535,邀请链接已复制到剪贴板,The invitation link has been copied to the clipboard,邀請連結已複製到剪貼板
+i18n_0536,邮件,Email,郵件
+i18n_0537,邮件不存在,Email Does Not Exist,郵件不存在
+i18n_0538,邮件已领取,Email Received,郵件已領取
+i18n_0539,邮件无附件,Email Without Attachments,郵件無附件
+i18n_0540,配置不存在,Configuration Does Not Exist,配寘不存在
+i18n_0541,重新发送,Resend,重新發送
+i18n_0542,金币:,Balance:,金幣：
+i18n_0543,金币不足,Not Enough Balance,金幣不足
+i18n_0544,金币太多,Too Many Balance,金幣太多
+i18n_0545,錯誤,Error,錯誤
+i18n_0546,银行,Bank,銀行
+i18n_0547,银行信息,Bank Information,銀行資訊
+i18n_0548,银行信息不能为空,Bank Information Cannot Be Empty,銀行資訊不能為空
+i18n_0549,银行名：,Bank Name:,銀行名：
+i18n_0550,银行转账,Bank Transfer,銀行轉帳
+i18n_0551,链,Chain,鏈
+i18n_0552,锁定,Lock,鎖定
+i18n_0553,错误,Error,錯誤
+i18n_0554,长牌,Standard,長牌
+i18n_0555,间,Interval,間
+i18n_0556,防作弊,Anti-Cheating,防作弊
+i18n_0557,附件名,Attachment Name,附件名
+i18n_0558,静态图片,Static Image,靜態圖片
+i18n_0559,音乐,Music,音樂
+i18n_0560,音乐:,Music:,音樂：
+i18n_0561,音乐：,Music:,音樂：
+i18n_0562,音效,Effect,音效
+i18n_0563,音效:,Effects:,音效：
+i18n_0564,音效设置,Sound Settings,音效設定
+i18n_0565,音效：,Effects:,音效：
+i18n_0566,顺子,Straight,順子
+i18n_0567,领取,Claim,領取
+i18n_0568,领取失败,Failed to Claim,領取失敗
+i18n_0569,领取失败【2】,Collection Failed [2],領取失敗【2】
+i18n_0570,领取成功,Claimed Successfully,領取成功
+i18n_0571,验证失败,Verification Failed,驗證失敗
+i18n_0572,验证码,CAPTCHA,驗證碼
+i18n_0573,验证码不正确,The Verification Code Is Incorrect,驗證碼不正確
+i18n_0593,验证码不正确【2】,The Verification Code Is Incorrect [2],驗證碼不正確【2】
+i18n_0574,验证码不能为空,The Verification Code Cannot Be Empty,驗證碼不能為空
+i18n_0575,高张,High,高張
+i18n_0576,高牌,High,高牌
+i18n_0577,高级场,Advanced,高級場
+i18n_2001,祝你好运！,Good luck!,祝你好運！
+i18n_2002,打得漂亮！,Nice hand!,打得漂亮！
+i18n_2003,全押！,All in!,全押！
+i18n_2004,哈哈，看穿你了！,Gotcha!,哈哈，看穿你了！
+i18n_2005,这局运气不错！,Lucky one!,這局運氣不錯！
+i18n_2006,再来一局！,One more round!,再來一局！
+i18n_2007,你在虚张声势！,You're bluffing!,你在虛張聲勢！
+i18n_2008,认输了，下次见！,"GG, see you next time!",認輸了，下次見！
+i18n_2009,慢点，让我想想。,"Wait, let me think.",慢點，讓我想想。
+i18n_2010,这手牌太强了！,What a monster hand!,這手牌太強了！
+i18n_2011,3个按钮,3 Buttons,3個按鈕
+i18n_2012,4个按钮,4 Buttons,4個按鈕
+i18n_2013,5个按钮,5 Buttons,5個按鈕
+i18n_2014,等待中,Waiting,等待中
+i18n_2015,邮箱,Email,郵箱
+i18n_2016,请求已发出,Request Sent,請求已發出
+i18n_2017,苹果卡,Apple Card,蘋果卡
+i18n_2018,选择充值方式,Select Recharge Method,選擇充值方式
+i18n_2019,请选择苹果卡配置,Please Select Apple Card Configuration,請選擇蘋果卡配置
+i18n_2020,GM充值,GM Recharge,GM充值
+i18n_2021,GM提现,GM Withdraw,GM提现
+i18n_2022,是否重新登录,Do you want to re-login?,是否重新登入
+i18n_2023,关于,About,關於
+i18n_2024,关于我们,About Us,關於我們
+i18n_2025,局内变化,In-Game Changes,局內變化
+i18n_2026,游戏结束,Game End,遊戲結束
+i18n_2027,游戏费用,Game Fee,遊戲費用
+i18n_2028,账号被锁定,Account Locked,帳號被鎖定
+i18n_2029,提现已锁定,Withdraw Locked,提現已鎖定

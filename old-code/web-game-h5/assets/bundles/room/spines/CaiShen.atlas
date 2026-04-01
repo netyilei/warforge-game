@@ -1,0 +1,125 @@
+
+CaiShen.png
+size: 205,793
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+b
+  rotate: false
+  xy: 2, 39
+  size: 106, 102
+  orig: 107, 102
+  offset: 0, 0
+  index: -1
+guang
+  rotate: false
+  xy: 2, 594
+  size: 198, 197
+  orig: 198, 197
+  offset: 0, 0
+  index: -1
+huzi
+  rotate: true
+  xy: 148, 332
+  size: 28, 42
+  orig: 28, 42
+  offset: 0, 0
+  index: -1
+mao
+  rotate: true
+  xy: 116, 70
+  size: 92, 77
+  orig: 92, 77
+  offset: 0, 0
+  index: -1
+mao1
+  rotate: false
+  xy: 148, 448
+  size: 54, 49
+  orig: 54, 49
+  offset: 0, 0
+  index: -1
+shou
+  rotate: false
+  xy: 181, 227
+  size: 22, 28
+  orig: 22, 28
+  offset: 0, 0
+  index: -1
+shou2
+  rotate: true
+  xy: 116, 231
+  size: 22, 27
+  orig: 22, 27
+  offset: 0, 0
+  index: -1
+star
+  rotate: false
+  xy: 148, 257
+  size: 39, 39
+  orig: 39, 39
+  offset: 0, 0
+  index: -1
+tou
+  rotate: false
+  xy: 2, 143
+  size: 112, 110
+  orig: 113, 110
+  offset: 1, 0
+  index: -1
+xiu
+  rotate: false
+  xy: 148, 298
+  size: 40, 32
+  orig: 46, 34
+  offset: 0, 0
+  index: -1
+xiu2
+  rotate: true
+  xy: 148, 239
+  size: 16, 31
+  orig: 16, 31
+  offset: 0, 0
+  index: -1
+yiling
+  rotate: true
+  xy: 181, 4
+  size: 64, 18
+  orig: 64, 18
+  offset: 0, 0
+  index: -1
+yuanbao
+  rotate: false
+  xy: 116, 164
+  size: 86, 61
+  orig: 86, 61
+  offset: 0, 0
+  index: -1
+yuanbao 1
+  rotate: false
+  xy: 110, 2
+  size: 69, 66
+  orig: 69, 66
+  offset: 0, 0
+  index: -1
+yuanbao2
+  rotate: true
+  xy: 148, 362
+  size: 84, 53
+  orig: 84, 53
+  offset: 0, 0
+  index: -1
+yun1
+  rotate: true
+  xy: 2, 255
+  size: 242, 144
+  orig: 242, 144
+  offset: 0, 0
+  index: -1
+yun2
+  rotate: false
+  xy: 2, 499
+  size: 195, 93
+  orig: 195, 96
+  offset: 0, 0
+  index: -1

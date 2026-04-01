@@ -1,0 +1,41 @@
+
+SanJian.png
+size: 136,43
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+images/arrow
+  rotate: true
+  xy: 2, 21
+  size: 20, 87
+  orig: 25, 89
+  offset: 2, 1
+  index: -1
+images/arrow2
+  rotate: true
+  xy: 2, 2
+  size: 17, 32
+  orig: 25, 38
+  offset: 4, 2
+  index: -1
+images/fx3
+  rotate: false
+  xy: 65, 4
+  size: 15, 15
+  orig: 17, 16
+  offset: 1, 1
+  index: -1
+images/fx4
+  rotate: false
+  xy: 91, 6
+  size: 43, 35
+  orig: 49, 38
+  offset: 2, 3
+  index: -1
+images/shadow
+  rotate: true
+  xy: 36, 9
+  size: 10, 27
+  orig: 19, 32
+  offset: 5, 2
+  index: -1

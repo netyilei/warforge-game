@@ -1,0 +1,48 @@
+
+JiDan.png
+size: 373,100
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+egg0
+  rotate: false
+  xy: 321, 32
+  size: 50, 66
+  orig: 50, 66
+  offset: 0, 0
+  index: -1
+egg1
+  rotate: false
+  xy: 255, 6
+  size: 50, 37
+  orig: 50, 38
+  offset: 0, 0
+  index: -1
+egg2
+  rotate: false
+  xy: 255, 45
+  size: 64, 53
+  orig: 80, 66
+  offset: 8, 6
+  index: -1
+egg4
+  rotate: false
+  xy: 2, 2
+  size: 150, 96
+  orig: 150, 96
+  offset: 0, 0
+  index: -1
+egg5
+  rotate: false
+  xy: 154, 13
+  size: 99, 85
+  orig: 100, 85
+  offset: 1, 0
+  index: -1
+egg6
+  rotate: false
+  xy: 307, 6
+  size: 20, 24
+  orig: 20, 24
+  offset: 0, 0
+  index: -1

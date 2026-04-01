@@ -1,0 +1,20 @@
+
+room_tb_02.png
+size: 261,201
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+yb
+  rotate: true
+  xy: 209, 122
+  size: 77, 50
+  orig: 100, 101
+  offset: 11, 9
+  index: -1
+图层37@2x
+  rotate: true
+  xy: 2, 2
+  size: 197, 205
+  orig: 199, 207
+  offset: 1, 1
+  index: -1

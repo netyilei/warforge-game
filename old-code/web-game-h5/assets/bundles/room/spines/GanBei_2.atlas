@@ -1,0 +1,97 @@
+
+GanBei_2.png
+size: 368,108
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+beer_01
+  rotate: true
+  xy: 216, 5
+  size: 26, 23
+  orig: 30, 26
+  offset: 1, 1
+  index: -1
+beer_02
+  rotate: true
+  xy: 241, 9
+  size: 24, 23
+  orig: 29, 27
+  offset: 3, 2
+  index: -1
+beer_03
+  rotate: false
+  xy: 266, 16
+  size: 17, 17
+  orig: 19, 18
+  offset: 1, 1
+  index: -1
+beer_04
+  rotate: false
+  xy: 54, 3
+  size: 12, 13
+  orig: 16, 14
+  offset: 2, 1
+  index: -1
+blue01
+  rotate: true
+  xy: 156, 2
+  size: 29, 28
+  orig: 30, 29
+  offset: 0, 1
+  index: -1
+blue02
+  rotate: true
+  xy: 84, 33
+  size: 73, 72
+  orig: 73, 73
+  offset: 0, 1
+  index: -1
+blue03
+  rotate: true
+  xy: 232, 35
+  size: 71, 66
+  orig: 71, 66
+  offset: 0, 0
+  index: -1
+glass
+  rotate: false
+  xy: 2, 18
+  size: 80, 88
+  orig: 100, 105
+  offset: 10, 8
+  index: -1
+glass_light1
+  rotate: true
+  xy: 84, 13
+  size: 18, 70
+  orig: 35, 82
+  offset: 8, 9
+  index: -1
+glass_light2
+  rotate: true
+  xy: 2, 5
+  size: 11, 50
+  orig: 17, 53
+  offset: 3, 0
+  index: -1
+pink01
+  rotate: true
+  xy: 186, 2
+  size: 29, 28
+  orig: 30, 29
+  offset: 0, 1
+  index: -1
+pink02
+  rotate: true
+  xy: 158, 33
+  size: 73, 72
+  orig: 73, 73
+  offset: 0, 1
+  index: -1
+pink03
+  rotate: true
+  xy: 300, 35
+  size: 71, 66
+  orig: 71, 66
+  offset: 0, 0
+  index: -1

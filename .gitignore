@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Cache
+.cache/
+.temp/
+.tmp/
+
+# Nakama
+nakama-data/
+
+# Old code (keep for reference, but ignore build artifacts)
+old-code/servers/build/
+old-code/**/node_modules/
+
+# Test
+coverage/
+.nyc_output/
+
+# Misc
+*.bak
+*.tmp

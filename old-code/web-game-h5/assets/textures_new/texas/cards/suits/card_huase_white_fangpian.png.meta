@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "71bd1dec-5e92-41d7-b8c8-36055b5a9a60",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 35,
+  "height": 35,
+  "platformSettings": {},
+  "subMetas": {
+    "card_huase_white_fangpian": {
+      "ver": "1.0.6",
+      "uuid": "58cdf963-224c-45b2-96a5-cd75564f8a89",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "71bd1dec-5e92-41d7-b8c8-36055b5a9a60",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": -2,
+      "trimX": 5,
+      "trimY": 4,
+      "width": 25,
+      "height": 31,
+      "rawWidth": 35,
+      "rawHeight": 35,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

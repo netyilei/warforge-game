@@ -1,0 +1,181 @@
+
+ChengBao.png
+size: 1768,406
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+1
+  rotate: false
+  xy: 1416, 47
+  size: 219, 155
+  orig: 219, 156
+  offset: 0, 0
+  index: -1
+2
+  rotate: false
+  xy: 1637, 74
+  size: 22, 119
+  orig: 25, 121
+  offset: 1, 1
+  index: -1
+3
+  rotate: true
+  xy: 1637, 16
+  size: 56, 87
+  orig: 58, 89
+  offset: 1, 1
+  index: -1
+4
+  rotate: true
+  xy: 1661, 97
+  size: 51, 87
+  orig: 53, 90
+  offset: 1, 1
+  index: -1
+5
+  rotate: false
+  xy: 1618, 339
+  size: 17, 65
+  orig: 19, 68
+  offset: 1, 1
+  index: -1
+6
+  rotate: true
+  xy: 1661, 76
+  size: 19, 94
+  orig: 22, 96
+  offset: 2, 1
+  index: -1
+cai
+  rotate: true
+  xy: 1637, 195
+  size: 209, 129
+  orig: 219, 174
+  offset: 9, 16
+  index: -1
+yanhua/1
+  rotate: false
+  xy: 2, 204
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/10
+  rotate: false
+  xy: 204, 2
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/11
+  rotate: false
+  xy: 406, 2
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/12
+  rotate: false
+  xy: 608, 2
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/13
+  rotate: false
+  xy: 810, 2
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/14
+  rotate: false
+  xy: 1012, 2
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/15
+  rotate: false
+  xy: 1214, 2
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/2
+  rotate: false
+  xy: 204, 204
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/3
+  rotate: false
+  xy: 406, 204
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/4
+  rotate: false
+  xy: 608, 204
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/5
+  rotate: false
+  xy: 810, 204
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/6
+  rotate: false
+  xy: 1012, 204
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/7
+  rotate: false
+  xy: 1214, 204
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/8
+  rotate: false
+  xy: 1416, 204
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yanhua/9
+  rotate: false
+  xy: 2, 2
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+yun1
+  rotate: false
+  xy: 1661, 150
+  size: 95, 43
+  orig: 100, 47
+  offset: 3, 2
+  index: -1
+yun2
+  rotate: true
+  xy: 1726, 15
+  size: 59, 37
+  orig: 64, 41
+  offset: 2, 2
+  index: -1
+yun3
+  rotate: false
+  xy: 1416, 2
+  size: 84, 43
+  orig: 88, 45
+  offset: 2, 2
+  index: -1

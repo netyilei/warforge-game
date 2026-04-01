@@ -1,0 +1,34 @@
+
+XianHua.png
+size: 219,92
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+dianguang
+  rotate: false
+  xy: 100, 12
+  size: 78, 78
+  orig: 82, 82
+  offset: 2, 2
+  index: -1
+rose
+  rotate: true
+  xy: 2, 3
+  size: 87, 96
+  orig: 89, 98
+  offset: 1, 1
+  index: -1
+roseyezi
+  rotate: false
+  xy: 180, 2
+  size: 22, 40
+  orig: 24, 46
+  offset: 2, 5
+  index: -1
+shexian
+  rotate: true
+  xy: 180, 44
+  size: 46, 37
+  orig: 51, 41
+  offset: 0, 4
+  index: -1

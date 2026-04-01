@@ -1,0 +1,118 @@
+
+allin_zi.png
+size: 1289,421
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+XX_00001
+  rotate: false
+  xy: 1140, 121
+  size: 142, 142
+  orig: 256, 256
+  offset: 56, 62
+  index: -1
+XX_00002
+  rotate: true
+  xy: 1012, 265
+  size: 154, 150
+  orig: 256, 256
+  offset: 51, 57
+  index: -1
+XX_00003
+  rotate: true
+  xy: 978, 86
+  size: 161, 160
+  orig: 256, 256
+  offset: 51, 42
+  index: -1
+XX_00004
+  rotate: false
+  xy: 189, 11
+  size: 169, 170
+  orig: 256, 256
+  offset: 47, 40
+  index: -1
+XX_00005
+  rotate: true
+  xy: 2, 2
+  size: 179, 185
+  orig: 256, 256
+  offset: 39, 35
+  index: -1
+XX_00006
+  rotate: true
+  xy: 652, 227
+  size: 192, 189
+  orig: 256, 256
+  offset: 28, 32
+  index: -1
+XX_00007
+  rotate: true
+  xy: 778, 19
+  size: 206, 198
+  orig: 256, 256
+  offset: 20, 31
+  index: -1
+XX_00008
+  rotate: true
+  xy: 572, 9
+  size: 213, 204
+  orig: 256, 256
+  offset: 16, 24
+  index: -1
+XX_00009
+  rotate: false
+  xy: 211, 192
+  size: 206, 227
+  orig: 256, 256
+  offset: 25, 8
+  index: -1
+XX_00010
+  rotate: false
+  xy: 2, 183
+  size: 207, 236
+  orig: 256, 256
+  offset: 28, 2
+  index: -1
+XX_00011
+  rotate: true
+  xy: 419, 224
+  size: 195, 231
+  orig: 256, 256
+  offset: 25, 8
+  index: -1
+XX_00012
+  rotate: true
+  xy: 360, 6
+  size: 184, 210
+  orig: 256, 256
+  offset: 39, 33
+  index: -1
+XX_00013
+  rotate: true
+  xy: 843, 249
+  size: 170, 167
+  orig: 256, 256
+  offset: 49, 38
+  index: -1
+XX_00014
+  rotate: true
+  xy: 1145, 26
+  size: 93, 91
+  orig: 256, 256
+  offset: 118, 97
+  index: -1
+XX_00015
+  rotate: true
+  xy: 1238, 42
+  size: 77, 49
+  orig: 256, 256
+  offset: 121, 132
+  index: -1
+pic_allin_zi
+  rotate: false
+  xy: 978, 25
+  size: 165, 59
+  orig: 169, 63
+  offset: 2, 2
+  index: -1

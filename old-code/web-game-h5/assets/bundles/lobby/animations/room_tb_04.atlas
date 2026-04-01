@@ -1,0 +1,27 @@
+
+room_tb_04.png
+size: 314,218
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+guang2
+  rotate: false
+  xy: 219, 123
+  size: 93, 93
+  orig: 93, 93
+  offset: 0, 0
+  index: -1
+yb
+  rotate: true
+  xy: 219, 44
+  size: 77, 50
+  orig: 100, 101
+  offset: 11, 9
+  index: -1
+图层48@2x
+  rotate: true
+  xy: 2, 2
+  size: 214, 215
+  orig: 216, 217
+  offset: 1, 1
+  index: -1

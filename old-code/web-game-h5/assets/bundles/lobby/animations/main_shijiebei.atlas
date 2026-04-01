@@ -1,0 +1,20 @@
+
+main_shijiebei.png
+size: 247,90
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+main_sr_cup
+  rotate: true
+  xy: 2, 12
+  size: 76, 155
+  orig: 80, 159
+  offset: 2, 2
+  index: -1
+ziqiu
+  rotate: false
+  xy: 159, 2
+  size: 86, 86
+  orig: 87, 86
+  offset: 1, 0
+  index: -1

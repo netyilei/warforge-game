@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "a88f255c-24d0-4564-bef4-a9561c0f844c",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 750,
+  "height": 1624,
+  "platformSettings": {},
+  "subMetas": {
+    "德州扑克-创建房间-切图2": {
+      "ver": "1.0.6",
+      "uuid": "c8ee44b4-7f54-45ee-b632-f36e510f037e",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "a88f255c-24d0-4564-bef4-a9561c0f844c",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 750,
+      "height": 1624,
+      "rawWidth": 750,
+      "rawHeight": 1624,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

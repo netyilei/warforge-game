@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "a83ee41c-ce25-441f-bc48-db68c547b071",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 750,
+  "height": 1624,
+  "platformSettings": {},
+  "subMetas": {
+    "游戏中—实时战况": {
+      "ver": "1.0.6",
+      "uuid": "101801b2-6ba0-4433-a154-2acbcde04236",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "a83ee41c-ce25-441f-bc48-db68c547b071",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 750,
+      "height": 1624,
+      "rawWidth": 750,
+      "rawHeight": 1624,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

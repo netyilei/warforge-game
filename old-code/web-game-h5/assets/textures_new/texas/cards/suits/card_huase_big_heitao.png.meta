@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "a09cdce0-7da9-4a17-a5c6-64644fba0897",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 57,
+  "height": 60,
+  "platformSettings": {},
+  "subMetas": {
+    "card_huase_big_heitao": {
+      "ver": "1.0.6",
+      "uuid": "80aa8a0b-d036-490f-b9f5-2d9f46b95e56",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "a09cdce0-7da9-4a17-a5c6-64644fba0897",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0.5,
+      "offsetY": -2,
+      "trimX": 4,
+      "trimY": 5,
+      "width": 50,
+      "height": 54,
+      "rawWidth": 57,
+      "rawHeight": 60,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

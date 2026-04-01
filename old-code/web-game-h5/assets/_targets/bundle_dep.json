@@ -1,0 +1,12 @@
+
+{
+	"login":["lobby"],
+	"recharge":["lobby"],
+	"room":["lobby","chat"],
+	"share":["lobby"],
+	"poker_common":["room"],
+	"game_texas":["poker_common","room","chat"],
+	"pokercommon":["lobby"],
+	"tea":["lobby"],
+	"match":["lobby"]
+}

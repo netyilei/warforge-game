@@ -1,0 +1,333 @@
+[
+    {
+        "server": "server-1",
+        "wsPort": 30001,
+        "wsHost": "ws://0.0.0.0:30001",
+        "servicePort": 30002,
+        "serviceHost": "http://0.0.0.0:30002",
+        "name": "pp-rpc-center"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 30901,
+        "wsHost": "ws://0.0.0.0:30901",
+        "servicePort": 30902,
+        "serviceHost": "http://0.0.0.0:30902",
+        "name": "pp-sys"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 31003,
+        "wsHost": "ws://0.0.0.0:31003",
+        "servicePort": 31004,
+        "serviceHost": "http://0.0.0.0:31004",
+        "name": "pp-rpc-gm"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 31005,
+        "wsHost": "ws://0.0.0.0:31005",
+        "servicePort": 31006,
+        "serviceHost": "http://0.0.0.0:31006",
+        "name": "pp-rpc-gm-leader-proxy"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 31011,
+        "wsHost": "ws://0.0.0.0:31011",
+        "servicePort": 31012,
+        "serviceHost": "http://0.0.0.0:31012",
+        "other": {
+            "userPort": 31012,
+            "userHost": "https://api.wforge.net/pp-login"
+        },
+        "name": "pp-login"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 31021,
+        "wsHost": "ws://0.0.0.0:31021",
+        "servicePort": 31022,
+        "serviceHost": "http://0.0.0.0:31022",
+        "name": "pp-account"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 31023,
+        "wsHost": "ws://0.0.0.0:31023",
+        "servicePort": 31024,
+        "serviceHost": "http://0.0.0.0:31024",
+        "name": "pp-oss-control"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 31031,
+        "wsHost": "ws://0.0.0.0:31031",
+        "servicePort": 31032,
+        "serviceHost": "http://0.0.0.0:31032",
+        "name": "pp-group"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 31051,
+        "wsHost": "ws://0.0.0.0:31051",
+        "servicePort": 31052,
+        "serviceHost": "http://0.0.0.0:31052",
+        "name": "pp-user-looper"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 32111,
+        "wsHost": "ws://0.0.0.0:32111",
+        "servicePort": 32112,
+        "serviceHost": "http://0.0.0.0:32112",
+        "other": {
+            "userPort": 32112,
+            "userHost": "https://api.wforge.net/pp-service-1"
+        },
+        "name": "pp-user-service-1"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 32121,
+        "wsHost": "ws://0.0.0.0:32121",
+        "servicePort": 32122,
+        "serviceHost": "http://0.0.0.0:32122",
+        "other": {
+            "userPort": 32122,
+            "userHost": "https://api.wforge.net/pp-service-2"
+        },
+        "name": "pp-user-service-2"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 32131,
+        "wsHost": "ws://0.0.0.0:32131",
+        "servicePort": 32132,
+        "serviceHost": "http://0.0.0.0:32132",
+        "other": {
+            "userPort": 32132,
+            "userHost": "https://api.wforge.net/pp-service-3"
+        },
+        "name": "pp-user-service-3"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 32141,
+        "wsHost": "ws://0.0.0.0:32141",
+        "servicePort": 32142,
+        "serviceHost": "http://0.0.0.0:32142",
+        "other": {
+            "userPort": 32142,
+            "userHost": "https://api.wforge.net/pp-service-4"
+        },
+        "name": "pp-user-service-4"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 33011,
+        "wsHost": "ws://0.0.0.0:33011",
+        "servicePort": 33012,
+        "serviceHost": "http://0.0.0.0:33012",
+        "other": {},
+        "name": "pp-match-logic-1"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 35201,
+        "wsHost": "ws://0.0.0.0:35201",
+        "servicePort": 35202,
+        "serviceHost": "http://0.0.0.0:35202",
+        "name": "pp-srs-dispatcher"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 36011,
+        "wsHost": "ws://0.0.0.0:36011",
+        "servicePort": 36012,
+        "serviceHost": "http://0.0.0.0:36012",
+        "other": {
+            "httpHost": "http://127.0.0.1:36013",
+            "httpPort": 36013,
+            "nodeWSHost": "ws://127.0.0.1:36014",
+            "nodeWSPort": 36014
+        },
+        "name": "pp-srs-layer-1"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 36111,
+        "wsHost": "ws://0.0.0.0:36111",
+        "servicePort": 36112,
+        "serviceHost": "http://0.0.0.0:36112",
+        "other": {
+            "userWSHost": "wss://s1.wforge.net/pp-srs-user-1",
+            "userWSPort": 36113
+        },
+        "name": "pp-srs-node-user-1"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 36121,
+        "wsHost": "ws://0.0.0.0:36121",
+        "servicePort": 36122,
+        "serviceHost": "http://0.0.0.0:36122",
+        "other": {
+            "userWSHost": "wss://s1.wforge.net/pp-srs-user-2",
+            "userWSPort": 36123
+        },
+        "name": "pp-srs-node-user-2"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 36131,
+        "wsHost": "ws://0.0.0.0:36131",
+        "servicePort": 36132,
+        "serviceHost": "http://0.0.0.0:36132",
+        "other": {
+            "userWSHost": "wss://s1.wforge.net/pp-srs-user-3",
+            "userWSPort": 36133
+        },
+        "name": "pp-srs-node-user-3"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 36141,
+        "wsHost": "ws://0.0.0.0:36141",
+        "servicePort": 36142,
+        "serviceHost": "http://0.0.0.0:36142",
+        "other": {
+            "userWSHost": "wss://s1.wforge.net/pp-srs-user-4",
+            "userWSPort": 36143
+        },
+        "name": "pp-srs-node-user-4"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 38111,
+        "wsHost": "ws://0.0.0.0:38111",
+        "servicePort": 38112,
+        "serviceHost": "http://0.0.0.0:38112",
+        "other": {
+            "userServiceHost": "https://api.wforge.net/pp-chat-1",
+            "userServicePort": 38112,
+            "userWSHost": "wss://s1.wforge.net/pp-ws-chat-1",
+            "userWSPort": 38113,
+            "internalHost": "http://127.0.0.1:38114",
+            "internalPort": 38114
+        },
+        "name": "pp-chat-service-1"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 38121,
+        "wsHost": "ws://0.0.0.0:38121",
+        "servicePort": 38122,
+        "serviceHost": "http://0.0.0.0:38122",
+        "other": {
+            "userServiceHost": "https://api.wforge.net/pp-chat-2",
+            "userServicePort": 38122,
+            "userWSHost": "wss://s1.wforge.net/pp-ws-chat-2",
+            "userWSPort": 38123,
+            "internalHost": "http://127.0.0.1:38124",
+            "internalPort": 38124
+        },
+        "name": "pp-chat-service-2"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 37001,
+        "wsHost": "ws://0.0.0.0:37001",
+        "servicePort": 37002,
+        "serviceHost": "http://0.0.0.0:37002",
+        "name": "pp-room"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 37101,
+        "wsHost": "ws://0.0.0.0:37101",
+        "servicePort": 37102,
+        "serviceHost": "http://0.0.0.0:37102",
+        "name": "pp-mail"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 37201,
+        "wsHost": "ws://0.0.0.0:37201",
+        "servicePort": 37202,
+        "serviceHost": "http://0.0.0.0:37202",
+        "other": {
+            "callbackHost": "https://s1.wforge.net/pp-chain-callback",
+            "callbackPort": "37202"
+        },
+        "name": "pp-chain"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 30011,
+        "wsHost": "ws://0.0.0.0:30011",
+        "servicePort": 30012,
+        "serviceHost": "http://0.0.0.0:30012",
+        "other": {
+            "gameID": 101,
+            "modeType": 4,
+            "ip": "127.0.0.1",
+            "centerPort": 30013,
+            "robotPort": 30014,
+            "nodeName": "pp-srs-node-user-1"
+        },
+        "name": "pp-game-texas-1"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 30021,
+        "wsHost": "ws://0.0.0.0:30021",
+        "servicePort": 30022,
+        "serviceHost": "http://0.0.0.0:30022",
+        "other": {
+            "gameID": 101,
+            "modeType": 4,
+            "ip": "127.0.0.1",
+            "centerPort": 30023,
+            "robotPort": 30024,
+            "nodeName": "pp-srs-node-user-1"
+        },
+        "name": "pp-game-texas-2"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 31001,
+        "wsHost": "ws://0.0.0.0:31001",
+        "servicePort": 31002,
+        "serviceHost": "http://0.0.0.0:31002",
+        "other": {
+            "robotHost": "ws://127.0.0.1:31003",
+            "robotPort": "31003"
+        },
+        "name": "pp-robotenv-center"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 32011,
+        "wsHost": "ws://0.0.0.0:32011",
+        "servicePort": 32012,
+        "serviceHost": "http://0.0.0.0:32012",
+        "other": {
+            "robotHost": "ws://127.0.0.1:32013",
+            "robotPort": 32013
+        },
+        "name": "pp-robot-env-1"
+    },
+    {
+        "server": "server-1",
+        "wsPort": 32211,
+        "wsHost": "ws://0.0.0.0:32211",
+        "servicePort": 32212,
+        "serviceHost": "http://0.0.0.0:32212",
+        "other": {
+            "gsHost": "ws://127.0.0.1:32213",
+            "gsPort": 32213
+        },
+        "name": "pp-robot-logic-1"
+    }
+]

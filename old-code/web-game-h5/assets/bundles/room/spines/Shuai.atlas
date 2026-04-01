@@ -1,0 +1,160 @@
+
+Shuai.png
+size: 278,850
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+brush01
+  rotate: true
+  xy: 2, 818
+  size: 30, 194
+  orig: 37, 196
+  offset: 4, 2
+  index: -1
+fireworks01
+  rotate: false
+  xy: 216, 53
+  size: 30, 30
+  orig: 36, 36
+  offset: 3, 3
+  index: -1
+fireworks02
+  rotate: false
+  xy: 159, 652
+  size: 74, 74
+  orig: 80, 78
+  offset: 3, 2
+  index: -1
+fireworks03
+  rotate: false
+  xy: 142, 17
+  size: 72, 66
+  orig: 80, 78
+  offset: 4, 6
+  index: -1
+fx01
+  rotate: false
+  xy: 196, 759
+  size: 44, 44
+  orig: 138, 157
+  offset: 7, 101
+  index: -1
+fx010
+  rotate: true
+  xy: 2, 2
+  size: 123, 138
+  orig: 138, 157
+  offset: 8, 6
+  index: -1
+fx02
+  rotate: true
+  xy: 2, 127
+  size: 122, 144
+  orig: 138, 157
+  offset: 7, 7
+  index: -1
+fx03
+  rotate: true
+  xy: 2, 251
+  size: 123, 144
+  orig: 138, 157
+  offset: 7, 7
+  index: -1
+fx04
+  rotate: false
+  xy: 148, 363
+  size: 125, 141
+  orig: 138, 157
+  offset: 7, 10
+  index: -1
+fx05
+  rotate: false
+  xy: 148, 227
+  size: 125, 134
+  orig: 138, 157
+  offset: 7, 11
+  index: -1
+fx06
+  rotate: false
+  xy: 148, 85
+  size: 124, 140
+  orig: 138, 157
+  offset: 8, 10
+  index: -1
+fx07
+  rotate: false
+  xy: 152, 506
+  size: 124, 144
+  orig: 138, 157
+  offset: 8, 6
+  index: -1
+fx08
+  rotate: true
+  xy: 2, 502
+  size: 124, 144
+  orig: 138, 157
+  offset: 8, 6
+  index: -1
+fx09
+  rotate: true
+  xy: 2, 376
+  size: 124, 144
+  orig: 138, 157
+  offset: 8, 6
+  index: -1
+t01
+  rotate: false
+  xy: 248, 18
+  size: 27, 65
+  orig: 32, 70
+  offset: 2, 3
+  index: -1
+t02
+  rotate: true
+  xy: 2, 628
+  size: 50, 148
+  orig: 52, 149
+  offset: 0, 0
+  index: -1
+t03
+  rotate: false
+  xy: 235, 659
+  size: 29, 67
+  orig: 29, 70
+  offset: 0, 2
+  index: -1
+t04
+  rotate: true
+  xy: 159, 759
+  size: 57, 35
+  orig: 59, 39
+  offset: 0, 3
+  index: -1
+t041
+  rotate: true
+  xy: 198, 805
+  size: 43, 76
+  orig: 44, 78
+  offset: 0, 0
+  index: -1
+t05
+  rotate: false
+  xy: 242, 760
+  size: 29, 43
+  orig: 33, 45
+  offset: 2, 0
+  index: -1
+t06
+  rotate: true
+  xy: 159, 728
+  size: 29, 113
+  orig: 30, 114
+  offset: 0, 1
+  index: -1
+t07
+  rotate: true
+  xy: 2, 680
+  size: 136, 155
+  orig: 137, 156
+  offset: 1, 0
+  index: -1

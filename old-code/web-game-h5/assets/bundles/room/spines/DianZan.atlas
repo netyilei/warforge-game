@@ -1,0 +1,41 @@
+
+DianZan.png
+size: 340,244
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+great
+  rotate: false
+  xy: 252, 148
+  size: 86, 94
+  orig: 88, 96
+  offset: 1, 1
+  index: -1
+jiezhidown
+  rotate: true
+  xy: 283, 80
+  size: 29, 20
+  orig: 31, 22
+  offset: 1, 1
+  index: -1
+jiezhiup
+  rotate: true
+  xy: 252, 111
+  size: 35, 30
+  orig: 37, 32
+  offset: 1, 1
+  index: -1
+light
+  rotate: false
+  xy: 2, 2
+  size: 248, 240
+  orig: 256, 256
+  offset: 0, 8
+  index: -1
+saoguang
+  rotate: true
+  xy: 252, 85
+  size: 24, 29
+  orig: 30, 34
+  offset: 3, 2
+  index: -1

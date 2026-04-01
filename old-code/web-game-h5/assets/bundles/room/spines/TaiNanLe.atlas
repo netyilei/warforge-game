@@ -1,0 +1,90 @@
+
+TaiNanLe.png
+size: 444,142
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+eyes
+  rotate: true
+  xy: 402, 6
+  size: 23, 12
+  orig: 25, 14
+  offset: 1, 1
+  index: -1
+le1
+  rotate: false
+  xy: 402, 31
+  size: 30, 53
+  orig: 30, 53
+  offset: 0, 0
+  index: -1
+majiang
+  rotate: true
+  xy: 2, 10
+  size: 130, 150
+  orig: 132, 152
+  offset: 1, 1
+  index: -1
+mouth
+  rotate: true
+  xy: 402, 86
+  size: 54, 40
+  orig: 56, 42
+  offset: 1, 1
+  index: -1
+nan1
+  rotate: false
+  xy: 360, 8
+  size: 40, 64
+  orig: 40, 64
+  offset: 0, 0
+  index: -1
+nanN
+  rotate: false
+  xy: 224, 63
+  size: 68, 77
+  orig: 68, 77
+  offset: 0, 0
+  index: -1
+tai1
+  rotate: false
+  xy: 294, 69
+  size: 52, 71
+  orig: 52, 71
+  offset: 0, 0
+  index: -1
+tear1
+  rotate: true
+  xy: 154, 2
+  size: 56, 68
+  orig: 58, 70
+  offset: 1, 1
+  index: -1
+tear2
+  rotate: true
+  xy: 293, 7
+  size: 54, 65
+  orig: 56, 67
+  offset: 1, 1
+  index: -1
+tear3
+  rotate: true
+  xy: 224, 2
+  size: 59, 67
+  orig: 61, 69
+  offset: 1, 1
+  index: -1
+tear4
+  rotate: false
+  xy: 348, 74
+  size: 52, 66
+  orig: 54, 68
+  offset: 1, 1
+  index: -1
+wo1
+  rotate: false
+  xy: 154, 60
+  size: 68, 80
+  orig: 68, 80
+  offset: 0, 0
+  index: -1

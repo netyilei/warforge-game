@@ -1,0 +1,47 @@
+{
+  "name": "a-servers",
+  "version": "1.0.0",
+  "description": "kdengine support",
+  "main": "./build/a-servers/src/start.js",
+  "scripts": {
+    "start": "node ./build/a-servers/src/start.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "ASD",
+  "license": "ISC",
+  "dependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/crypto-js": "^4.1.1",
+    "@types/decimal.js": "^7.4.0",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^10.12.18",
+    "@types/nodemailer": "^7.0.11",
+    "@types/request": "^2.48.1",
+    "@types/underscore": "^1.11.4",
+    "aes-js": "^3.1.2",
+    "ali-oss": "^6.1.0",
+    "and": "^0.0.3",
+    "compression": "^1.7.4",
+    "cors": "^2.8.6",
+    "cos-nodejs-sdk-v5": "^2.11.12",
+    "crypto-js": "^4.1.1",
+    "decimal.js": "^10.4.3",
+    "ethers": "^6.13.5",
+    "gcp": "^0.0.0",
+    "kdweb-core": "git+http://.git",
+    "md5": "^2.2.1",
+    "mime": "^3.0.0",
+    "moment": "^2.24.0",
+    "multer": "^2.0.2",
+    "nodemailer": "^8.0.1",
+    "request": "^2.88.0",
+    "typescript": "^4.9.3",
+    "underscore": "^1.13.4",
+    "uuid": "3.3.2",
+    "web3": "^1.10.4"
+  }
+}

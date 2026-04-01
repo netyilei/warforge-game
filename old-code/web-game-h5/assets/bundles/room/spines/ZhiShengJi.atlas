@@ -1,0 +1,76 @@
+
+ZhiShengJi.png
+size: 386,884
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+1
+  rotate: false
+  xy: 370, 870
+  size: 12, 12
+  orig: 12, 12
+  offset: 0, 0
+  index: -1
+2
+  rotate: false
+  xy: 161, 121
+  size: 44, 37
+  orig: 44, 37
+  offset: 0, 0
+  index: -1
+3
+  rotate: true
+  xy: 2, 160
+  size: 237, 204
+  orig: 237, 204
+  offset: 0, 0
+  index: -1
+4
+  rotate: true
+  xy: 2, 399
+  size: 242, 211
+  orig: 242, 211
+  offset: 0, 0
+  index: -1
+Tex_1250
+  rotate: false
+  xy: 207, 24
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+bg
+  rotate: false
+  xy: 208, 154
+  size: 162, 160
+  orig: 166, 164
+  offset: 2, 2
+  index: -1
+boby
+  rotate: false
+  xy: 2, 2
+  size: 157, 156
+  orig: 157, 156
+  offset: 0, 0
+  index: -1
+yh/Tex_0004
+  rotate: false
+  xy: 2, 643
+  size: 239, 239
+  orig: 256, 256
+  offset: 12, 5
+  index: -1
+yun4
+  rotate: true
+  xy: 243, 607
+  size: 275, 125
+  orig: 275, 125
+  offset: 0, 0
+  index: -1
+yun5
+  rotate: true
+  xy: 215, 316
+  size: 289, 169
+  orig: 289, 169
+  offset: 0, 0
+  index: -1

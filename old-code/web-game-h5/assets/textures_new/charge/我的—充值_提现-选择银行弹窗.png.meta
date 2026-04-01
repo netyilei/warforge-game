@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "851d0553-ff02-4c1f-84f6-ccf373f99a64",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 750,
+  "height": 1624,
+  "platformSettings": {},
+  "subMetas": {
+    "我的—充值_提现-选择银行弹窗": {
+      "ver": "1.0.6",
+      "uuid": "d740085f-03f2-4aed-a907-57b5dd0e41d2",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "851d0553-ff02-4c1f-84f6-ccf373f99a64",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 750,
+      "height": 1624,
+      "rawWidth": 750,
+      "rawHeight": 1624,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

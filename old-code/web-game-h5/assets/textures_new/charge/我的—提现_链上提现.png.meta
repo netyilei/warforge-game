@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "f316b8d8-fc9c-45b0-99c0-a2361fd87cc6",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 750,
+  "height": 1624,
+  "platformSettings": {},
+  "subMetas": {
+    "我的—提现_链上提现": {
+      "ver": "1.0.6",
+      "uuid": "3e81216a-1dd0-4c9c-8a19-550cc7021e00",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "f316b8d8-fc9c-45b0-99c0-a2361fd87cc6",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 750,
+      "height": 1624,
+      "rawWidth": 750,
+      "rawHeight": 1624,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "engine": "cocos-creator-js",
+  "packages": "packages",
+  "name": "pp-game",
+  "id": "e982b3cc-c259-45c5-a03c-f1e48ee5d514",
+  "version": "2.4.14",
+  "isNew": false,
+  "description": "德州"
+}

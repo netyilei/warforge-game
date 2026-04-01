@@ -1,0 +1,33 @@
+{
+	// 编译器的配置
+	"compilerOptions": {
+		"esModuleInterop":true,
+	  // 指定生成哪个模块系统代码
+	  "module": "commonjs",
+	  // 目标代码类型
+	  "target": "es2021",
+	  // emitDecoratorMetadata 和 experimentalDecorators 是与装饰器相关的
+	  // 在编译的时候保留装饰器里面的原数据
+	  "emitDecoratorMetadata": true,
+	  "experimentalDecorators": true,
+	  // 在表达式和声明上有隐含的'any'类型时报错。
+	  "noImplicitAny": false,
+	  // 用于debug
+	  "sourceMap": false,
+	  // 仅用来控制输出的目录结构--outDir。
+	  "rootDirs": ["./src"],
+	  // 编译完后要放在哪个文件夹里面
+	  "outDir": "./build",
+	  // 开发的时候要使用 es6 的语法
+	  "lib": ["es2021"]
+	},
+	"include": [
+	  "./pp-*/**/*"
+, "src/*"	],
+	// 排除编译的时候哪些个文件要排除掉
+	"exclude": [
+	  "node_modules",
+	  "views",
+	  "static"
+	]
+  }

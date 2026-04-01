@@ -1,0 +1,41 @@
+
+HaiMa.png
+size: 151,114
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+body
+  rotate: true
+  xy: 2, 31
+  size: 81, 147
+  orig: 82, 147
+  offset: 0, 0
+  index: -1
+handleft
+  rotate: false
+  xy: 31, 3
+  size: 30, 26
+  orig: 30, 26
+  offset: 0, 0
+  index: -1
+handright
+  rotate: false
+  xy: 63, 8
+  size: 32, 21
+  orig: 32, 21
+  offset: 0, 0
+  index: -1
+qipao
+  rotate: false
+  xy: 2, 2
+  size: 27, 27
+  orig: 29, 29
+  offset: 1, 1
+  index: -1
+tail
+  rotate: true
+  xy: 97, 4
+  size: 25, 28
+  orig: 26, 28
+  offset: 0, 0
+  index: -1

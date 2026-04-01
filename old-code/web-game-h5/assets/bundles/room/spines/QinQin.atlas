@@ -1,0 +1,55 @@
+
+QinQin.png
+size: 130,99
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+closeeyes
+  rotate: true
+  xy: 119, 53
+  size: 16, 9
+  orig: 19, 11
+  offset: 2, 1
+  index: -1
+eyesbrowleft
+  rotate: true
+  xy: 96, 17
+  size: 26, 17
+  orig: 28, 19
+  offset: 1, 1
+  index: -1
+eyesbrowright
+  rotate: false
+  xy: 96, 2
+  size: 25, 13
+  orig: 27, 15
+  offset: 1, 1
+  index: -1
+face
+  rotate: false
+  xy: 2, 5
+  size: 92, 92
+  orig: 94, 94
+  offset: 1, 1
+  index: -1
+love
+  rotate: false
+  xy: 96, 71
+  size: 25, 26
+  orig: 27, 28
+  offset: 1, 1
+  index: -1
+mouth
+  rotate: false
+  xy: 96, 45
+  size: 21, 24
+  orig: 23, 26
+  offset: 1, 1
+  index: -1
+openeyes
+  rotate: false
+  xy: 115, 27
+  size: 11, 16
+  orig: 13, 18
+  offset: 1, 1
+  index: -1

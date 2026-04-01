@@ -1,0 +1,189 @@
+[
+  {
+    "__type__": "cc.Prefab",
+    "_name": "",
+    "_objFlags": 0,
+    "_native": "",
+    "data": {
+      "__id__": 1
+    },
+    "optimizationPolicy": 0,
+    "asyncLoadAssets": false,
+    "readonly": false
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "TexasAsset_Chat",
+    "_objFlags": 0,
+    "_parent": null,
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 2
+      }
+    ],
+    "_prefab": {
+      "__id__": 13
+    },
+    "_opacity": 255,
+    "_color": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 255
+    },
+    "_contentSize": {
+      "__type__": "cc.Size",
+      "width": 0,
+      "height": 0
+    },
+    "_anchorPoint": {
+      "__type__": "cc.Vec2",
+      "x": 0.5,
+      "y": 0.5
+    },
+    "_trs": {
+      "__type__": "TypedArray",
+      "ctor": "Float64Array",
+      "array": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "_eulerAngles": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_skewX": 0,
+    "_skewY": 0,
+    "_is3DNode": false,
+    "_groupIndex": 0,
+    "groupIndex": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "3a82a9JDedBQrhpu3KQu4CN",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "fastDefines": [
+      {
+        "__id__": 3
+      },
+      {
+        "__id__": 4
+      },
+      {
+        "__id__": 5
+      },
+      {
+        "__id__": 6
+      },
+      {
+        "__id__": 7
+      },
+      {
+        "__id__": 8
+      },
+      {
+        "__id__": 9
+      },
+      {
+        "__id__": 10
+      },
+      {
+        "__id__": 11
+      },
+      {
+        "__id__": 12
+      }
+    ],
+    "_id": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "祝你好运！",
+    "index": 0,
+    "audioName": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "打得漂亮！",
+    "index": 1,
+    "audioName": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "全押！",
+    "index": 2,
+    "audioName": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "哈哈，看穿你了！",
+    "index": 3,
+    "audioName": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "这局运气不错！",
+    "index": 4,
+    "audioName": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "再来一局！",
+    "index": -1,
+    "audioName": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "你在虚张声势！",
+    "index": -1,
+    "audioName": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "认输了，下次见！",
+    "index": -1,
+    "audioName": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "慢点，让我想想。",
+    "index": -1,
+    "audioName": ""
+  },
+  {
+    "__type__": "ccChatAssetsFastDefine",
+    "text": "这手牌太强了！",
+    "index": -1,
+    "audioName": ""
+  },
+  {
+    "__type__": "cc.PrefabInfo",
+    "root": {
+      "__id__": 1
+    },
+    "asset": {
+      "__id__": 0
+    },
+    "fileId": "",
+    "sync": false
+  }
+]

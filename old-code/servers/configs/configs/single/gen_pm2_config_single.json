@@ -1,0 +1,328 @@
+{
+	"single": {
+		"profiles": {
+			"server-1": {
+				"comment": "单机部署 - 所有服务",
+				"local-ip": "0.0.0.0",
+				"remote-ip": "s1.wforge.net"
+			}
+		},
+		"servers": [
+			{
+				"dir": "pp-rpc-center",
+				"processes": [
+					{
+						"name": "pp-rpc-center",
+						"config": "local-config.rpc.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": 30001,
+							"def-service": 30002
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-sys",
+				"processes": [
+					{
+						"name": "pp-sys",
+						"config": "local-config.sys.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": 30901,
+							"def-service": 30902
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-rpc-gm",
+				"processes": [
+					{
+						"name": "pp-rpc-gm",
+						"config": "local-config.gm.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": 31003,
+							"def-service": 31004
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-rpc-gm-leader-proxy",
+				"processes": [
+					{
+						"name": "pp-rpc-gm-leader-proxy",
+						"config": "local-config.gm-leader-proxy.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": 31005,
+							"def-service": 31006
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-login",
+				"config": "local-config.login.js",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 31011,
+					"def-service": 31012,
+					"other": {
+						"userPort": 31012,
+						"userHost": "https://api.wforge.net/pp-login"
+					}
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-account",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 31021,
+					"def-service": 31022
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-oss-control",
+				"config": "local-config.oss.js",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 31023,
+					"def-service": 31024
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-group",
+				"config": "local-config.group.js",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 31031,
+					"def-service": 31032
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-user-looper",
+				"config": "local-config.user-looper.js",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 31051,
+					"def-service": 31052
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-user-service",
+				"processes": [
+					{
+						"name": "pp-user-service-{0}",
+						"config": "local-config.user-service-{0}.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": "321{0}1",
+							"def-service": "321{0}2",
+							"other": {
+								"userPort": "321{0}2",
+								"userHost": "https://api.wforge.net/pp-service-{0}"
+							}
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-match-logic",
+				"processes": [
+					{
+						"name": "pp-match-logic-{0}",
+						"config": "local-config.match-logic-{0}.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": "33{0}1",
+							"def-service": "33{0}2",
+							"other": {}
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-srs-dispatcher",
+				"config": "local-config.srs-dispatcher.js",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 35201,
+					"def-service": 35202
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-srs-layer",
+				"processes": [
+					{
+						"name": "pp-srs-layer-{0}",
+						"config": "local-config.layer-{0}.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": "360{0}1",
+							"def-service": "360{0}2",
+							"other": {
+								"httpHost": "http://127.0.0.1:360{0}3",
+								"httpPort": "360{0}3",
+								"nodeWSHost": "ws://127.0.0.1:360{0}4",
+								"nodeWSPort": "360{0}4"
+							}
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-srs-node",
+				"processes": [
+					{
+						"name": "pp-srs-node-user-{0}",
+						"config": "local-config.srs-user-{0}.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": "361{0}1",
+							"def-service": "361{0}2",
+							"other": {
+								"userWSHost": "wss://$remote-ip/pp-srs-user-{0}",
+								"userWSPort": "361{0}3"
+							}
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-chat-service",
+				"processes": [
+					{
+						"name": "pp-chat-service-{0}",
+						"config": "local-config.chat-{0}.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": "381{0}1",
+							"def-service": "381{0}2",
+							"other": {
+								"userServiceHost": "https://api.wforge.net/pp-chat-{0}",
+								"userServicePort": "381{0}2",
+								"userWSHost": "wss://$remote-ip/pp-ws-chat-{0}",
+								"userWSPort": "381{0}3",
+								"internalHost": "http://127.0.0.1:381{0}4",
+								"internalPort": "381{0}4"
+							}
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-room",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 37001,
+					"def-service": 37002
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-mail",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 37101,
+					"def-service": 37102
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-chain",
+				"config": "local-config.chain.js",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 37201,
+					"def-service": 37202,
+					"other": {
+						"callbackHost": "https://$remote-ip/pp-chain-callback",
+						"callbackPort": "37202"
+					}
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-game-texas",
+				"process_count": 2,
+				"processes": [
+					{
+						"name": "pp-game-texas-{0}",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": "300{0}1",
+							"def-service": "300{0}2",
+							"other": {
+								"gameID": 101,
+								"modeType": 4,
+								"ip": "127.0.0.1",
+								"centerPort": "300{0}3",
+								"robotPort": "300{0}4",
+								"nodeName": "pp-srs-node-user-1"
+							}
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-robotenv-center",
+				"ts-config": {
+					"server": "server-1",
+					"wdef-ws": 31001,
+					"def-service": 31002,
+					"other": {
+						"robotHost": "ws://127.0.0.1:31003",
+						"robotPort": "31003"
+					}
+				},
+				"processes": []
+			},
+			{
+				"dir": "pp-robot-env",
+				"process_count": 1,
+				"processes": [
+					{
+						"name": "pp-robot-env-{0}",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": "320{0}1",
+							"def-service": "320{0}2",
+							"other": {
+								"robotHost": "ws://127.0.0.1:320{0}3",
+								"robotPort": "320{0}3"
+							}
+						}
+					}
+				]
+			},
+			{
+				"dir": "pp-robot-logic",
+				"processes": [
+					{
+						"name": "pp-robot-logic-{0}",
+						"config": "local-config.robot-logic-{0}.js",
+						"ts-config": {
+							"server": "server-1",
+							"wdef-ws": "322{0}1",
+							"def-service": "322{0}2",
+							"other": {
+								"gsHost": "ws://127.0.0.1:322{0}3",
+								"gsPort": "322{0}3"
+							}
+						}
+					}
+				]
+			}
+		]
+	}
+}

@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "7afa36b7-3cd0-4799-875e-81d9049020fd",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 750,
+  "height": 1624,
+  "platformSettings": {},
+  "subMetas": {
+    "德州扑克11": {
+      "ver": "1.0.6",
+      "uuid": "5a8c03c5-7235-4fd9-a1dd-bfa09cca330b",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "7afa36b7-3cd0-4799-875e-81d9049020fd",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 750,
+      "height": 1624,
+      "rawWidth": 750,
+      "rawHeight": 1624,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

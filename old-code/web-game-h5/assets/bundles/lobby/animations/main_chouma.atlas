@@ -1,0 +1,20 @@
+
+main_chouma.png
+size: 225,134
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+main_sr_chouma
+  rotate: false
+  xy: 2, 2
+  size: 133, 130
+  orig: 136, 134
+  offset: 2, 2
+  index: -1
+ziqiu
+  rotate: false
+  xy: 137, 46
+  size: 86, 86
+  orig: 87, 86
+  offset: 1, 0
+  index: -1

@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:4.2.24
+    container_name: mongodb
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "10.0.0.10:27017:27017"
+      - "127.0.0.1:27018:27017"
+    volumes:
+      - /data/mongo:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: "ygb2$6Q@cmSKNfE2"
+
+  redis:
+    image: redis:6.2.10
+    container_name: redis
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "10.0.0.10:6379:6379"
+      - "127.0.0.1:6380:6379"
+    volumes:
+      - /data/redis:/data
+    command: redis-server --requirepass 'Ut3rcplFX*wLBSxy'
+
+  cpp-server:
+    image: node:16.14.2
+    container_name: cpp-server
+    restart: always
+    networks:
+      - app-network
+    volumes:
+      - /data/cpp-servers:/app
+      - /data/ppupload:/data/ppupload
+    working_dir: /app
+    command: tail -f /dev/null
+    depends_on:
+      - mongodb
+      - redis
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    networks:
+      - app-network
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /data/nginx/conf.d:/etc/nginx/conf.d
+      - /data/nginx/ssl:/etc/nginx/ssl
+      - /data/nginx/logs:/var/log/nginx
+      - /data/ppupload:/data/ppupload
+    depends_on:
+      - cpp-server
+
+networks:
+  app-network:
+    external: true

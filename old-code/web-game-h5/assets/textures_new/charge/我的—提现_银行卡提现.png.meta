@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "42c895a5-e13e-4fe0-a95a-7698ee91fbb2",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 749,
+  "height": 1624,
+  "platformSettings": {},
+  "subMetas": {
+    "我的—提现_银行卡提现": {
+      "ver": "1.0.6",
+      "uuid": "ae636875-73d1-40ef-8872-73de37f09ab7",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "42c895a5-e13e-4fe0-a95a-7698ee91fbb2",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 749,
+      "height": 1624,
+      "rawWidth": 749,
+      "rawHeight": 1624,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

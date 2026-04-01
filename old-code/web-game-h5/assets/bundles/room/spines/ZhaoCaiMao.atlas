@@ -1,0 +1,111 @@
+
+ZhaoCaiMao.png
+size: 1298,1064
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+jinbi1
+  rotate: true
+  xy: 880, 89
+  size: 96, 244
+  orig: 100, 248
+  offset: 1, 4
+  index: -1
+jinbi2
+  rotate: false
+  xy: 1187, 674
+  size: 82, 97
+  orig: 82, 101
+  offset: 0, 4
+  index: -1
+jinbi5
+  rotate: true
+  xy: 1126, 89
+  size: 96, 98
+  orig: 96, 100
+  offset: 0, 2
+  index: -1
+jinbi6
+  rotate: false
+  xy: 880, 195
+  size: 32, 97
+  orig: 32, 97
+  offset: 0, 0
+  index: -1
+jinbi7
+  rotate: true
+  xy: 679, 21
+  size: 47, 97
+  orig: 47, 97
+  offset: 0, 0
+  index: -1
+jinbidui
+  rotate: false
+  xy: 2, 2
+  size: 448, 164
+  orig: 448, 164
+  offset: 0, 0
+  index: -1
+maoshenli
+  rotate: false
+  xy: 444, 294
+  size: 487, 312
+  orig: 510, 316
+  offset: 17, 3
+  index: -1
+maoshenwai
+  rotate: false
+  xy: 2, 622
+  size: 506, 440
+  orig: 516, 440
+  offset: 0, 0
+  index: -1
+maoshenzhong
+  rotate: false
+  xy: 510, 731
+  size: 511, 331
+  orig: 530, 347
+  offset: 6, 16
+  index: -1
+maotou
+  rotate: true
+  xy: 933, 187
+  size: 419, 363
+  orig: 432, 363
+  offset: 13, 0
+  index: -1
+shanzi
+  rotate: false
+  xy: 2, 168
+  size: 440, 452
+  orig: 446, 466
+  offset: 5, 2
+  index: -1
+shanzi1
+  rotate: false
+  xy: 1023, 773
+  size: 270, 289
+  orig: 287, 299
+  offset: 9, 2
+  index: -1
+youshou
+  rotate: false
+  xy: 452, 9
+  size: 225, 283
+  orig: 229, 285
+  offset: 3, 1
+  index: -1
+zuodian
+  rotate: false
+  xy: 510, 608
+  size: 675, 121
+  orig: 686, 123
+  offset: 1, 1
+  index: -1
+zuoshou
+  rotate: false
+  xy: 679, 70
+  size: 199, 222
+  orig: 201, 224
+  offset: 1, 1
+  index: -1

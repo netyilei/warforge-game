@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "54fcf53c-76b9-477f-b373-e49344a963a9",
+  "importer": "texture",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 750,
+  "height": 1624,
+  "platformSettings": {},
+  "subMetas": {
+    "我的— 对局记录-对局明细弹窗": {
+      "ver": "1.0.6",
+      "uuid": "8e042add-7e65-42b3-8929-181a5cb2b8ce",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "54fcf53c-76b9-477f-b373-e49344a963a9",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 750,
+      "height": 1624,
+      "rawWidth": 750,
+      "rawHeight": 1624,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

@@ -1,0 +1,27 @@
+
+RengFanQie.png
+size: 252,87
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Tomatoes1
+  rotate: true
+  xy: 186, 20
+  size: 65, 64
+  orig: 67, 66
+  offset: 1, 1
+  index: -1
+Tomatoes2
+  rotate: true
+  xy: 113, 13
+  size: 72, 71
+  orig: 74, 73
+  offset: 1, 1
+  index: -1
+Tomatoes3
+  rotate: true
+  xy: 2, 2
+  size: 83, 109
+  orig: 85, 111
+  offset: 1, 1
+  index: -1

@@ -1,0 +1,55 @@
+
+GanBei.png
+size: 198,94
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+beer
+  rotate: true
+  xy: 2, 9
+  size: 83, 77
+  orig: 85, 79
+  offset: 1, 1
+  index: -1
+bubbles
+  rotate: false
+  xy: 133, 31
+  size: 63, 61
+  orig: 65, 63
+  offset: 1, 1
+  index: -1
+bubbles2
+  rotate: false
+  xy: 173, 13
+  size: 16, 16
+  orig: 18, 18
+  offset: 1, 1
+  index: -1
+bubbles3
+  rotate: false
+  xy: 81, 3
+  size: 13, 11
+  orig: 15, 13
+  offset: 1, 1
+  index: -1
+bubbles4
+  rotate: false
+  xy: 96, 4
+  size: 10, 10
+  orig: 14, 14
+  offset: 2, 2
+  index: -1
+bubblesqipao
+  rotate: true
+  xy: 81, 16
+  size: 76, 50
+  orig: 79, 52
+  offset: 1, 1
+  index: -1
+shanguang
+  rotate: true
+  xy: 133, 2
+  size: 27, 38
+  orig: 27, 39
+  offset: 0, 1
+  index: -1

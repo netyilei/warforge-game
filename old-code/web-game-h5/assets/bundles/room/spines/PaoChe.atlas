@@ -1,0 +1,104 @@
+
+PaoChe.png
+size: 549,189
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+chedeng
+  rotate: false
+  xy: 376, 62
+  size: 128, 125
+  orig: 157, 154
+  offset: 13, 16
+  index: -1
+chegai1
+  rotate: true
+  xy: 230, 3
+  size: 32, 45
+  orig: 34, 47
+  offset: 1, 1
+  index: -1
+chemen1
+  rotate: false
+  xy: 185, 46
+  size: 189, 141
+  orig: 197, 149
+  offset: 2, 7
+  index: -1
+fangxiangbiao
+  rotate: true
+  xy: 277, 3
+  size: 32, 45
+  orig: 32, 45
+  offset: 0, 0
+  index: -1
+fangxiangbiao momu
+  rotate: false
+  xy: 437, 17
+  size: 49, 43
+  orig: 52, 45
+  offset: 2, 1
+  index: -1
+guangmang
+  rotate: false
+  xy: 2, 6
+  size: 181, 181
+  orig: 184, 184
+  offset: 2, 1
+  index: -1
+lizi
+  rotate: true
+  xy: 506, 147
+  size: 40, 41
+  orig: 46, 47
+  offset: 3, 3
+  index: -1
+lungu
+  rotate: false
+  xy: 506, 67
+  size: 36, 36
+  orig: 38, 40
+  offset: 1, 2
+  index: -1
+saoguang
+  rotate: true
+  xy: 488, 29
+  size: 31, 24
+  orig: 31, 24
+  offset: 0, 0
+  index: -1
+star
+  rotate: false
+  xy: 506, 105
+  size: 39, 40
+  orig: 41, 42
+  offset: 1, 1
+  index: -1
+starlight
+  rotate: true
+  xy: 376, 2
+  size: 58, 59
+  orig: 62, 64
+  offset: 2, 3
+  index: -1
+suduxian
+  rotate: false
+  xy: 230, 37
+  size: 110, 7
+  orig: 110, 7
+  offset: 0, 0
+  index: -1
+yanwu
+  rotate: false
+  xy: 342, 12
+  size: 32, 32
+  orig: 35, 36
+  offset: 1, 2
+  index: -1
+yuanquan
+  rotate: true
+  xy: 185, 2
+  size: 42, 43
+  orig: 44, 45
+  offset: 1, 1
+  index: -1
