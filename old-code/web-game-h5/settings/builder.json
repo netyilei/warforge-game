@@ -2,12 +2,7 @@
   "title": "Warforge",
   "packageName": "org.cocos2d.demo",
   "startScene": "805db80b-c28a-4739-adfb-b07a345c3f4c",
-  "excludeScenes": [
-    "f2cbf1a2-20c4-417d-865a-1c3422417e5d",
-    "351077ca-4001-4aa2-9d9b-5233c10c678b",
-    "424d32f6-7144-48b4-ae1c-c476af7ce5e1",
-    "6e9d0c46-eaba-436a-93fb-db0e7fbdfd80"
-  ],
+  "excludeScenes": [],
   "orientation": {
     "landscapeRight": false,
     "landscapeLeft": false,
@@ -61,5 +56,10 @@
     "packageName": "com.cocos.openharmony",
     "REMOTE_SERVER_ROOT": "",
     "jsEngine": "JSVM"
+  },
+  "openharmony": {
+    "packageName": "com.cocos.openharmony",
+    "REMOTE_SERVER_ROOT": "",
+    "jsEngine": "V8"
   }
 }

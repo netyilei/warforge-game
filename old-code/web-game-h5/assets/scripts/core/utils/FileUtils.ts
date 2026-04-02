@@ -596,7 +596,12 @@ export namespace FileUtils {
 				fileInput.style.display = "block";
 				fileInput.style.overflow = "hidden";
 				document.body.insertBefore(fileInput,document.body.firstChild);
+				
+				let resolved = false;
+				
 				fileInput.addEventListener('change', function(evt:Event) {
+					if(resolved) return;
+					resolved = true;
 					let target = evt.target as HTMLInputElement;
 					if(target.files.length == 0) {
 						resolve(null)
@@ -606,6 +611,19 @@ export namespace FileUtils {
 					var file = target.files[0];
 					resolve(file)
 				}, false);
+				
+				let focusHandler = function() {
+					if(resolved) return;
+					setTimeout(function() {
+						if(resolved) return;
+						if(fileInput.files.length == 0) {
+							resolved = true;
+							window.removeEventListener('focus', focusHandler);
+							resolve(null);
+						}
+					}, 300);
+				};
+				window.addEventListener('focus', focusHandler);
 			}
 			if(fileInput) {
 				setTimeout(function(){fileInput.click()},100);

@@ -39,10 +39,12 @@ nakama-data/
 # Old code (keep for reference, but ignore build artifacts)
 old-code/servers/build/
 old-code/**/node_modules/
-
+old-code/update/
+old-code/down/
 # Test
 coverage/
 .nyc_output/
+
 
 # Misc
 *.bak

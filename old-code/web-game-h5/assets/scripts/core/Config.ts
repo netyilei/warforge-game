@@ -7,11 +7,11 @@ export enum ProfileMode {
 	Live,
 }
 
-let loginUrls = new Map<ProfileMode,string>()
-loginUrls.set(ProfileMode.Dev,		"http://localhost:11111")
-loginUrls.set(ProfileMode.Test,		"http://localhost:11111")
-loginUrls.set(ProfileMode.Company,	"http://localhost:11111")
-loginUrls.set(ProfileMode.Live,		"http://localhost:11111")
+let loginUrls = new Map<ProfileMode, string>()
+loginUrls.set(ProfileMode.Dev, "http://localhost:11111")
+loginUrls.set(ProfileMode.Test, "http://localhost:11111")
+loginUrls.set(ProfileMode.Company, "http://localhost:11111")
+loginUrls.set(ProfileMode.Live, "https://api.wforge.net")
 
 export namespace Config {
 	// -----
@@ -23,7 +23,7 @@ export namespace Config {
 
 	export let areaID = "1"
 
-	export let apiID = "aaa_" 
+	export let apiID = "aaa_"
 
 	export let deviceType = 0
 
@@ -43,60 +43,60 @@ export namespace Config {
 		return mode == ProfileMode.Live
 	}
 
-	export let versionStr:string = "1.0.0"
-	
-	export let company:boolean = false 
+	export let versionStr: string = "1.0.18"
 
-	export let gonggaoSeqConfigUrl:string = ""
+	export let company: boolean = false
 
-	export let gonggaoContentConfigUrl:string = ""
+	export let gonggaoSeqConfigUrl: string = ""
 
-	export let activeSeqConfigUrl:string = ""
+	export let gonggaoContentConfigUrl: string = ""
 
-	export let activeContentConfigUrl:string = ""
-	
-	export let wssCertNativeUrl:string = null
+	export let activeSeqConfigUrl: string = ""
+
+	export let activeContentConfigUrl: string = ""
+
+	export let wssCertNativeUrl: string = null
 	// render config
-	export let defaultIconSpriteFrame:cc.SpriteFrame = null
+	export let defaultIconSpriteFrame: cc.SpriteFrame = null
 
 	export let clipboardLeaderTagPrefix = "kctag://"
 
-	export function setupProfileMode(inputLoginUrls:Map<ProfileMode,string>,mode:ProfileMode) {
+	export function setupProfileMode(inputLoginUrls: Map<ProfileMode, string>, mode: ProfileMode) {
 		loginUrls = inputLoginUrls
-		inputLoginUrls.forEach(function(value,key) {
+		inputLoginUrls.forEach(function (value, key) {
 			kcore.log.info("[config] setup profile mode = " + ProfileMode[key] + " url = " + value)
 		})
 		loginUrl = loginUrls.get(mode)
 		kcore.log.info("[config] use login url mode = " + ProfileMode[mode] + " url = " + loginUrl)
-		Config.mode = mode 
+		Config.mode = mode
 
 		kcore.httpAK.loginUrl = loginUrl
 	}
-	export let shareUrl:string =""
+	export let shareUrl: string = ""
 
-	export function setShareUrl(url:string){
+	export function setShareUrl(url: string) {
 		shareUrl = url
 	}
 
-	export function changeProfileMode(mode:ProfileMode) {
+	export function changeProfileMode(mode: ProfileMode) {
 		loginUrl = loginUrls.get(mode)
 
-		Config.mode = mode 
+		Config.mode = mode
 
 		kcore.httpAK.loginUrl = loginUrl
 	}
 
-	
-	export function changeLoginProfile(mode:ProfileMode) {
+
+	export function changeLoginProfile(mode: ProfileMode) {
 		loginUrl = loginUrls.get(mode)
 
 		kcore.httpAK.loginUrl = loginUrl
 	}
 
-	export function changeLoginUrl(url:string) {
-		loginUrls.set(mode,loginUrl)
+	export function changeLoginUrl(url: string) {
+		loginUrls.set(mode, loginUrl)
 		loginUrl = loginUrls.get(mode)
-		
+
 		kcore.httpAK.loginUrl = loginUrl
 	}
 }
@@ -109,13 +109,13 @@ export namespace Config {
 // 	switch(cc.sys.platform) {
 // 		case cc.sys.ANDROID: {
 // 			Config.deviceType = UserDefine.LoginDeviceType.Android
-// 		} break 
+// 		} break
 // 		case cc.sys.IPAD:
 // 		case cc.sys.IPHONE: {
 // 			Config.deviceType = UserDefine.LoginDeviceType.iOS
-// 		} break 
+// 		} break
 // 		default: {
 // 			Config.deviceType = UserDefine.LoginDeviceType.Win32
-// 		} break 
+// 		} break
 // 	}
 // }

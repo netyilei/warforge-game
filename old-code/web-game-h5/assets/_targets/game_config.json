@@ -1,20 +1,20 @@
 {
-	"package_name_android" : "com.pp.pp",
-	"package_name_ios" : "com.pp.pp.enter",
-	"display_name" : "pp",
-	"amap_key" : "",
-	"amap_key_ios" : "",
-	"wx_appid" : "",
-	"android_keystore_filename":"../../../../../../key.keystore",
-	"android_keystore_pwd":"",
-	"android_keystore_alias":"",
-	"android_keystore_aliaspwd":"",
-	"cdn_path" : "http://43.254.167.52:10001/hotupdate",
-	"prev_link": "http://43.254.167.52:10001/hotupdate/lead.json",
-	"cdn_mid_path" : "pp",
-	"android_app_url":"http://43.254.167.52:10001/game-download/app.apk",
-	"ios_app_url":"http://43.254.167.52:10001/game-download/app.apk",
-	"bundles" : [
+	"package_name_android": "com.pp.pp",
+	"package_name_ios": "com.pp.pp.enter",
+	"display_name": "pp",
+	"amap_key": "",
+	"amap_key_ios": "",
+	"wx_appid": "",
+	"android_keystore_filename": "../../../../../../key.keystore",
+	"android_keystore_pwd": "",
+	"android_keystore_alias": "",
+	"android_keystore_aliaspwd": "",
+	"cdn_path": "https://cdn.wforge.net/cpp-update",
+	"prev_link": "https://cdn.wforge.net/cpp-update/lead.json",
+	"cdn_mid_path": "pp",
+	"android_app_url": "https://cdn.wforge.net/cpp-update/app/android.apk",
+	"ios_app_url": "https://cdn.wforge.net/cpp-update/app/ios.ipa",
+	"bundles": [
 		"lobby",
 		"lobby_new",
 		"login",
@@ -26,5 +26,5 @@
 		"game_texas",
 		"poker_common",
 		"match"
-	] 
+	]
 }
