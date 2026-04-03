@@ -6,6 +6,100 @@
 
 ## Session Log
 
+### Session 3: 2026-04-03
+
+**Completed:**
+
+- [x] 创建 docs/server/ 目录结构
+  - [x] 00_OVERVIEW.md - 服务端概述
+  - [x] 01_ADMIN_MODULE.md - 管理后台模块
+  - [x] 02_BOT_MODULE.md - 机器人模块
+  - [x] 03_MATCH_MODULE.md - 匹配模块
+  - [x] 04_ARCHITECTURE.md - 架构设计
+  - [x] 05_DATABASE_DESIGN.md - 数据库设计
+  - [x] 06_TEST_ENVIRONMENT.md - 测试环境配置
+  - [x] 07_PROTOCOL_MAPPING.md - 协议映射
+- [x] 创建 docs/admin-web/ 目录结构
+  - [x] 00_OVERVIEW.md - 管理后台概述
+  - [x] 01_AUTH_MODULE.md - 认证模块
+  - [x] 02_API_LAYER.md - API 层设计
+  - [x] 03_RBAC_SYSTEM.md - RBAC 权限系统
+  - [x] 04_TECH_STACK.md - 技术选型详情
+- [x] 创建 docs/old_client/ 目录结构
+  - [x] 00_OVERVIEW.md - 老客户端概述
+  - [x] 01_OLD_CODE_INDEX.md - 老代码索引
+  - [x] api/ - HTTP API 协议分析（从 docs/api/ 移动）
+  - [x] ws/ - WebSocket 协议分析（从 docs/ws/ 移动）
+- [x] 删除已整合的旧文档
+  - [x] docs/01_TECH_STACK.md
+  - [x] docs/02_ARCHITECTURE.md
+  - [x] docs/03_DATA_MIGRATION.md
+  - [x] docs/04_API_PROTOCOL.md
+  - [x] docs/05_WS_PROTOCOL.md
+  - [x] docs/06_PROTOCOL_MAPPING.md
+  - [x] docs/08_DATABASE_DESIGN.md
+  - [x] docs/10_TEST_ENVIRONMENT.md
+  - [x] docs/OLD_CODE_INDEX.md
+- [x] 更新 README.md 文档索引
+- [x] 更新 docs/00_OVERVIEW.md
+- [x] 更新 task_plan.md
+- [x] 更新 findings.md
+
+**Files Created:**
+
+```
+docs/
+├── server/
+│   ├── 00_OVERVIEW.md
+│   ├── 01_ADMIN_MODULE.md
+│   ├── 02_BOT_MODULE.md
+│   ├── 03_MATCH_MODULE.md
+│   ├── 04_ARCHITECTURE.md
+│   ├── 05_DATABASE_DESIGN.md
+│   ├── 06_TEST_ENVIRONMENT.md
+│   └── 07_PROTOCOL_MAPPING.md
+├── admin-web/
+│   ├── 00_OVERVIEW.md
+│   ├── 01_AUTH_MODULE.md
+│   ├── 02_API_LAYER.md
+│   ├── 03_RBAC_SYSTEM.md
+│   └── 04_TECH_STACK.md
+└── old_client/
+    ├── 00_OVERVIEW.md
+    ├── 01_OLD_CODE_INDEX.md
+    ├── api/  (moved from docs/api/)
+    └── ws/   (moved from docs/ws/)
+```
+
+**Files Deleted:**
+
+```
+docs/
+├── 01_TECH_STACK.md
+├── 02_ARCHITECTURE.md
+├── 03_DATA_MIGRATION.md
+├── 04_API_PROTOCOL.md
+├── 05_WS_PROTOCOL.md
+├── 06_PROTOCOL_MAPPING.md
+├── 08_DATABASE_DESIGN.md
+├── 10_TEST_ENVIRONMENT.md
+└── OLD_CODE_INDEX.md
+```
+
+**Key Decisions:**
+
+1. 文档按子项目组织：server、admin-web、old_client
+2. 每个子项目目录有独立的 00_OVERVIEW.md 作为入口
+3. 文档命名格式：`NN_模块名称.md`（NN 为序号）
+4. 删除已整合内容的旧文档，避免重复
+
+**Next Session:**
+
+- 继续完善 Admin API 接口开发
+- 实现用户管理接口
+
+---
+
 ### Session 2: 2026-04-02
 
 **Completed:**

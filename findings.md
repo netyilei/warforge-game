@@ -147,8 +147,8 @@ type MatchHandler interface {
 
 ### 我们只需要做：
 
-1. **读懂老代码协议** - 参考 `docs/OLD_CODE_INDEX.md`
-2. **设计翻译层映射** - 参考 `docs/06_PROTOCOL_MAPPING.md`
+1. **读懂老代码协议** - 参考 `docs/old_client/01_OLD_CODE_INDEX.md`
+2. **设计翻译层映射** - 参考 `docs/server/07_PROTOCOL_MAPPING.md`
 3. **实现游戏逻辑** - 德州扑克 Match Handler
 
 ### 游戏逻辑迁移风险实际可控

@@ -32,7 +32,7 @@
 **Tasks:**
 
 - [ ] 创建项目目录结构
-- [ ] 配置 docker-compose.yml (Nakama + PostgreSQL + Redis)
+- [ ] 配置 docker-compose.yml (Nakama + CockroachDB + Redis)
 - [ ] 初始化 Go Module
 - [ ] 编写 main.go 入口文件
 - [ ] 验证 Nakama 控制台可访问
@@ -383,6 +383,54 @@ Phase 10 (客户端重构)
 
 ## Current Focus
 
-**Phase:** 1
-**Task:** 创建项目目录结构
-**Next Action:** 创建 game-server/ 目录和子目录
+**Phase:** 3
+**Task:** Admin API 接口开发
+**Next Action:** 完善管理后台 API 接口
+
+---
+
+## Completed Tasks
+
+### 文档整理 (2026-04-03)
+
+- [x] 创建 docs/server/ 目录结构
+- [x] 创建 docs/admin-web/ 目录结构
+- [x] 创建 docs/old_client/ 目录结构
+- [x] 整合服务端文档到 docs/server/
+- [x] 整合管理后台文档到 docs/admin-web/
+- [x] 整合老客户端文档到 docs/old_client/
+- [x] 删除已整合的旧文档
+- [x] 更新 README.md 文档索引
+- [x] 更新 docs/00_OVERVIEW.md
+
+### Phase 1: 基础设施搭建
+
+- [x] 创建项目目录结构
+- [x] 配置 docker-compose.yml (Nakama + CockroachDB + Redis)
+- [x] 初始化 Go Module
+- [x] 编写 main.go 入口文件
+- [x] 验证 Nakama 控制台可访问
+
+### Phase 2: Admin 管理后台 Web
+
+- [x] 创建 admin-web 项目 (Vue3 + TypeScript + NaiveUI)
+- [x] 登录页面
+- [x] 布局框架 (侧边栏 + 头部 + 内容区)
+- [x] RBAC 权限系统
+- [x] 动态路由
+
+### Phase 3: Admin API 接口 (进行中)
+
+- [x] 管理员认证模块
+  - [x] 管理员登录/登出
+  - [x] JWT Token 验证
+  - [x] 权限中间件
+- [x] RBAC 权限管理
+  - [x] 角色管理
+  - [x] 权限管理
+  - [x] 动态路由生成
+- [ ] 用户管理接口
+  - [ ] 用户列表/搜索
+  - [ ] 用户详情
+  - [ ] 用户禁用/启用
+  - [ ] 用户资产查询

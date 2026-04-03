@@ -3,6 +3,7 @@
 ## 项目背景
 
 现有棋牌游戏系统存在以下问题：
+
 - 服务端使用 TypeScript/Node.js 微服务架构，拆分过细（20+ 服务）
 - 客户端使用 Cocos Creator，代码质量差，维护困难
 - 部署复杂，维护成本高
@@ -10,17 +11,20 @@
 ## 重构目标
 
 ### 阶段一：服务端重构（Nakama + 翻译层）
+
 - 使用 **Nakama 游戏服务器框架**
 - 通过 **协议翻译层** 兼容老客户端
 - 保持老客户端无需修改即可连接新服务器
 - 利用 Nakama 内置能力减少开发量
 
 ### 阶段二：数据迁移
+
 - 迁移用户基本信息和金币数据
 - 老系统保留为只读模式（对账用）
 - 新系统正常游戏
 
 ### 阶段三：客户端重构
+
 - 使用 Vue 3 + PixiJS 重写客户端
 - 使用 Nakama 原生协议
 - 更美观的界面，更好的性能
@@ -37,7 +41,7 @@
 
 ```
 1. 基础设施搭建
-   └── Nakama + PostgreSQL + Redis
+   └── Nakama + CockroachDB + Redis
 
 2. 管理后台开发
    └── Admin Web + Admin API
@@ -83,15 +87,19 @@
 
 ## 文档目录
 
+### 核心文档
+
 | 文档 | 说明 |
 |------|------|
 | [RED_LINES.md](./RED_LINES.md) | **项目红线文档** |
-| [OLD_CODE_INDEX.md](./OLD_CODE_INDEX.md) | 旧代码索引（AI 参考） |
-| [01_TECH_STACK.md](./01_TECH_STACK.md) | 技术选型 |
-| [02_ARCHITECTURE.md](./02_ARCHITECTURE.md) | 架构设计 |
-| [03_DATA_MIGRATION.md](./03_DATA_MIGRATION.md) | 数据迁移方案 |
-| [06_PROTOCOL_MAPPING.md](./06_PROTOCOL_MAPPING.md) | 协议映射表 |
-| [08_DATABASE_DESIGN.md](./08_DATABASE_DESIGN.md) | 数据库设计 |
+
+### 子目录文档
+
+| 目录 | 说明 |
+|------|------|
+| [server/](./server/00_OVERVIEW.md) | 服务端文档（架构、模块、数据库、测试环境） |
+| [admin-web/](./admin-web/00_OVERVIEW.md) | 管理后台文档（认证、API、RBAC、技术选型） |
+| [old_client/](./old_client/00_OVERVIEW.md) | 老客户端文档（API 协议、WebSocket 协议、代码索引） |
 
 ## 规划文件（planning-with-files）
 

@@ -12,50 +12,43 @@
 | [task_plan.md](./task_plan.md) | 开发任务计划 | ⭐⭐⭐ |
 | [findings.md](./findings.md) | 研究发现 | ⭐⭐⭐ |
 | [progress.md](./progress.md) | 开发进度日志 | ⭐⭐⭐ |
-| [docs/02_ARCHITECTURE.md](./docs/02_ARCHITECTURE.md) | 架构设计（Nakama） | ⭐⭐⭐ |
-| [docs/06_PROTOCOL_MAPPING.md](./docs/06_PROTOCOL_MAPPING.md) | 协议映射表 | ⭐⭐⭐ |
 
 ---
 
-## 设计文档
+## 子项目文档
+
+### 服务端文档 ([docs/server/](./docs/server/00_OVERVIEW.md))
 
 | 文档 | 说明 |
 |------|------|
-| [docs/00_OVERVIEW.md](./docs/00_OVERVIEW.md) | 项目概述 |
-| [docs/01_TECH_STACK.md](./docs/01_TECH_STACK.md) | 技术选型 |
-| [docs/03_DATA_MIGRATION.md](./docs/03_DATA_MIGRATION.md) | 数据迁移方案 |
-| [docs/08_DATABASE_DESIGN.md](./docs/08_DATABASE_DESIGN.md) | 数据库设计 |
-| [docs/OLD_CODE_INDEX.md](./docs/OLD_CODE_INDEX.md) | 旧代码索引（AI 参考） |
+| [00_OVERVIEW.md](./docs/server/00_OVERVIEW.md) | 服务端概述 |
+| [01_ADMIN_MODULE.md](./docs/server/01_ADMIN_MODULE.md) | 管理后台模块（认证、RBAC） |
+| [02_BOT_MODULE.md](./docs/server/02_BOT_MODULE.md) | 机器人模块（AI 逻辑） |
+| [03_MATCH_MODULE.md](./docs/server/03_MATCH_MODULE.md) | 匹配模块（游戏匹配） |
+| [04_ARCHITECTURE.md](./docs/server/04_ARCHITECTURE.md) | 架构设计（技术栈、目录结构） |
+| [05_DATABASE_DESIGN.md](./docs/server/05_DATABASE_DESIGN.md) | 数据库设计（表结构、Redis Key） |
+| [06_TEST_ENVIRONMENT.md](./docs/server/06_TEST_ENVIRONMENT.md) | 测试环境配置（Docker、验证） |
+| [07_PROTOCOL_MAPPING.md](./docs/server/07_PROTOCOL_MAPPING.md) | 协议映射（老客户端兼容） |
+| [08_NAKAMA_API_REFERENCE.md](./docs/server/08_NAKAMA_API_REFERENCE.md) | Nakama API 参考（Runtime 接口） |
 
----
-
-## 协议文档
-
-### API 协议
-
-| 文档 | 说明 |
-|------|------|
-| [docs/api/00_index.md](./docs/api/00_index.md) | API 索引 |
-| [docs/api/01_login.md](./docs/api/01_login.md) | 登录模块 |
-| [docs/api/02_lobby.md](./docs/api/02_lobby.md) | 大厅模块 |
-| [docs/api/03_match.md](./docs/api/03_match.md) | 比赛模块 |
-| [docs/api/04_upload.md](./docs/api/04_upload.md) | 上传模块 |
-| [docs/api/05_user.md](./docs/api/05_user.md) | 用户模块 |
-| [docs/api/06_charge.md](./docs/api/06_charge.md) | 充值模块 |
-| [docs/api/07_game.md](./docs/api/07_game.md) | 游戏模块 |
-| [docs/api/08_customer.md](./docs/api/08_customer.md) | 客服模块 |
-| [docs/api/09_reward.md](./docs/api/09_reward.md) | 奖励模块 |
-
-### WebSocket 协议
+### 管理后台文档 ([docs/admin-web/](./docs/admin-web/00_OVERVIEW.md))
 
 | 文档 | 说明 |
 |------|------|
-| [docs/ws/00_index.md](./docs/ws/00_index.md) | WS 索引 |
-| [docs/ws/01_connection.md](./docs/ws/01_connection.md) | 连接模块 |
-| [docs/ws/02_lobby.md](./docs/ws/02_lobby.md) | 大厅模块 |
-| [docs/ws/03_texas.md](./docs/ws/03_texas.md) | 德州扑克 |
-| [docs/ws/04_match.md](./docs/ws/04_match.md) | 比赛模块 |
-| [docs/ws/05_user.md](./docs/ws/05_user.md) | 用户模块 |
+| [00_OVERVIEW.md](./docs/admin-web/00_OVERVIEW.md) | 管理后台概述 |
+| [01_AUTH_MODULE.md](./docs/admin-web/01_AUTH_MODULE.md) | 认证模块（登录、Token、权限验证） |
+| [02_API_LAYER.md](./docs/admin-web/02_API_LAYER.md) | API 层设计（Nakama RPC、WebSocket） |
+| [03_RBAC_SYSTEM.md](./docs/admin-web/03_RBAC_SYSTEM.md) | RBAC 权限系统（角色、权限管理） |
+| [04_TECH_STACK.md](./docs/admin-web/04_TECH_STACK.md) | 技术选型详情（版本、选型理由） |
+
+### 老客户端文档 ([docs/old_client/](./docs/old_client/00_OVERVIEW.md))
+
+| 文档 | 说明 |
+|------|------|
+| [00_OVERVIEW.md](./docs/old_client/00_OVERVIEW.md) | 老客户端概述 |
+| [01_OLD_CODE_INDEX.md](./docs/old_client/01_OLD_CODE_INDEX.md) | 老代码索引（代码结构、迁移要点） |
+| [api/](./docs/old_client/api/00_index.md) | HTTP API 协议分析 |
+| [ws/](./docs/old_client/ws/00_index.md) | WebSocket 协议分析 |
 
 ---
 
@@ -64,8 +57,8 @@
 ```
 0. 阅读 docs/RED_LINES.md 了解项目红线（必须遵守）
 1. 阅读 task_plan.md 了解当前任务
-2. 阅读 docs/02_ARCHITECTURE.md 了解架构
-3. 阅读 docs/06_PROTOCOL_MAPPING.md 了解协议映射
+2. 阅读 docs/server/04_ARCHITECTURE.md 了解架构
+3. 阅读 docs/server/07_PROTOCOL_MAPPING.md 了解协议映射
 4. 按任务开发，完成后更新 task_plan.md 和 progress.md
 ```
 
@@ -74,18 +67,21 @@
 ## 项目目录结构
 
 ```
-server/
-├── cmd/
-│   └── main.go
-├── modules/
-│   ├── match/          # Match Handlers
-│   ├── rpc/            # RPC Functions
-│   ├── hooks/          # Hooks
-│   └── shared/         # 共享模块
-├── adapter/            # 协议翻译层
-├── storage/            # Storage Schema
-├── config/
-└── docker/
+geme/
+├── server/                 # 服务端（Nakama Go Runtime）
+│   ├── cmd/
+│   ├── modules/            # 功能模块
+│   ├── adapter/            # 协议翻译层
+│   ├── storage/            # Storage Schema
+│   └── docker/
+├── admin-web/              # 管理后台（Vue 3 + NaiveUI）
+│   ├── src/
+│   ├── packages/
+│   └── build/
+└── docs/                   # 文档
+    ├── server/             # 服务端文档
+    ├── admin-web/          # 管理后台文档
+    └── old_client/         # 老客户端文档
 ```
 
 ---
@@ -94,7 +90,7 @@ server/
 
 1. **红线文档**: 开发前必须阅读并遵守 [docs/RED_LINES.md](./docs/RED_LINES.md)
 2. **目录结构**: 严格遵循架构文档定义的目录结构
-3. **协议映射**: 所有协议必须遵循 docs/06_PROTOCOL_MAPPING.md
+3. **协议映射**: 所有协议必须遵循 docs/server/07_PROTOCOL_MAPPING.md
 4. **OpCode 分配**: 德州扑克使用 100-149/200-249
 5. **任务追踪**: 每完成一个任务必须更新 task_plan.md 和 progress.md
 6. **文档同步**: 任务完成、新需求、新方案确认时必须先更新相关文档
