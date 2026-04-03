@@ -26,18 +26,22 @@
 
 ### Phase 1: 基础设施搭建
 
-**Status:** `pending`
+**Status:** `completed`
 **Goal:** 完成项目初始化和开发环境
 
 **Tasks:**
 
-- [ ] 创建项目目录结构
-- [ ] 配置 docker-compose.yml (Nakama + CockroachDB + Redis)
-- [ ] 初始化 Go Module
-- [ ] 编写 main.go 入口文件
-- [ ] 验证 Nakama 控制台可访问
+- [x] 创建项目目录结构
+- [x] 配置 docker-compose.yml (Nakama + CockroachDB + Redis)
+- [x] 初始化 Go Module
+- [x] 编写 main.go 入口文件
+- [x] 验证 Nakama 控制台可访问
+- [x] 创建 Docker 构建脚本 (build-and-deploy.bat)
+- [x] 配置 CockroachDB 数据库
+- [x] 配置 Redis 缓存
+- [x] 实现数据库迁移脚本
 
-**Files to Create:**
+**Files Created:**
 
 ```
 game-server/
@@ -46,47 +50,81 @@ game-server/
 ├── storage/
 ├── adapter/
 ├── config/
-└── docker/docker-compose.yml
+├── docker/
+│   ├── Dockerfile
+│   └── setup.bat
+└── build-and-deploy.bat
 ```
 
 ---
 
 ### Phase 2: Admin 管理后台 Web
 
-**Status:** `pending`
+**Status:** `completed`
 **Goal:** 实现管理后台前端界面
 
 **Tasks:**
 
-- [ ] 创建 admin-web 项目 (Vue3 + TypeScript)
-- [ ] 登录页面
-- [ ] 布局框架 (侧边栏 + 头部 + 内容区)
-- [ ] 用户管理页面
+- [x] 创建 admin-web 项目 (Vue3 + TypeScript + NaiveUI)
+- [x] 登录页面
+- [x] 布局框架 (侧边栏 + 头部 + 内容区)
+- [x] 用户管理页面
 - [ ] 管理员管理页面
 - [ ] 代理管理页面
 - [ ] 系统配置页面
 - [ ] 数据统计页面
+- [x] RBAC 权限系统
+- [x] 动态路由
+- [x] 主题切换（明暗模式）
+- [x] 多标签页
+- [x] 国际化支持
+- [x] Vite 代理配置
+- [x] 状态管理 (Pinia)
 
 **Tech Stack:**
 
 - Vue 3 + TypeScript
-- Element Plus / Ant Design Vue
+- Naive UI 组件库
 - Pinia 状态管理
-- Axios 请求封装
+- Axios / Alova 请求封装
+- UnoCSS 原子化 CSS
+- Elegant Router 自动路由
+
+---
+
+### Phase 2.1: Proxy 代理管理后台 Web
+
+**Status:** `completed`
+**Goal:** 实现代理管理后台前端界面
+
+**Tasks:**
+
+- [x] 创建 proxy-web 项目 (Vue3 + TypeScript + NaiveUI)
+- [x] 复制 admin-web 基础框架
+- [x] 配置独立端口 (9528)
+- [x] 更新项目配置和描述
+- [x] 登录页面
+- [x] 布局框架
+- [x] 代理专属页面
+- [x] 权限控制
 
 ---
 
 ### Phase 3: Admin API 接口
 
-**Status:** `pending`
+**Status:** `in_progress`
 **Goal:** 实现管理后台所需的后端接口
 
 **Tasks:**
 
-- [ ] 管理员认证模块
-  - [ ] 管理员登录/登出
-  - [ ] JWT Token 验证
-  - [ ] 权限中间件
+- [x] 管理员认证模块
+  - [x] 管理员登录/登出
+  - [x] JWT Token 验证
+  - [x] 权限中间件
+- [x] RBAC 权限管理
+  - [x] 角色管理
+  - [x] 权限管理
+  - [x] 动态路由生成
 - [ ] 用户管理接口
   - [ ] 用户列表/搜索
   - [ ] 用户详情
@@ -107,16 +145,15 @@ game-server/
   - [ ] 客服账号管理
   - [ ] 会话分配
 
-**Files to Create:**
+**Files Created:**
 
 ```
 modules/admin/
-├── auth.go
-├── user.go
-├── manager.go
-├── agent.go
-├── config.go
-└── customer.go
+├── admin.go
+└── rpc/
+    ├── auth.go
+    ├── user.go
+    └── route.go
 ```
 
 ---
@@ -350,6 +387,9 @@ modules/
 | 游戏服务器框架 | Nakama 3.x | 成熟框架，内置 Match/Matchmaker/Storage |
 | 德州扑克 OpCode | 100-149/200-249 | 预留扩展空间 |
 | 数据存储 | Nakama Storage | 原生支持，无需额外设计 |
+| 数据库 | CockroachDB | 分布式 SQL，PostgreSQL 兼容，Nakama 官方推荐 |
+| 前端框架 | Vue 3 + NaiveUI | 现代化，TypeScript 支持，组件丰富 |
+| 构建工具 | Vite | 快速启动，热更新，开发体验好 |
 
 ---
 
@@ -357,7 +397,12 @@ modules/
 
 | Error | Attempt | Resolution |
 |-------|---------|------------|
-| (none yet) | - | - |
+| Git 子模块无法添加 | admin-web 和 proxy-web 被识别为子模块 | 删除 .git 目录，重新添加为普通文件 |
+| 403 Forbidden after login | 组件路径格式错误 | 更新为 "layout.base$view.home" 格式 |
+| 仪表盘权限问题 | 所有管理员都需要仪表盘权限 | 前端不检查仪表盘权限 |
+| Docker 构建效率低 | 每次修改都重新构建镜像 | 创建 build-and-deploy.bat，使用卷挂载 |
+| Go 版本不兼容 | Nakama 插件需要特定 Go 版本 | 更新 go.mod 为 Go 1.26.1 |
+| PostgreSQL 引用 | 文档中使用 PostgreSQL 但实际使用 CockroachDB | 更新所有文档为 CockroachDB |
 
 ---
 
@@ -368,6 +413,8 @@ Phase 1 (基础设施)
     ↓
 Phase 2 (Admin Web) ← Phase 3 (Admin API) ← Phase 4 (Schema)
     ↓                         ↓
+Phase 2.1 (Proxy Web)
+    ↓
 Phase 5 (API翻译层) ← Phase 6 (WS翻译层)
     ↓
 Phase 7 (非游戏测试) ← 验收通过
@@ -385,7 +432,7 @@ Phase 10 (客户端重构)
 
 **Phase:** 3
 **Task:** Admin API 接口开发
-**Next Action:** 完善管理后台 API 接口
+**Next Action:** 完善用户管理接口和代理管理接口
 
 ---
 
@@ -402,6 +449,23 @@ Phase 10 (客户端重构)
 - [x] 删除已整合的旧文档
 - [x] 更新 README.md 文档索引
 - [x] 更新 docs/00_OVERVIEW.md
+- [x] 更新 DEVELOPMENT.md 开发文档
+- [x] 更新所有数据库引用为 CockroachDB
+- [x] 更新架构图和技术选型
+
+### 开发流程优化 (2026-04-03)
+
+- [x] 创建 Docker 构建脚本 (build-and-deploy.bat)
+- [x] 优化 Go 插件开发流程
+- [x] 配置 Vite 代理和头信息保留
+- [x] 修复组件路径格式问题
+- [x] 实现仪表盘权限豁免
+- [x] 创建 proxy-web 项目框架
+
+### Git 问题修复 (2026-04-03)
+
+- [x] 解决 admin-web 和 proxy-web 子模块问题
+- [x] 删除 .git 目录，重新添加为普通文件
 
 ### Phase 1: 基础设施搭建
 
@@ -410,6 +474,9 @@ Phase 10 (客户端重构)
 - [x] 初始化 Go Module
 - [x] 编写 main.go 入口文件
 - [x] 验证 Nakama 控制台可访问
+- [x] 配置 CockroachDB 数据库
+- [x] 配置 Redis 缓存
+- [x] 实现数据库迁移脚本
 
 ### Phase 2: Admin 管理后台 Web
 
@@ -418,6 +485,18 @@ Phase 10 (客户端重构)
 - [x] 布局框架 (侧边栏 + 头部 + 内容区)
 - [x] RBAC 权限系统
 - [x] 动态路由
+- [x] 主题切换（明暗模式）
+- [x] 多标签页
+- [x] 国际化支持
+- [x] Vite 代理配置
+- [x] 状态管理 (Pinia)
+
+### Phase 2.1: Proxy 代理管理后台 Web
+
+- [x] 创建 proxy-web 项目 (Vue3 + TypeScript + NaiveUI)
+- [x] 复制 admin-web 基础框架
+- [x] 配置独立端口 (9528)
+- [x] 更新项目配置和描述
 
 ### Phase 3: Admin API 接口 (进行中)
 
