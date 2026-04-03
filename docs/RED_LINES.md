@@ -192,6 +192,66 @@
 
 ---
 
+## 十三、移动端兼容红线
+
+### 13.1 布局设计要求
+
+- **必须兼顾移动端**：对管理员后台、代理管理后台做布局、设计工作时，必须兼顾移动端浏览。
+- **响应式设计**：所有页面必须采用响应式设计，确保在不同屏幕尺寸下正常显示。
+
+---
+
+## 十四、数据库操作红线
+
+### 14.1 GORM 优先原则
+
+- **禁止直接写原生 SQL**：所有数据库操作必须优先使用 GORM ORM 方式。
+- **简单 CRUD**：必须使用 GORM 的 `Create()`, `Save()`, `Delete()`, `First()`, `Find()` 等方法。
+- **条件查询**：必须使用 GORM 的 `Where()`, `Order()`, `Limit()`, `Offset()` 等链式调用。
+
+### 14.2 复杂查询封装规范
+
+- **关联查询封装**：对于涉及多表 JOIN、复杂条件等无法用简单 GORM 链式调用完成的查询，必须在对应的 Model 文件中封装为方法。
+- **封装位置**：统一放在 `server/models/` 目录下，按表名命名文件（如 `admin_user.go`）。
+- **方法命名**：使用清晰的业务语义命名，如 `GetRoleCodes()`, `GetMenusByUserID()`, `CheckRouteAccess()`。
+
+### 14.3 Models 组织规范
+
+- **统一存放位置**：所有数据库 Model 统一存放在 `server/models/` 目录下，便于所有模块共享引用。
+- **按表拆分文件**：每个数据库表对应一个 Model 文件，关联表可合并到主表文件或单独创建 `*_relations.go` 文件。
+- **禁止模块私有 Models**：不得在 `modules/xxx/models/` 下创建重复的 Model 定义，避免代码冗余和维护困难。
+
+### 14.4 示例规范
+
+**正确做法**：
+
+```go
+// server/models/admin_user.go
+func (AdminUser) GetRoleCodes(db *gorm.DB, userID string) ([]string, error) {
+    var codes []string
+    err := db.Model(&AdminRole{}).
+        Select("admin_roles.code").
+        Joins("INNER JOIN admin_user_roles ON admin_roles.id = admin_user_roles.role_id").
+        Where("admin_user_roles.user_id = ? AND admin_roles.status = 1", userID).
+        Pluck("admin_roles.code", &codes).Error
+    return codes, err
+}
+
+// server/modules/admin/admin.go
+import "warforge-server/models"
+
+codes, err := models.AdminUser{}.GetRoleCodes(gormDB, userID)
+```
+
+**错误做法**：
+
+```go
+// 直接在业务代码中写原生 SQL
+rows, err := db.Query("SELECT r.code FROM admin_roles r INNER JOIN admin_user_roles ur ON r.id = ur.role_id WHERE ur.user_id = $1", userID)
+```
+
+---
+
 ## 红线检查清单
 
 在提交代码或完成任务前，请逐项检查：
@@ -211,6 +271,9 @@
 - [ ] **是否进行了功能测试？（新增）**
 - [ ] **Nakama RPC 调用是否符合双重编码规范？（新增）**
 - [ ] **是否考虑了移动端兼容性？（新增）**
+- [ ] **数据库操作是否使用 GORM？（新增）**
+- [ ] **复杂查询是否封装在 Model 方法中？（新增）**
+- [ ] **Models 是否统一存放在 server/models/ 目录？（新增）**
 
 ---
 

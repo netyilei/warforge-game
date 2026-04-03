@@ -4,18 +4,23 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/heroiclabs/nakama-common/runtime"
 	"warforge-server/adapter"
+	"warforge-server/database"
 	"warforge-server/modules/admin"
 	"warforge-server/modules/bot"
 	"warforge-server/modules/hooks"
 	"warforge-server/modules/match"
 	"warforge-server/modules/rpc"
-
-	"github.com/heroiclabs/nakama-common/runtime"
 )
 
 func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, initializer runtime.Initializer) error {
 	logger.Info("WarForge Game Server Module Loading...")
+
+	if err := database.InitGORM(db); err != nil {
+		logger.Error("Failed to init GORM: %v", err)
+		return err
+	}
 
 	if err := rpc.Init(logger, initializer); err != nil {
 		logger.Error("Failed to init RPC: %v", err)

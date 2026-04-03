@@ -166,9 +166,12 @@ const routeMap: RouteMap = {
   "403": "/403",
   "404": "/404",
   "500": "/500",
+  "admin": "/admin",
   "home": "/home",
   "iframe-page": "/iframe-page/:url",
-  "login": "/login/:module(pwd-login)?"
+  "login": "/login/:module(pwd-login)?",
+  "permission": "/permission",
+  "role": "/role"
 };
 
 /**

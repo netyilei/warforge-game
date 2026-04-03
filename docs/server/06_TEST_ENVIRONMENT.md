@@ -11,6 +11,65 @@
 | Nakama | warforge-nakama | 3.33.0 | 7349, 7350, 7351 |
 | CockroachDB | dev_cockroach | v23.2.5 | 26257, 8765 |
 | Redis | dev_redis | latest | 6379 |
+| **编译容器** | warforge-builder | nakama-pluginbuilder | - |
+
+---
+
+## 持久化编译容器
+
+为避免每次编译都创建/删除容器，使用持久化编译容器：
+
+### 容器信息
+
+| 配置项 | 值 |
+|--------|-----|
+| 容器名 | warforge-builder |
+| 镜像 | heroiclabs/nakama-pluginbuilder:latest |
+| 挂载 | d:\geme\server → /app |
+| 状态 | 持久运行 |
+
+### 管理脚本
+
+| 脚本 | 用途 |
+|------|------|
+| `builder-start.bat` | 启动编译容器 |
+| `builder-stop.bat` | 停止编译容器 |
+| `builder-shell.bat` | 进入容器 Shell |
+| `build.bat` | 编译并部署插件 |
+
+### 使用方法
+
+```bash
+# 首次启动（或容器不存在时）
+cd d:\geme\server
+builder-start.bat
+
+# 编译并部署
+build.bat
+
+# 进入容器执行其他命令
+builder-shell.bat
+# 例如: go get -u gorm.io/gorm
+
+# 停止容器（节省资源）
+builder-stop.bat
+```
+
+### 手动命令
+
+```bash
+# 创建容器
+docker run -d --name warforge-builder --entrypoint sh \
+  -v "d:\geme\server":/app -w /app \
+  heroiclabs/nakama-pluginbuilder:latest -c "sleep infinity"
+
+# 编译
+docker exec warforge-builder go build -buildmode=plugin -trimpath -o warforge.so ./cmd/main.go
+
+# 部署
+docker cp warforge.so warforge-nakama:/nakama/data/modules/warforge.so
+docker restart warforge-nakama
+```
 
 ---
 

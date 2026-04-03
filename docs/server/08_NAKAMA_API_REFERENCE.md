@@ -4,6 +4,8 @@
 >
 > 生成日期：2026-04-03
 
+**数据库名称：** `nakama`
+
 ## 官方文档链接
 
 - [pkg.go.dev - runtime](https://pkg.go.dev/github.com/heroiclabs/nakama-common/runtime)

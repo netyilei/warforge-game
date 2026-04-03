@@ -6,7 +6,201 @@
 
 ## Session Log
 
-### Session 3: 2026-04-03
+### Session 7: 2026-04-03
+
+**Completed:**
+
+- [x] 修复 API 鉴权问题
+  - [x] 检查所有 RPC 函数的鉴权状态
+  - [x] 为 7 个缺少鉴权的函数添加 token 验证
+- [x] 创建持久化编译容器
+  - [x] 创建 builder-start.bat / builder-stop.bat / builder-shell.bat
+  - [x] 创建 build.bat 编译脚本
+- [x] 添加 GORM 依赖
+  - [x] 添加 gorm.io/gorm 和 gorm.io/driver/postgres
+- [x] 创建 GORM 模型文件（按模块分文件）
+  - [x] models/admin_user.go
+  - [x] models/admin_role.go
+  - [x] models/admin_permission.go
+  - [x] models/admin_relations.go
+- [x] 更新文档
+  - [x] 添加 GORM 到技术选型
+  - [x] 添加持久化编译容器说明
+
+**Files Created:**
+
+```
+server/builder-start.bat        # 启动编译容器
+server/builder-stop.bat         # 停止编译容器
+server/builder-shell.bat        # 进入编译容器
+server/build.bat                # 编译脚本
+server/database/database.go     # GORM 初始化
+server/models/admin_user.go     # 管理员用户模型
+server/models/admin_role.go     # 角色模型
+server/models/admin_permission.go  # 权限模型
+server/models/admin_relations.go   # 关联表模型
+```
+
+**Files Updated:**
+
+```
+server/modules/admin/admin.go   # 添加鉴权检查
+server/go.mod                   # 添加 GORM 依赖
+docs/server/00_OVERVIEW.md      # 添加 GORM、更新目录结构
+docs/server/06_TEST_ENVIRONMENT.md  # 添加编译容器说明
+docs/admin-web/04_TECH_STACK.md # 添加 GORM
+```
+
+**Key Decisions:**
+
+1. 所有管理 API 必须验证 token（除 admin_login 外）
+2. 使用持久化编译容器避免每次创建/删除
+3. GORM 模型按模块分文件，不合并到一个文件
+
+---
+
+### Session 6: 2026-04-03
+
+**Completed:**
+
+- [x] 修复管理员列表数据显示问题
+  - [x] 前端 API 返回数据格式错误（res.data → res）
+- [x] 修复管理员编辑时角色不显示问题
+  - [x] 新增 admin_get_user_roles / admin_update_user_roles RPC
+  - [x] 新增 admin_create_user / admin_update_user / admin_delete_user RPC
+- [x] 修复列表操作按钮图标不显示问题
+  - [x] 使用 SvgIconVNode 替代 h(Icon, ...) 方式
+  - [x] 创建图标使用指南文档
+- [x] 修复时间显示格式
+  - [x] 使用 dayjs 格式化时间为 YYYY-MM-DD HH:mm:ss
+
+**Files Created:**
+
+```
+docs/admin-web/05_ICON_GUIDE.md  # 图标使用指南
+```
+
+**Files Updated:**
+
+```
+admin-web/src/views/admin/index.vue      # 管理员管理页面
+admin-web/src/views/role/index.vue       # 角色管理页面
+admin-web/src/views/permission/index.vue  # 权限管理页面
+admin-web/src/service/api/admin.ts       # 管理员 API
+server/modules/admin/admin.go            # 管理员 RPC 函数
+server/go.mod                            # 添加 google/uuid 依赖
+docs/admin-web/00_OVERVIEW.md            # 添加时间格式规范
+```
+
+**Key Decisions:**
+
+1. 图标使用：render 函数中使用 `SvgIconVNode`，模板中使用 `<NIcon><Icon /></NIcon>`
+2. 时间格式：列表中时间字段统一使用 `dayjs().format('YYYY-MM-DD HH:mm:ss')`
+3. API 返回：nakamaRpc 直接返回数据对象，不是 `{ data: [...] }` 格式
+
+---
+
+### Session 5: 2026-04-03
+
+**Completed:**
+
+- [x] 修复管理员菜单父子结构
+  - [x] 更新迁移文件 005_fix_admin_menu_routes.sql
+  - [x] 创建父子菜单结构：管理员 → 管理员用户/角色管理/权限管理
+- [x] 修复中文编码问题
+  - [x] 更新迁移文件 007_fix_chinese_encoding.sql
+  - [x] 使用 Unicode 转义序列更新数据库中的中文名称
+- [x] 修复 home 路由 component 格式
+  - [x] 创建迁移文件 006_fix_home_component.sql
+- [x] 优化 Go JSON 编码
+  - [x] 添加 jsonMarshal 辅助函数，使用 json.Encoder 替代 json.Marshal
+  - [x] 设置 SetEscapeHTML(false) 避免字符转义问题
+
+**Files Created:**
+
+```
+server/migrations/005_fix_admin_menu_routes.sql  # 修复管理员菜单父子结构
+server/migrations/006_fix_home_component.sql     # 修复 home 路由 component 格式
+server/migrations/007_fix_chinese_encoding.sql   # 修复中文编码
+```
+
+**Files Updated:**
+
+```
+server/modules/admin/admin.go  # 优化 JSON 编码，添加 jsonMarshal 辅助函数
+```
+
+**Key Decisions:**
+
+1. 管理员菜单采用父子结构：父菜单"管理员"包含三个子菜单
+2. 路由命名使用 elegant-router 格式：`adminManagement_user`（用下划线分隔层级）
+3. 父菜单 component 为 `layout.base`，子菜单 component 为 `view.xxx`
+4. Go JSON 编码使用 json.Encoder 替代 json.Marshal，避免字符转义问题
+
+**Database Verification:**
+
+```
+CockroachDB 默认支持 UTF-8 编码，中文数据存储正常：
+- home → 仪表盘
+- adminManagement → 管理员
+- adminManagement_user → 管理员用户
+- adminManagement_role → 角色管理
+- adminManagement_permission → 权限管理
+```
+
+---
+
+### Session 4: 2026-04-03
+
+**Completed:**
+
+- [x] 创建 Nakama 功能模块参考文档
+  - [x] docs/server/09_NAKAMA_MODULES.md - 详细列出 Nakama 提供的所有功能模块
+  - [x] 包含核心模块、认证、用户、存储、钱包、匹配、匹配器、排行榜等
+  - [x] 提供功能选择指南，按功能需求和游戏类型推荐模块
+  - [x] 提供模块依赖关系图和最佳实践
+- [x] 创建管理员管理页面
+  - [x] admin-web/src/views/admin/index.vue - 管理员列表和 CRUD 操作
+- [x] 创建角色管理页面
+  - [x] admin-web/src/views/role/index.vue - 角色列表、权限配置
+- [x] 创建权限管理页面
+  - [x] admin-web/src/views/permission/index.vue - 权限列表和 CRUD 操作
+- [x] 创建数据库迁移文件
+  - [x] server/migrations/004_add_admin_menu.sql - 添加管理员菜单权限
+- [x] 更新服务端 admin.go
+  - [x] 移除路由过滤逻辑，返回所有权限路由
+- [x] 为 admin 用户添加所有管理员菜单权限
+  - [x] 数据库迁移文件自动分配权限给超级管理员
+
+**Files Created:**
+
+```
+docs/server/09_NAKAMA_MODULES.md          # Nakama 功能模块参考文档
+admin-web/src/views/admin/index.vue        # 管理员管理页面
+admin-web/src/views/role/index.vue         # 角色管理页面
+admin-web/src/views/permission/index.vue    # 权限管理页面
+server/migrations/004_add_admin_menu.sql   # 添加管理员菜单的数据库迁移
+```
+
+**Files Updated:**
+
+```
+server/modules/admin/admin.go              # 移除路由过滤，返回所有权限路由
+DEVELOPMENT.md                             # 完善开发流程说明文档
+```
+
+**Key Decisions:**
+
+1. 创建 Nakama 功能模块参考文档，帮助开发人员快速选择合适的模块
+2. 实现完整的 RBAC 管理界面，包括管理员、角色、权限管理
+3. 数据库迁移文件自动为超级管理员分配所有管理员菜单权限
+4. 移除服务端路由过滤，让前端根据权限动态显示菜单
+
+**Next Session:**
+
+- 部署更新后的代码
+- 验证管理员菜单是否正常显示
+- 测试 RBAC 功能
 
 **Completed:**
 

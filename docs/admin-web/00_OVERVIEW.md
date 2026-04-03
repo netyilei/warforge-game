@@ -1,7 +1,7 @@
 # WarForge Admin Web 概述
 
 > WarForge 游戏服务器管理后台前端项目
-> 
+>
 > 创建日期：2026-04-03
 
 ## 项目简介
@@ -225,6 +225,7 @@ await ws.connect();
 | [02_API_LAYER.md](./02_API_LAYER.md) | API 层设计（Nakama RPC、WebSocket） |
 | [03_RBAC_SYSTEM.md](./03_RBAC_SYSTEM.md) | RBAC 权限系统（角色、权限管理） |
 | [04_TECH_STACK.md](./04_TECH_STACK.md) | 技术选型详情（版本、选型理由） |
+| [05_ICON_GUIDE.md](./05_ICON_GUIDE.md) | 图标使用指南（**重要：开发前必读**） |
 
 > 💡 新增模块时，请在此表格中添加文档链接，文件命名格式：`NN_模块名称.md`
 
@@ -261,6 +262,29 @@ perf: 性能优化
 test: 测试相关
 chore: 构建/工具相关
 ```
+
+### 时间格式规范
+
+列表中的时间字段统一使用 `dayjs` 格式化显示：
+
+```typescript
+import dayjs from 'dayjs';
+
+// 列表时间列定义
+{
+  title: '创建时间',
+  key: 'createdAt',
+  render(row) {
+    return dayjs(row.createdAt).format('YYYY-MM-DD HH:mm:ss');
+  },
+}
+```
+
+**格式说明**：
+
+- 显示格式：`YYYY-MM-DD HH:mm:ss`（如：`2026-04-02 23:01:15`）
+- 不显示毫秒和时区信息
+- 适用于所有列表中的时间字段（创建时间、更新时间、登录时间等）
 
 ---
 
