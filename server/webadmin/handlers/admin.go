@@ -8,6 +8,7 @@ import (
 
 	"warforge-server/database"
 	"warforge-server/models"
+	"warforge-server/webadmin/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -15,11 +16,8 @@ import (
 )
 
 // GetAdmins 获取管理员列表
-//
-// 返回管理员分页列表
 func GetAdmins(c *gin.Context) {
-	db := database.GetDB()
-
+	db := database.MustGetDB()
 	page := 1
 	pageSize := 20
 	if p := c.Query("page"); p != "" {
@@ -32,59 +30,33 @@ func GetAdmins(c *gin.Context) {
 			pageSize, _ = strconv.Atoi(ps)
 		}
 	}
-
 	users, total, err := models.AdminUser{}.List(db, page, pageSize)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "Database error",
-			"data": nil,
-		})
+		response.DBError(c, "数据库错误")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"list":     users,
-			"total":    total,
-			"page":     page,
-			"pageSize": pageSize,
-		},
+	response.Success(c, gin.H{
+		"list":     users,
+		"total":    total,
+		"page":     page,
+		"pageSize": pageSize,
 	})
 }
 
 // GetAdmin 获取管理员详情
-//
-// 返回指定管理员的详细信息
 func GetAdmin(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID is required",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	user, err := models.AdminUser{}.FindByID(db, id)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 404,
-			"msg":  "Admin not found",
-			"data": nil,
-		})
+		response.NotFound(c, "管理员不存在")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": user,
-	})
+	response.Success(c, user)
 }
 
 // CreateAdminRequest 创建管理员请求
@@ -98,41 +70,23 @@ type CreateAdminRequest struct {
 }
 
 // CreateAdmin 创建管理员
-//
-// 创建新的管理员账户
 func CreateAdmin(c *gin.Context) {
 	var req CreateAdminRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "Invalid request",
-			"data": nil,
-		})
+		response.BadRequest(c)
 		return
 	}
-
-	db := database.GetDB()
-
+	db := database.MustGetDB()
 	existing, _ := models.AdminUser{}.FindByUsername(db, req.Username)
 	if existing != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "Username already exists",
-			"data": nil,
-		})
+		response.Error(c, 400, "用户名已存在")
 		return
 	}
-
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "Failed to hash password",
-			"data": nil,
-		})
+		response.Error(c, 500, "密码加密失败")
 		return
 	}
-
 	user := &models.AdminUser{
 		ID:       uuid.New().String(),
 		Username: req.Username,
@@ -142,25 +96,14 @@ func CreateAdmin(c *gin.Context) {
 		Phone:    req.Phone,
 		Status:   req.Status,
 	}
-
 	if user.Status == 0 {
 		user.Status = 1
 	}
-
 	if err := user.Create(db); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "Failed to create admin",
-			"data": nil,
-		})
+		response.Error(c, 500, "创建管理员失败")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": user,
-	})
+	response.Success(c, user)
 }
 
 // UpdateAdminRequest 更新管理员请求
@@ -173,40 +116,23 @@ type UpdateAdminRequest struct {
 }
 
 // UpdateAdmin 更新管理员
-//
-// 更新指定管理员的信息
 func UpdateAdmin(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID is required",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
 	var req UpdateAdminRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "Invalid request",
-			"data": nil,
-		})
+		response.BadRequest(c)
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	user, err := models.AdminUser{}.FindByID(db, id)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 404,
-			"msg":  "Admin not found",
-			"data": nil,
-		})
+		response.NotFound(c, "管理员不存在")
 		return
 	}
-
 	if req.Nickname != "" {
 		user.Nickname = req.Nickname
 	}
@@ -219,118 +145,58 @@ func UpdateAdmin(c *gin.Context) {
 	if req.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 		if err != nil {
-			c.JSON(200, gin.H{
-				"code": 500,
-				"msg":  "Failed to hash password",
-				"data": nil,
-			})
+			response.Error(c, 500, "密码加密失败")
 			return
 		}
 		user.Password = string(hashedPassword)
 	}
 	user.Status = req.Status
-
 	if err := user.Update(db); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "Failed to update admin",
-			"data": nil,
-		})
+		response.Error(c, 500, "更新管理员失败")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": user,
-	})
+	response.Success(c, user)
 }
 
 // DeleteAdmin 删除管理员
-//
-// 删除指定的管理员账户
 func DeleteAdmin(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID is required",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
 	userID, _ := c.Get("userID")
 	if id == userID.(string) {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "Cannot delete yourself",
-			"data": nil,
-		})
+		response.Error(c, 400, "不能删除自己")
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	user, err := models.AdminUser{}.FindByID(db, id)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 404,
-			"msg":  "Admin not found",
-			"data": nil,
-		})
+		response.NotFound(c, "管理员不存在")
 		return
 	}
-
 	if err := user.Delete(db); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "Failed to delete admin",
-			"data": nil,
-		})
+		response.Error(c, 500, "删除管理员失败")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"success": true,
-		},
-	})
+	response.Success(c, gin.H{"success": true})
 }
 
 // GetAdminRoles 获取管理员角色
-//
-// 返回指定管理员的角色列表
 func GetAdminRoles(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID is required",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	roles, err := models.AdminUser{}.GetRoles(db, id)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "Database error",
-			"data": nil,
-		})
+		response.DBError(c, "数据库错误")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"roles": roles,
-		},
-	})
+	response.Success(c, gin.H{"roles": roles})
 }
 
 // UpdateAdminRolesRequest 更新管理员角色请求
@@ -339,44 +205,21 @@ type UpdateAdminRolesRequest struct {
 }
 
 // UpdateAdminRoles 更新管理员角色
-//
-// 更新指定管理员的角色列表
 func UpdateAdminRoles(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID is required",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
 	var req UpdateAdminRolesRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "Invalid request",
-			"data": nil,
-		})
+		response.BadRequest(c)
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	if err := (&models.AdminUser{}).SetRoles(db, id, req.RoleIDs); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "Failed to update admin roles",
-			"data": nil,
-		})
+		response.Error(c, 500, "更新角色失败")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"success": true,
-		},
-	})
+	response.Success(c, gin.H{"success": true})
 }

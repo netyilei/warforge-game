@@ -6,45 +6,23 @@ package handlers
 import (
 	"warforge-server/database"
 	"warforge-server/models"
+	"warforge-server/webadmin/response"
 
 	"github.com/gin-gonic/gin"
 )
 
 // GetLanguages 获取语言列表
 func GetLanguages(c *gin.Context) {
-	db := database.GetDB()
-	if db == nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "数据库连接未初始化",
-			"data": nil,
-		})
-		return
-	}
-
+	db := database.MustGetDB()
 	languages, err := models.Language{}.List(db)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 0,
-			"msg":  "success",
-			"data": gin.H{
-				"languages": []interface{}{},
-			},
-		})
+		response.Success(c, gin.H{"languages": []interface{}{}})
 		return
 	}
-
 	if languages == nil {
 		languages = []models.Language{}
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"languages": languages,
-		},
-	})
+	response.Success(c, gin.H{"languages": languages})
 }
 
 // CreateLanguageRequest 创建语言请求
@@ -60,15 +38,10 @@ type CreateLanguageRequest struct {
 func CreateLanguage(c *gin.Context) {
 	var req CreateLanguageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "参数错误",
-			"data": nil,
-		})
+		response.BadRequest(c)
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	lang := &models.Language{
 		Code:       req.Code,
 		Name:       req.Name,
@@ -79,21 +52,11 @@ func CreateLanguage(c *gin.Context) {
 	if req.Icon != "" {
 		lang.Icon = &req.Icon
 	}
-
 	if err := lang.Create(db); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "创建失败: " + err.Error(),
-			"data": nil,
-		})
+		response.Error(c, 500, "创建失败: "+err.Error())
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": lang,
-	})
+	response.Success(c, lang)
 }
 
 // UpdateLanguageRequest 更新语言请求
@@ -109,25 +72,15 @@ type UpdateLanguageRequest struct {
 func UpdateLanguage(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "缺少ID参数",
-			"data": nil,
-		})
+		response.Error(c, 400, "缺少ID参数")
 		return
 	}
-
 	var req UpdateLanguageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "参数错误",
-			"data": nil,
-		})
+		response.BadRequest(c)
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	lang := &models.Language{
 		ID:         id,
 		Name:       req.Name,
@@ -138,81 +91,43 @@ func UpdateLanguage(c *gin.Context) {
 	if req.Icon != "" {
 		lang.Icon = &req.Icon
 	}
-
 	if err := lang.Update(db); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "更新失败: " + err.Error(),
-			"data": nil,
-		})
+		response.Error(c, 500, "更新失败: "+err.Error())
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": lang,
-	})
+	response.Success(c, lang)
 }
 
 // DeleteLanguage 删除语言
 func DeleteLanguage(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "缺少ID参数",
-			"data": nil,
-		})
+		response.Error(c, 400, "缺少ID参数")
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	lang := &models.Language{ID: id}
 	if err := lang.Delete(db); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "删除失败: " + err.Error(),
-			"data": nil,
-		})
+		response.Error(c, 500, "删除失败: "+err.Error())
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{"success": true},
-	})
+	response.Success(c, gin.H{"success": true})
 }
 
 // SetDefaultLanguage 设置默认语言
 func SetDefaultLanguage(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "缺少ID参数",
-			"data": nil,
-		})
+		response.Error(c, 400, "缺少ID参数")
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	var langModel models.Language
 	if err := langModel.SetDefault(db, id); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "设置失败: " + err.Error(),
-			"data": nil,
-		})
+		response.Error(c, 500, "设置失败: "+err.Error())
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{"success": true},
-	})
+	response.Success(c, gin.H{"success": true})
 }
 
 // GetSupportedLanguages 获取支持的语言列表
@@ -220,32 +135,22 @@ func GetSupportedLanguages(c *gin.Context) {
 	GetLanguages(c)
 }
 
+// SetSupportedLanguagesRequest 设置支持语言请求
+type SetSupportedLanguagesRequest struct {
+	LanguageIDs []string `json:"languageIds" binding:"required"`
+}
+
 // SetSupportedLanguages 设置支持的语言
 func SetSupportedLanguages(c *gin.Context) {
-	var req struct {
-		LanguageIDs []string `json:"languageIds" binding:"required"`
-	}
+	var req SetSupportedLanguagesRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "参数错误",
-			"data": nil,
-		})
+		response.BadRequest(c)
 		return
 	}
-
-	db := database.GetDB()
-	query := `UPDATE languages SET status = 0`
-	db.Exec(query)
-
-	for _, id := range req.LanguageIDs {
-		query = `UPDATE languages SET status = 1 WHERE id = $1`
-		db.Exec(query, id)
+	db := database.MustGetDB()
+	if err := (&models.Language{}).SetSupported(db, req.LanguageIDs); err != nil {
+		response.Error(c, 500, "设置失败: "+err.Error())
+		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{"success": true},
-	})
+	response.Success(c, gin.H{"success": true})
 }

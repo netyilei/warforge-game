@@ -1,67 +1,42 @@
+// Package handlers 提供 Web Admin API 的请求处理函数
+//
+// 本文件定义角色管理相关的 API 处理函数
 package handlers
 
 import (
 	"warforge-server/database"
 	"warforge-server/models"
+	"warforge-server/webadmin/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 // GetRoles 获取角色列表
-//
-// 返回所有角色列表
 func GetRoles(c *gin.Context) {
-	db := database.GetDB()
+	db := database.MustGetDB()
 	roles, err := models.AdminRole{}.ListAll(db)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "数据库错误",
-			"data": nil,
-		})
+		response.DBError(c, "数据库错误")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"list": roles,
-		},
-	})
+	response.Success(c, gin.H{"list": roles})
 }
 
 // GetRole 获取单个角色
-//
-// 返回指定角色的详细信息
 func GetRole(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID不能为空",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
-	db := database.GetDB()
-	role, err := models.AdminRole{}.GetByID(db, id)
+	db := database.MustGetDB()
+	role, err := models.AdminRole{}.FindByID(db, id)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 404,
-			"msg":  "角色不存在",
-			"data": nil,
-		})
+		response.NotFound(c, "角色不存在")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": role,
-	})
+	response.Success(c, role)
 }
 
 // CreateRoleRequest 创建角色请求
@@ -73,31 +48,18 @@ type CreateRoleRequest struct {
 }
 
 // CreateRole 创建角色
-//
-// 创建新的角色
 func CreateRole(c *gin.Context) {
 	var req CreateRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "请求参数无效",
-			"data": nil,
-		})
+		response.Error(c, 400, "请求参数无效")
 		return
 	}
-
-	db := database.GetDB()
-
+	db := database.MustGetDB()
 	existing, _ := models.AdminRole{}.GetByCode(db, req.Code)
 	if existing != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "角色代码已存在",
-			"data": nil,
-		})
+		response.Error(c, 400, "角色代码已存在")
 		return
 	}
-
 	role := &models.AdminRole{
 		ID:          uuid.New().String(),
 		Name:        req.Name,
@@ -105,25 +67,14 @@ func CreateRole(c *gin.Context) {
 		Description: req.Description,
 		Status:      req.Status,
 	}
-
 	if role.Status == 0 {
 		role.Status = 1
 	}
-
 	if err := role.Create(db); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "创建角色失败",
-			"data": nil,
-		})
+		response.Error(c, 500, "创建角色失败")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": role,
-	})
+	response.Success(c, role)
 }
 
 // UpdateRoleRequest 更新角色请求
@@ -134,137 +85,69 @@ type UpdateRoleRequest struct {
 }
 
 // UpdateRole 更新角色
-//
-// 更新指定角色的信息
 func UpdateRole(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID不能为空",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
 	var req UpdateRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "请求参数无效",
-			"data": nil,
-		})
+		response.Error(c, 400, "请求参数无效")
 		return
 	}
-
-	db := database.GetDB()
-	role, err := models.AdminRole{}.GetByID(db, id)
+	db := database.MustGetDB()
+	role, err := models.AdminRole{}.FindByID(db, id)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 404,
-			"msg":  "角色不存在",
-			"data": nil,
-		})
+		response.NotFound(c, "角色不存在")
 		return
 	}
-
 	if req.Name != "" {
 		role.Name = req.Name
 	}
 	role.Description = req.Description
 	role.Status = req.Status
-
 	if err := role.Update(db); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "更新角色失败",
-			"data": nil,
-		})
+		response.Error(c, 500, "更新角色失败")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": role,
-	})
+	response.Success(c, role)
 }
 
 // DeleteRole 删除角色
-//
-// 删除指定的角色
 func DeleteRole(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID不能为空",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	role, err := models.AdminRole{}.FindByID(db, id)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 404,
-			"msg":  "角色不存在",
-			"data": nil,
-		})
+		response.NotFound(c, "角色不存在")
 		return
 	}
-
 	if err := role.Delete(db); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "删除角色失败",
-			"data": nil,
-		})
+		response.Error(c, 500, "删除角色失败")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"success": true,
-		},
-	})
+	response.Success(c, gin.H{"success": true})
 }
 
 // GetRolePermissions 获取角色权限
-//
-// 返回指定角色的权限列表
 func GetRolePermissions(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID不能为空",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	permissions, err := models.AdminRole{}.GetPermissions(db, id)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "数据库错误",
-			"data": nil,
-		})
+		response.DBError(c, "数据库错误")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"permissions": permissions,
-		},
-	})
+	response.Success(c, gin.H{"permissions": permissions})
 }
 
 // UpdateRolePermissionsRequest 更新角色权限请求
@@ -273,44 +156,21 @@ type UpdateRolePermissionsRequest struct {
 }
 
 // UpdateRolePermissions 更新角色权限
-//
-// 更新指定角色的权限列表
 func UpdateRolePermissions(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "ID不能为空",
-			"data": nil,
-		})
+		response.Error(c, 400, "ID不能为空")
 		return
 	}
-
 	var req UpdateRolePermissionsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "请求参数无效",
-			"data": nil,
-		})
+		response.Error(c, 400, "请求参数无效")
 		return
 	}
-
-	db := database.GetDB()
+	db := database.MustGetDB()
 	if err := (&models.AdminRole{}).UpdatePermissions(db, id, req.PermissionIDs); err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "更新角色权限失败",
-			"data": nil,
-		})
+		response.Error(c, 500, "更新角色权限失败")
 		return
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"success": true,
-		},
-	})
+	response.Success(c, gin.H{"success": true})
 }

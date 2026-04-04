@@ -5,57 +5,21 @@ package handlers
 
 import (
 	"warforge-server/database"
+	"warforge-server/models"
+	"warforge-server/webadmin/response"
 
 	"github.com/gin-gonic/gin"
 )
 
 // GetSettings 获取系统设置
-//
-// 返回所有系统设置项
 func GetSettings(c *gin.Context) {
-	db := database.GetDB()
-
-	query := `
-		SELECT key, value, description
-	 FROM admin_settings
-	 ORDER BY key
-	`
-
-	rows, err := db.Query(query)
+	db := database.MustGetDB()
+	settings, err := models.AdminSetting{}.GetAll(db)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 0,
-			"msg":  "success",
-			"data": gin.H{
-				"settings": []interface{}{},
-			},
-		})
+		response.Success(c, gin.H{"settings": []interface{}{}})
 		return
 	}
-	defer rows.Close()
-
-	type Setting struct {
-		Key         string `json:"key"`
-		Value       string `json:"value"`
-		Description string `json:"description"`
-	}
-
-	settings := []Setting{}
-	for rows.Next() {
-		var s Setting
-		if err := rows.Scan(&s.Key, &s.Value, &s.Description); err != nil {
-			continue
-		}
-		settings = append(settings, s)
-	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"settings": settings,
-		},
-	})
+	response.Success(c, gin.H{"settings": settings})
 }
 
 // UpdateSettingsRequest 更新设置请求
@@ -68,35 +32,24 @@ type UpdateSettingsRequest struct {
 }
 
 // UpdateSettings 更新系统设置
-//
-// 更新所有设置项
 func UpdateSettings(c *gin.Context) {
 	var req UpdateSettingsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "Invalid request",
-			"data": nil,
-		})
+		response.Error(c, 400, "Invalid request")
 		return
 	}
-
-	db := database.GetDB()
-
+	db := database.MustGetDB()
+	var settings []models.AdminSetting
 	for _, s := range req.Settings {
-		query := `
-			INSERT INTO admin_settings (key, value, description, updated_at)
-			VALUES ($1, $2, $3, NOW())
-		 ON CONFLICT (key) DO UPDATE SET value = $2, description = $3, updated_at = NOW()
-		`
-		db.Exec(query, s.Key, s.Value, s.Description)
+		settings = append(settings, models.AdminSetting{
+			Key:         s.Key,
+			Value:       s.Value,
+			Description: s.Description,
+		})
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"success": true,
-		},
-	})
+	if err := (&models.AdminSetting{}).BatchSave(db, settings); err != nil {
+		response.DBError(c, "保存设置失败")
+		return
+	}
+	response.Success(c, gin.H{"success": true})
 }

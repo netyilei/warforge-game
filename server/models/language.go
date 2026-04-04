@@ -105,3 +105,28 @@ func (Language) SetDefault(db *sql.DB, id string) error {
 
 	return tx.Commit()
 }
+
+// SetSupported 设置支持的语言列表
+//
+// 将指定的语言设置为启用状态，其他语言设置为禁用
+func (Language) SetSupported(db *sql.DB, languageIDs []string) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// 先将所有语言设置为禁用
+	if _, err := tx.Exec(`UPDATE languages SET status = 0`); err != nil {
+		return err
+	}
+
+	// 将指定的语言设置为启用
+	for _, id := range languageIDs {
+		if _, err := tx.Exec(`UPDATE languages SET status = 1 WHERE id = $1`, id); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}

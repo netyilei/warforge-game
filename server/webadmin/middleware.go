@@ -1,3 +1,9 @@
+// Package webadmin 提供管理后台 Web 服务
+//
+// 本文件定义管理后台中间件，包括：
+// - 认证中间件
+// - 权限验证中间件
+// - 操作日志中间件
 package webadmin
 
 import (
@@ -10,6 +16,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// AuthMiddleware 认证中间件
+//
+// 验证请求中的 JWT Token，解析出用户信息
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -37,6 +46,9 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+// PermissionMiddleware 权限验证中间件
+//
+// 验证用户是否有指定的权限代码
 func PermissionMiddleware(permission string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, exists := c.Get("userID")
@@ -58,11 +70,17 @@ func PermissionMiddleware(permission string) gin.HandlerFunc {
 	}
 }
 
+// actionConfig 操作配置
+//
+// 记录操作类型和目标类型
 type actionConfig struct {
 	action     string
 	targetType string
 }
 
+// routeActionMap 路由-操作映射表
+//
+// 定义路由与操作类型的对应关系，用于操作日志记录
 var routeActionMap = map[string]actionConfig{
 	"POST /api-v1/admin-users":             {"create", "admin_user"},
 	"PUT /api-v1/admin-users":              {"update", "admin_user"},
@@ -94,6 +112,9 @@ var routeActionMap = map[string]actionConfig{
 	"POST /api-v1/storage-configs/default": {"set_default", "storage_config"},
 }
 
+// OperationLogMiddleware 操作日志中间件
+//
+// 记录所有写操作（POST/PUT/DELETE）到操作日志表
 func OperationLogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -159,6 +180,9 @@ func OperationLogMiddleware() gin.HandlerFunc {
 	}
 }
 
+// extractTargetID 从请求中提取目标 ID
+//
+// 优先从路径参数中获取，其次从查询参数中获取
 func extractTargetID(c *gin.Context) string {
 	id := c.Param("id")
 	if id != "" {
@@ -173,6 +197,9 @@ func extractTargetID(c *gin.Context) string {
 	return ""
 }
 
+// buildDetails 构建操作详情字符串
+//
+// 包含请求方法、路径和耗时
 func buildDetails(c *gin.Context, start time.Time) string {
 	var details strings.Builder
 	details.WriteString(c.Request.Method)

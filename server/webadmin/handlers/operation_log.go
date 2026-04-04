@@ -6,48 +6,29 @@ package handlers
 import (
 	"warforge-server/database"
 	"warforge-server/models"
+	"warforge-server/webadmin/response"
 
 	"github.com/gin-gonic/gin"
 )
 
 // GetOperationLogs 获取操作日志列表
 func GetOperationLogs(c *gin.Context) {
-	db := database.GetDB()
-	if db == nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "数据库连接未初始化",
-			"data": nil,
-		})
-		return
-	}
-
+	db := database.MustGetDB()
 	var req models.OperationLogListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		req.Page = 1
 		req.PageSize = 20
 	}
-
 	result, err := models.OperationLog{}.List(db, req)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "获取日志失败: " + err.Error(),
-			"data": nil,
-		})
+		response.Error(c, 500, "获取日志失败: "+err.Error())
 		return
 	}
-
 	if result.List == nil {
 		result.List = []models.OperationLog{}
 	}
-
-	c.JSON(200, gin.H{
-		"code": 0,
-		"msg":  "success",
-		"data": gin.H{
-			"total": result.Total,
-			"list":  result.List,
-		},
+	response.Success(c, gin.H{
+		"total": result.Total,
+		"list":  result.List,
 	})
 }

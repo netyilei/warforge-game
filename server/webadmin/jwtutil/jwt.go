@@ -1,3 +1,9 @@
+// Package jwtutil 提供 JWT Token 管理功能
+//
+// 本文件实现管理后台的 JWT 认证，包括：
+// - Token 生成
+// - Token 验证
+// - Token 失效
 package jwtutil
 
 import (
@@ -11,6 +17,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// AdminClaims 管理员 JWT Claims
+//
+// 包含用户 ID、用户名和 Token 类型
 type AdminClaims struct {
 	UserID    string `json:"user_id"`
 	Username  string `json:"username"`
@@ -18,6 +27,9 @@ type AdminClaims struct {
 	jwt.RegisteredClaims
 }
 
+// GenerateToken 生成 JWT Token
+//
+// 生成访问 Token 和刷新 Token，并将 Token 存储到 Redis
 func GenerateToken(userID, username string) (string, string, error) {
 	cfg := config.AppConfig
 	secretKey := []byte(cfg.WebAdmin.SecretKey)
@@ -72,6 +84,9 @@ func GenerateToken(userID, username string) (string, string, error) {
 	return accessToken, refreshTokenString, nil
 }
 
+// ValidateToken 验证 JWT Token
+//
+// 验证 Token 签名和有效期，并检查 Redis 中是否已失效
 func ValidateToken(tokenString string) (*AdminClaims, error) {
 	cfg := config.AppConfig
 	secretKey := []byte(cfg.WebAdmin.SecretKey)
@@ -103,6 +118,9 @@ func ValidateToken(tokenString string) (*AdminClaims, error) {
 	return nil, errors.New("invalid token")
 }
 
+// InvalidateToken 使 Token 失效
+//
+// 从 Redis 中删除用户的 Token，使其立即失效
 func InvalidateToken(userID string) {
 	redisClient := database.GetRedis()
 	if redisClient != nil {

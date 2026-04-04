@@ -154,13 +154,6 @@ func (AdminRole) ListActive(db *sql.DB) ([]AdminRole, error) {
 	return roles, nil
 }
 
-// GetByID 根据ID获取角色
-//
-// 返回指定ID的角色信息
-func (AdminRole) GetByID(db *sql.DB, id string) (*AdminRole, error) {
-	return AdminRole{}.FindByID(db, id)
-}
-
 // GetByCode 根据代码获取角色
 //
 // 返回指定代码的角色信息

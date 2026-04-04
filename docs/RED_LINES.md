@@ -36,7 +36,86 @@
   - 复杂逻辑：**2 处及以上**使用必须封装
 - **时刻关注**：性能、维护复杂度、代码质量
 
-### 2.2 代码整洁
+### 2.2 DRY 原则（Don't Repeat Yourself）
+
+- **🔴 红线：禁止重复代码**：相同或相似的代码块不得出现在多个地方。
+- **封装优先**：任何重复出现的逻辑必须封装为公共函数或方法。
+- **示例违规**：
+
+  ```go
+  // ❌ 错误：多处重复的数据库检查代码
+  db := database.GetDB()
+  if db == nil {
+      c.JSON(200, gin.H{"code": 500, "msg": "数据库连接未初始化"})
+      return
+  }
+  ```
+
+- **正确做法**：
+
+  ```go
+  // ✅ 正确：封装为公共方法
+  result := database.GetDBOrError()
+  if result.Err != nil {
+      c.JSON(200, gin.H{"code": 500, "msg": result.Msg})
+      return
+  }
+  db := result.DB
+  ```
+
+### 2.3 单一职责原则（Single Responsibility Principle）
+
+- **🔴 红线：一个函数只做一件事**：每个函数、方法、类应该只有一个变化的原因。
+- **Handler 职责**：只负责请求解析、调用业务逻辑、返回响应，不包含业务逻辑和 SQL。
+- **Model 职责**：封装数据库操作和业务逻辑，不处理 HTTP 请求细节。
+- **示例违规**：
+
+  ```go
+  // ❌ 错误：Handler 中包含 SQL 和业务逻辑
+  func GetUser(c *gin.Context) {
+      db := database.GetDB()
+      rows, _ := db.Query("SELECT * FROM users WHERE id = $1", id)
+      // ... 业务逻辑处理
+  }
+  ```
+
+- **正确做法**：
+
+  ```go
+  // ✅ 正确：Handler 只负责请求处理
+  func GetUser(c *gin.Context) {
+      user, err := models.User{}.FindByID(db, id)
+      c.JSON(200, gin.H{"code": 0, "data": user})
+  }
+  ```
+
+### 2.4 高聚合低耦合原则
+
+- **🔴 红线：模块边界清晰**：每个模块应该有明确的职责边界，模块间通过接口通信。
+- **高聚合**：模块内部元素紧密相关，共同完成一个明确的功能。
+- **低耦合**：模块之间依赖最小化，修改一个模块不影响其他模块。
+- **示例违规**：
+
+  ```go
+  // ❌ 错误：Handler 直接依赖数据库实现细节
+  func Login(c *gin.Context) {
+      db := database.GetDB()
+      query := "SELECT password_hash FROM admin_users WHERE username = $1"
+      // ... 直接操作数据库
+  }
+  ```
+
+- **正确做法**：
+
+  ```go
+  // ✅ 正确：Handler 通过 Model 层抽象数据访问
+  func Login(c *gin.Context) {
+      user, err := models.AdminUser{}.FindByUsername(db, username)
+      // ... 业务逻辑
+  }
+  ```
+
+### 2.5 代码整洁
 
 - **即时清理**：确认代码生效后，必须第一时间清理废弃逻辑、历史方案和冗余代码。
 - **禁止遗留**：不得保留"以防万一"的注释代码块。
@@ -355,6 +434,9 @@ INSERT INTO admin_permissions (code, name, parent_id, path, component) VALUES
 - [ ] **文件头部是否有中文注释说明用途？（新增）**
 - [ ] **函数是否有中文注释说明作用？（新增）**
 - [ ] **重要逻辑是否有中文注释？（新增）**
+- [ ] **🔴 HTTP API 是否使用统一响应格式？（强制）**
+- [ ] **🔴 Handler 是否使用 MustGetDB() 而非检查 db == nil？（强制）**
+- [ ] **服务启动时是否调用 EnsureDB() 和 EnsureRedis()？（新增）**
 
 ---
 
@@ -543,9 +625,155 @@ func healthCheck(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runt
 
 ---
 
-## 二十一、代码编辑后检查红线
+## 二十一、统一响应格式红线
 
-### 21.1 强制检查要求
+### 21.1 响应格式规范
+
+- **统一结构**：所有 HTTP API 响应必须使用统一的 `Response` 结构。
+- **封装位置**：统一响应辅助函数定义在 `server/webadmin/response.go`。
+- **禁止直接返回**：禁止在 Handler 中直接使用 `c.JSON(200, gin.H{...})` 格式返回。
+
+### 21.2 响应辅助函数
+
+| 函数 | 用途 | 示例 |
+|------|------|------|
+| `Success(c, data)` | 成功响应 | `webadmin.Success(c, user)` |
+| `SuccessMsg(c, msg, data)` | 成功响应（带消息） | `webadmin.SuccessMsg(c, "创建成功", user)` |
+| `Error(c, code, msg)` | 错误响应 | `webadmin.Error(c, 400, "参数错误")` |
+| `ErrorWithData(c, code, msg, data)` | 错误响应（带数据） | `webadmin.ErrorWithData(c, 400, "验证失败", errors)` |
+| `BadRequest(c)` | 参数错误 | `webadmin.BadRequest(c)` |
+| `NotFound(c, msg)` | 未找到 | `webadmin.NotFound(c, "用户不存在")` |
+| `ServerError(c, msg)` | 服务器错误 | `webadmin.ServerError(c, "内部错误")` |
+| `DBError(c, msg)` | 数据库错误 | `webadmin.DBError(c, "查询失败")` |
+| `Unauthorized(c, msg)` | 未授权 | `webadmin.Unauthorized(c, "请先登录")` |
+| `Forbidden(c, msg)` | 禁止访问 | `webadmin.Forbidden(c, "无权限")` |
+
+### 21.3 示例规范
+
+**错误做法**：
+
+```go
+// ❌ 错误：直接使用 gin.H 返回
+func GetUser(c *gin.Context) {
+    db := database.GetDB()
+    if db == nil {
+        c.JSON(200, gin.H{
+            "code": 500,
+            "msg":  "数据库连接未初始化",
+            "data": nil,
+        })
+        return
+    }
+    user, err := models.User{}.FindByID(db, id)
+    if err != nil {
+        c.JSON(200, gin.H{
+            "code": 404,
+            "msg":  "用户不存在",
+            "data": nil,
+        })
+        return
+    }
+    c.JSON(200, gin.H{
+        "code": 0,
+        "msg":  "success",
+        "data": user,
+    })
+}
+```
+
+**正确做法**：
+
+```go
+// ✅ 正确：使用统一响应辅助函数
+func GetUser(c *gin.Context) {
+    db := database.MustGetDB()
+    user, err := models.User{}.FindByID(db, id)
+    if err != nil {
+        webadmin.NotFound(c, "用户不存在")
+        return
+    }
+    webadmin.Success(c, user)
+}
+```
+
+---
+
+## 二十二、数据库连接管理红线
+
+### 22.1 启动时检查原则
+
+- **Fail Fast 原则**：服务启动时必须检查数据库和 Redis 连接是否可用，如果不可用则立即退出。
+- **责任归属**：数据库连接检查是 `database` 包的责任，不是 Handler 的责任。
+- **Handler 简化**：Handler 不应关心数据库连接状态，直接使用 `database.MustGetDB()` 获取连接。
+
+### 22.2 连接获取规范
+
+| 函数 | 用途 | 行为 |
+|------|------|------|
+| `database.MustGetDB()` | 获取数据库连接 | 连接不可用时 panic |
+| `database.MustGetRedis()` | 获取 Redis 连接 | 连接不可用时 panic |
+| `database.EnsureDB()` | 确保数据库可用 | 启动时调用，不可用则退出 |
+| `database.EnsureRedis()` | 确保 Redis 可用 | 启动时调用，不可用则退出 |
+
+### 22.3 服务启动流程
+
+```go
+// server/webadmin/server.go
+func StartServer() *http.Server {
+    // 1. 启动时确保数据库和 Redis 可用
+    database.EnsureDB()
+    database.EnsureRedis()
+
+    // 2. 初始化路由和服务
+    router := gin.New()
+    router.Use(gin.Recovery())  // Recovery 中间件捕获 panic
+
+    // 3. 注册路由
+    registerRoutes(router)
+
+    // 4. 启动服务
+    // ...
+}
+```
+
+### 22.4 Handler 编写规范
+
+**错误做法**：
+
+```go
+// ❌ 错误：Handler 检查数据库连接
+func GetUser(c *gin.Context) {
+    db := database.GetDB()
+    if db == nil {
+        c.JSON(200, gin.H{"code": 500, "msg": "数据库连接未初始化"})
+        return
+    }
+    // ...
+}
+```
+
+**正确做法**：
+
+```go
+// ✅ 正确：Handler 直接使用 MustGetDB
+func GetUser(c *gin.Context) {
+    db := database.MustGetDB()  // 如果连接不可用，由 Recovery 中间件处理
+    // ...
+}
+```
+
+### 22.5 设计理由
+
+1. **职责分离**：Handler 专注业务逻辑，不关心基础设施状态
+2. **快速失败**：服务启动时发现问题，而不是运行时才发现
+3. **代码简洁**：消除每个 Handler 中重复的连接检查代码
+4. **统一处理**：由 Recovery 中间件统一处理运行时异常
+
+---
+
+## 二十三、代码编辑后检查红线
+
+### 23.1 强制检查要求
 
 - **必须检查错误**：每次编辑代码后，必须检查是否有编译错误、类型错误或运行时错误。
 - **检查方式**：
@@ -553,12 +781,12 @@ func healthCheck(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runt
   - TypeScript 代码：运行 `npm run typecheck` 或查看 IDE 诊断
   - 前端代码：运行 `npm run build` 检查构建错误
 
-### 21.2 检查时机
+### 23.2 检查时机
 
 - **编辑后立即检查**：代码编辑完成后，必须立即进行错误检查。
 - **提交前检查**：提交代码前必须再次确认无错误。
 
-### 21.3 禁止事项
+### 23.3 禁止事项
 
 - ❌ 禁止编辑代码后不检查错误
 - ❌ 禁止忽略编译错误或类型错误
