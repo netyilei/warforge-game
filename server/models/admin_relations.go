@@ -1,25 +1,32 @@
+// Package models 提供数据模型定义
+//
+// 本文件定义管理员关联表模型
 package models
 
 import (
 	"time"
 )
 
+// AdminUserRole 用户角色关联表
 type AdminUserRole struct {
-	UserID    string    `gorm:"primaryKey;type:VARCHAR(36)" json:"userId"`
-	RoleID    string    `gorm:"primaryKey;type:VARCHAR(36)" json:"roleId"`
-	CreatedAt time.Time `gorm:"type:TIMESTAMP;default:CURRENT_TIMESTAMP" json:"createdAt"`
+	UserID    string    `json:"userId"`
+	RoleID    string    `json:"roleId"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
+// TableName 返回表名
 func (AdminUserRole) TableName() string {
 	return "admin_user_roles"
 }
 
+// AdminRolePermission 角色权限关联表
 type AdminRolePermission struct {
-	RoleID       string    `gorm:"primaryKey;type:VARCHAR(36)" json:"roleId"`
-	PermissionID string    `gorm:"primaryKey;type:VARCHAR(36)" json:"permissionId"`
-	CreatedAt    time.Time `gorm:"type:TIMESTAMP;default:CURRENT_TIMESTAMP" json:"createdAt"`
+	RoleID       string    `json:"roleId"`
+	PermissionID string    `json:"permissionId"`
+	CreatedAt    time.Time `json:"createdAt"`
 }
 
+// TableName 返回表名
 func (AdminRolePermission) TableName() string {
 	return "admin_role_permissions"
 }

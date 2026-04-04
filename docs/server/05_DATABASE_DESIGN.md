@@ -1,8 +1,9 @@
 # 数据库设计
 
 > WarForge Server 数据库表结构设计
-> 
+>
 > 创建日期：2026-04-03
+> 最后更新：2026-04-04
 
 **数据库名称：** `nakama`
 
@@ -15,10 +16,44 @@
 | 文件 | OSS | MinIO/OSS | 对象存储 |
 
 > **CockroachDB 优势**：
+>
 > - 与 PostgreSQL 协议兼容
 > - 分布式架构，自动容错
 > - 水平扩展能力强
 > - Nakama 官方推荐
+
+---
+
+## 数据库迁移
+
+### 迁移脚本位置
+
+所有迁移脚本位于 `server/migrations/` 目录。
+
+### 主迁移脚本
+
+`000_init_complete.sql` - 整合所有表结构和初始数据：
+
+- 所有表使用 `IF NOT EXISTS` 创建
+- 所有数据使用 `ON CONFLICT DO NOTHING` 插入
+- 不会覆盖已存在的测试数据
+
+### 执行迁移
+
+```powershell
+# 方式1：使用 docker cp（推荐，避免编码问题）
+docker cp d:\geme\server\migrations\000_init_complete.sql dev_cockroach:/tmp/migration.sql
+docker exec dev_cockroach cockroach sql --insecure -d nakama -f /tmp/migration.sql
+
+# 方式2：直接执行（可能有编码问题）
+Get-Content d:\geme\server\migrations\000_init_complete.sql | docker exec -i dev_cockroach cockroach sql --insecure -d nakama
+```
+
+### 注意事项
+
+1. **编码问题**：PowerShell 管道传输可能导致 UTF-8 编码问题，建议使用 `docker cp` 方式
+2. **幂等性**：迁移脚本设计为可重复执行，不会破坏现有数据
+3. **测试数据**：开发阶段的测试数据会被保留
 
 ---
 
@@ -363,6 +398,186 @@ CREATE TABLE room_bot_configs (
     UNIQUE(game_type, room_level)
 );
 ```
+
+---
+
+## 内容管理系统
+
+### 内容分类表 (content_categories)
+
+```sql
+CREATE TABLE content_categories (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) NOT NULL,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    icon VARCHAR(100),
+    parent_id UUID,
+    sort_order INT DEFAULT 0,
+    status INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+```
+
+### 语言表 (languages)
+
+```sql
+CREATE TABLE languages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(10) UNIQUE NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    native_name VARCHAR(50) NOT NULL,
+    icon VARCHAR(50),
+    status SMALLINT DEFAULT 1,
+    is_default BOOLEAN DEFAULT FALSE,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Banner 位置表 (admin_banner_positions)
+
+```sql
+CREATE TABLE admin_banner_positions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    width INT,
+    height INT,
+    status SMALLINT DEFAULT 1,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Banner 表 (admin_banners)
+
+```sql
+CREATE TABLE admin_banners (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    position_id UUID REFERENCES admin_banner_positions(id) ON DELETE SET NULL,
+    title VARCHAR(200) NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
+    link_url VARCHAR(500),
+    link_target VARCHAR(20) DEFAULT '_self',
+    sort_order INT DEFAULT 0,
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    status SMALLINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+## 存储系统
+
+### 存储配置表 (storage_configs)
+
+```sql
+CREATE TABLE storage_configs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) NOT NULL,
+    driver VARCHAR(20) NOT NULL,
+    bucket VARCHAR(100) NOT NULL,
+    endpoint VARCHAR(255),
+    region VARCHAR(50) DEFAULT 'auto',
+    access_key VARCHAR(255) NOT NULL,
+    secret_key VARCHAR(255) NOT NULL,
+    public_domain VARCHAR(255),
+    max_file_size BIGINT DEFAULT 10485760,
+    allowed_types VARCHAR(500),
+    is_default BOOLEAN DEFAULT FALSE,
+    status SMALLINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### 上传记录表 (upload_records)
+
+```sql
+CREATE TABLE upload_records (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    user_type VARCHAR(20) NOT NULL,
+    original_name VARCHAR(255),
+    file_path VARCHAR(500) NOT NULL,
+    file_size BIGINT,
+    mime_type VARCHAR(100),
+    storage_id UUID REFERENCES storage_configs(id) ON DELETE SET NULL,
+    upload_type VARCHAR(50),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+## 系统设置
+
+### 系统设置表 (system_settings)
+
+```sql
+CREATE TABLE system_settings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    key VARCHAR(100) UNIQUE NOT NULL,
+    value TEXT,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### 管理员设置表 (admin_settings)
+
+```sql
+CREATE TABLE admin_settings (
+    key VARCHAR(100) PRIMARY KEY,
+    value TEXT,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+## 操作日志
+
+### 管理员操作日志表 (admin_operation_logs)
+
+```sql
+CREATE TABLE admin_operation_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES admin_users(id),
+    username VARCHAR(50),
+    action VARCHAR(100) NOT NULL,
+    target_type VARCHAR(50),
+    target_id VARCHAR(100),
+    details JSONB,
+    ip VARCHAR(45),
+    user_agent VARCHAR(500),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+**字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| user_id | UUID | 操作用户ID |
+| username | VARCHAR | 操作用户名 |
+| action | VARCHAR | 操作类型（如 login、user:create） |
+| target_type | VARCHAR | 操作对象类型 |
+| target_id | VARCHAR | 操作对象ID |
+| details | JSONB | 操作详情 |
+| ip | VARCHAR | 操作IP |
+| user_agent | VARCHAR | 浏览器信息 |
 
 ---
 

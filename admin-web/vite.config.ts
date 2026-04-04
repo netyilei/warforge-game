@@ -38,6 +38,10 @@ export default defineConfig(configEnv => {
       open: true,
       proxy: {
         ...createViteProxy(viteEnv, enableProxy),
+        '/api-v1': {
+          target: 'http://localhost:9528',
+          changeOrigin: true
+        },
         '/nakama-api': {
           target: 'http://localhost:7350',
           changeOrigin: true,

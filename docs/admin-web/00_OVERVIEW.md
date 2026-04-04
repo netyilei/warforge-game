@@ -3,6 +3,7 @@
 > WarForge 游戏服务器管理后台前端项目
 >
 > 创建日期：2026-04-03
+> 最后更新：2026-04-04
 
 ## 项目简介
 
@@ -226,6 +227,9 @@ await ws.connect();
 | [03_RBAC_SYSTEM.md](./03_RBAC_SYSTEM.md) | RBAC 权限系统（角色、权限管理） |
 | [04_TECH_STACK.md](./04_TECH_STACK.md) | 技术选型详情（版本、选型理由） |
 | [05_ICON_GUIDE.md](./05_ICON_GUIDE.md) | 图标使用指南（**重要：开发前必读**） |
+| [06_STORAGE_MODULE.md](./06_STORAGE_MODULE.md) | 存储模块（文件上传、存储配置管理） |
+| [../ROUTE_CONFIGURATION_GUIDE.md](../ROUTE_CONFIGURATION_GUIDE.md) | **路由配置指南（重要）** |
+| [../DEVELOPMENT_ISSUES.md](../DEVELOPMENT_ISSUES.md) | **开发问题记录** |
 
 > 💡 新增模块时，请在此表格中添加文档链接，文件命名格式：`NN_模块名称.md`
 
@@ -295,3 +299,180 @@ import dayjs from 'dayjs';
 - [Vue 3 文档](https://vuejs.org/)
 - [Vite 文档](https://vitejs.dev/)
 - [Nakama 文档](https://heroiclabs.com/docs/nakama/)
+
+---
+
+## 常见问题与解决方案
+
+### 路由相关
+
+#### 问题1：登录后跳转 404 页面
+
+**原因**：首页路由配置错误
+
+**解决方案**：
+
+- 检查数据库 `admin_permissions` 表中 home 路由的 component 值
+- 正确值应为：`layout.base$view.home`
+- 确保 home 路由的 path 为 `/home`
+
+#### 问题2：菜单点击无反应
+
+**原因**：前端路由名称与数据库权限 code 不匹配
+
+**解决方案**：
+
+1. 检查 `src/router/elegant/routes.ts` 中的路由名称
+2. 确保数据库 `admin_permissions.code` 与前端路由名称一致
+3. 路由命名使用下划线分隔，如 `storage_config`
+
+#### 问题3：路由组件类型错误
+
+**错误信息**：`不能将类型"layout.base"分配给类型"layout.base$view.admin"`
+
+**原因**：组件路径格式不正确
+
+**解决方案**：
+
+- 一级菜单（有子菜单）：`layout.base`
+- 二级菜单：`view.{路由名}`
+- 首页：`layout.base$view.home`
+
+### API 相关
+
+#### 问题4：404 错误 - 接口不存在
+
+**原因**：后端路由未注册或路径错误
+
+**解决方案**：
+
+1. 检查 `server/webadmin/routes.go` 中是否注册了对应路由
+2. 确认前端 API 路径与后端路由一致
+3. 检查代理配置是否正确
+
+#### 问题5：502 Bad Gateway
+
+**原因**：后端服务未启动或代理配置错误
+
+**解决方案**：
+
+1. 检查后端服务是否运行
+2. 检查 `.env` 文件中的代理配置
+3. 确保 JSON 格式正确
+
+### 数据库相关
+
+#### 问题6：数据库错误 - NULL 值转换失败
+
+**错误信息**：`converting NULL to string is unsupported`
+
+**原因**：数据库字段为 NULL，但 Go 结构体使用非指针类型
+
+**解决方案**：
+
+- 使用指针类型接收可能为 NULL 的字段：`*string`
+- 或使用 `sql.NullString` 类型
+
+#### 问题7：迁移脚本编码错误
+
+**错误信息**：`syntax error at or near "emojione"`
+
+**原因**：PowerShell 管道传输导致 UTF-8 编码问题
+
+**解决方案**：
+
+```powershell
+# 使用 docker cp 方式
+docker cp d:\geme\server\migrations\000_init_complete.sql dev_cockroach:/tmp/migration.sql
+docker exec dev_cockroach cockroach sql --insecure -d nakama -f /tmp/migration.sql
+```
+
+### 组件相关
+
+#### 问题8：图标不显示
+
+**原因**：图标名称格式错误
+
+**解决方案**：
+
+- 使用正确的 Iconify 格式：`mdi:home`、`carbon:user`
+- 国旗图标：`emojione:flag-for-china`
+- 参考 [图标使用指南](./05_ICON_GUIDE.md)
+
+#### 问题9：类型错误 - 属性不存在
+
+**错误信息**：`类型"Permission"上不存在属性"sortOrder"`
+
+**原因**：接口定义缺少属性
+
+**解决方案**：
+
+- 在对应接口中添加缺失的属性定义
+- 使用类型断言：`as unknown as TargetType`
+
+### 权限相关
+
+#### 问题10：权限层级显示混乱
+
+**原因**：`parent_id` 设置不正确
+
+**解决方案**：
+
+- 确保子菜单的 `parent_id` 指向正确的父菜单 ID
+- 检查 `sort_order` 字段确保排序正确
+
+---
+
+## 开发注意事项
+
+### 1. SQL 必须封装在 Model 中
+
+**红线规则**：所有 SQL 语句必须封装在对应的 Model 文件中，禁止在 Handler 中直接编写 SQL。
+
+```go
+// ✗ 错误：在 Handler 中写 SQL
+func GetUser(c *gin.Context) {
+    db.Query("SELECT * FROM users WHERE id = $1", id)
+}
+
+// ✓ 正确：调用 Model 方法
+func GetUser(c *gin.Context) {
+    user := models.User{}.GetByID(db, id)
+}
+```
+
+### 2. 路由命名规范
+
+- 使用下划线分隔：`storage_config` ✓
+- 禁止使用冒号：`storage:config` ✗
+- 前后端保持一致
+
+### 3. 组件路径格式
+
+| 层级 | 格式 | 示例 |
+|------|------|------|
+| 一级菜单 | `layout.base` | `layout.base` |
+| 二级菜单 | `view.{name}` | `view.storage_config` |
+| 首页 | `layout.base$view.home` | `layout.base$view.home` |
+
+### 4. 时间格式
+
+列表中的时间字段统一使用 `YYYY-MM-DD HH:mm:ss` 格式：
+
+```typescript
+render(row) {
+  return dayjs(row.createdAt).format('YYYY-MM-DD HH:mm:ss');
+}
+```
+
+### 5. API 响应格式
+
+统一使用 `{code, msg, data}` 格式：
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": { ... }
+}
+```

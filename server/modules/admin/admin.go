@@ -1,3 +1,7 @@
+// Package admin 提供 Nakama 管理相关 RPC 接口
+//
+// 本文件实现需要调用 Nakama API 的管理功能，包括：
+// - 玩家管理 RPC（查询、封禁、解封）
 package admin
 
 import (
@@ -6,18 +10,27 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	"warforge-server/database"
-	"warforge-server/models"
-
-	"github.com/google/uuid"
 	"github.com/heroiclabs/nakama-common/runtime"
-	"golang.org/x/crypto/bcrypt"
 )
 
-func generateUUID() string {
-	return uuid.New().String()
+// Init 初始化管理模块
+//
+// 注册所有管理相关 RPC 接口到 Nakama 运行时
+func Init(logger runtime.Logger, initializer runtime.Initializer) error {
+	logger.Info("Admin Module Loading...")
+
+	// 注册玩家管理路由
+	if err := initPlayerRoutes(initializer); err != nil {
+		return err
+	}
+
+	logger.Info("Admin Module Loaded!")
+	return nil
 }
 
+// jsonMarshal 将对象序列化为 JSON 字符串
+//
+// 不转义 HTML 特殊字符
 func jsonMarshal(v interface{}) (string, error) {
 	var buf bytes.Buffer
 	encoder := json.NewEncoder(&buf)
@@ -30,524 +43,184 @@ func jsonMarshal(v interface{}) (string, error) {
 	return buf.String(), nil
 }
 
-func checkAuth(ctx context.Context) (string, bool) {
-	userID, ok := ctx.Value("user_id").(string)
-	if !ok || userID == "" {
-		return "", false
-	}
-	return userID, true
-}
-
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type LoginResponse struct {
-	Token        string `json:"token"`
-	RefreshToken string `json:"refreshToken"`
-}
-
-type UserInfoResponse struct {
-	UserID   string   `json:"userId"`
-	UserName string   `json:"userName"`
-	Roles    []string `json:"roles"`
-	Buttons  []string `json:"buttons"`
-}
-
-func Init(logger runtime.Logger, initializer runtime.Initializer) error {
-	logger.Info("Admin Module Loading...")
-
-	if err := initializer.RegisterRpc("admin_login", adminLogin); err != nil {
+// initPlayerRoutes 初始化玩家管理路由
+//
+// 注册所有玩家管理 RPC 接口
+func initPlayerRoutes(initializer runtime.Initializer) error {
+	if err := initializer.RegisterRpc("admin_get_players", adminGetPlayers); err != nil {
 		return err
 	}
-
-	if err := initializer.RegisterRpc("admin_logout", adminLogout); err != nil {
+	if err := initializer.RegisterRpc("admin_get_player", adminGetPlayer); err != nil {
 		return err
 	}
-
-	if err := initializer.RegisterRpc("admin_change_password", adminChangePassword); err != nil {
+	if err := initializer.RegisterRpc("admin_ban_player", adminBanPlayer); err != nil {
 		return err
 	}
-
-	if err := initializer.RegisterRpc("admin_get_user_info", adminGetUserInfo); err != nil {
+	if err := initializer.RegisterRpc("admin_unban_player", adminUnbanPlayer); err != nil {
 		return err
 	}
-
-	if err := initializer.RegisterRpc("admin_get_permissions", adminGetPermissions); err != nil {
-		return err
-	}
-
-	if err := initializer.RegisterRpc("admin_get_roles", adminGetRoles); err != nil {
-		return err
-	}
-
-	if err := initializer.RegisterRpc("admin_get_users", adminGetUsers); err != nil {
-		return err
-	}
-
-	if err := initializer.RegisterRpc("admin_get_routes", adminGetRoutes); err != nil {
-		return err
-	}
-
-	if err := initializer.RegisterRpc("admin_check_route", adminCheckRoute); err != nil {
-		return err
-	}
-
-	if err := initializer.RegisterRpc("admin_get_user_roles", adminGetUserRoles); err != nil {
-		return err
-	}
-
-	if err := initializer.RegisterRpc("admin_update_user_roles", adminUpdateUserRoles); err != nil {
-		return err
-	}
-
-	if err := initializer.RegisterRpc("admin_create_user", adminCreateUser); err != nil {
-		return err
-	}
-
-	if err := initializer.RegisterRpc("admin_update_user", adminUpdateUser); err != nil {
-		return err
-	}
-
-	if err := initializer.RegisterRpc("admin_delete_user", adminDeleteUser); err != nil {
-		return err
-	}
-
-	logger.Info("Admin Module Loaded!")
 	return nil
 }
 
-func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule) error {
-	if err := database.InitGORM(db); err != nil {
-		logger.Error("Failed to initialize GORM: %v", err)
-		return err
-	}
-	logger.Info("GORM initialized successfully")
-	return nil
-}
-
-func adminLogin(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	var req LoginRequest
-	if err := json.Unmarshal([]byte(payload), &req); err != nil {
-		return `{"error":"Invalid request format"}`, nil
-	}
-
-	gormDB := database.GetDB()
-	user, err := models.AdminUser{}.FindByUsername(gormDB, req.Username)
-	if err != nil {
-		return `{"error":"User not found"}`, nil
-	}
-
-	if user.Status != 1 {
-		return `{"error":"Account is disabled"}`, nil
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		return `{"error":"Invalid password"}`, nil
-	}
-
-	expiresAt := int64(86400)
-	token, _, err := nk.AuthenticateTokenGenerate(user.ID, "", expiresAt, map[string]string{"type": "admin"})
-	if err != nil {
-		return `{"error":"Failed to generate token"}`, nil
-	}
-
-	models.AdminUser{}.UpdateLastLogin(gormDB, user.ID)
-
-	response := LoginResponse{
-		Token:        token,
-		RefreshToken: token,
-	}
-
-	data, _ := jsonMarshal(response)
-	return data, nil
-}
-
-func adminLogout(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	return `{"success":true}`, nil
-}
-
-func adminChangePassword(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	userID, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
+// adminGetPlayers 获取玩家列表
+//
+// 支持分页和搜索
+func adminGetPlayers(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
 	var req struct {
-		OldPassword string `json:"oldPassword"`
-		NewPassword string `json:"newPassword"`
+		Page     int    `json:"page"`
+		PageSize int    `json:"pageSize"`
+		Search   string `json:"search"`
 	}
 	if err := json.Unmarshal([]byte(payload), &req); err != nil {
-		return `{"error":"Invalid request format"}`, nil
+		req.Page = 1
+		req.PageSize = 20
+	}
+	if req.Page < 1 {
+		req.Page = 1
+	}
+	if req.PageSize < 1 || req.PageSize > 100 {
+		req.PageSize = 20
 	}
 
-	if req.OldPassword == "" || req.NewPassword == "" {
-		return `{"error":"Password is required"}`, nil
+	offset := (req.Page - 1) * req.PageSize
+
+	query := "SELECT id, username, create_time, update_time FROM users WHERE disabled = false"
+	args := []interface{}{}
+
+	if req.Search != "" {
+		query += " AND username LIKE $1"
+		args = append(args, "%"+req.Search+"%")
 	}
 
-	if len(req.NewPassword) < 6 {
-		return `{"error":"New password must be at least 6 characters"}`, nil
-	}
+	query += " ORDER BY create_time DESC LIMIT $2 OFFSET $3"
+	args = append(args, req.PageSize, offset)
 
-	gormDB := database.GetDB()
-	user, err := models.AdminUser{}.FindByID(gormDB, userID)
+	rows, err := db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return `{"error":"User not found"}`, nil
+		logger.Error("Failed to query players: %v", err)
+		return `{"error":"Failed to get players"}`, nil
+	}
+	defer rows.Close()
+
+	type Player struct {
+		ID         string `json:"id"`
+		Username   string `json:"username"`
+		CreateTime string `json:"createTime"`
+		UpdateTime string `json:"updateTime"`
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.OldPassword)); err != nil {
-		return `{"error":"Old password is incorrect"}`, nil
+	players := []Player{}
+	for rows.Next() {
+		var p Player
+		if err := rows.Scan(&p.ID, &p.Username, &p.CreateTime, &p.UpdateTime); err != nil {
+			logger.Error("Failed to scan player: %v", err)
+			continue
+		}
+		players = append(players, p)
 	}
 
-	newHashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return `{"error":"Failed to hash password"}`, nil
+	var total int
+	countQuery := "SELECT COUNT(*) FROM users WHERE disabled = false"
+	if req.Search != "" {
+		countQuery += " AND username LIKE $1"
+		db.QueryRowContext(ctx, countQuery, "%"+req.Search+"%").Scan(&total)
+	} else {
+		db.QueryRowContext(ctx, countQuery).Scan(&total)
 	}
 
-	if err := (models.AdminUser{}).UpdatePassword(gormDB, userID, string(newHashedPassword)); err != nil {
-		return `{"error":"Failed to update password"}`, nil
-	}
-
-	return `{"success":true}`, nil
-}
-
-func adminGetUserInfo(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	userID, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
-	gormDB := database.GetDB()
-	user, err := models.AdminUser{}.FindByID(gormDB, userID)
-	if err != nil {
-		return `{"error":"User not found"}`, nil
-	}
-
-	nickname := user.Nickname
-	if nickname == "" {
-		nickname = user.Username
-	}
-
-	roles, _ := models.AdminUser{}.GetRoleCodes(gormDB, userID)
-	buttons, _ := models.AdminUser{}.GetButtonCodes(gormDB, userID)
-
-	response := UserInfoResponse{
-		UserID:   userID,
-		UserName: nickname,
-		Roles:    roles,
-		Buttons:  buttons,
+	response := map[string]interface{}{
+		"list":     players,
+		"total":    total,
+		"page":     req.Page,
+		"pageSize": req.PageSize,
 	}
 
 	data, _ := jsonMarshal(response)
 	return data, nil
 }
 
-func adminGetPermissions(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	userID, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
-	gormDB := database.GetDB()
-	permissions, err := models.AdminPermission{}.GetByUserID(gormDB, userID)
-	if err != nil {
-		return `{"error":"Database error"}`, nil
-	}
-
-	data, _ := jsonMarshal(permissions)
-	return data, nil
-}
-
-func adminGetRoles(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	_, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
-	gormDB := database.GetDB()
-	roles, err := models.AdminRole{}.ListAll(gormDB)
-	if err != nil {
-		return `{"error":"Database error"}`, nil
-	}
-
-	data, _ := jsonMarshal(roles)
-	return data, nil
-}
-
-func adminGetUsers(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	_, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
-	gormDB := database.GetDB()
-	users, err := models.AdminUser{}.ListAll(gormDB)
-	if err != nil {
-		return `{"error":"Database error"}`, nil
-	}
-
-	data, _ := jsonMarshal(users)
-	return data, nil
-}
-
-func adminGetUserRoles(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	_, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
+// adminGetPlayer 获取玩家详情
+//
+// 返回指定玩家的详细信息
+func adminGetPlayer(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
 	var req struct {
 		UserID string `json:"userId"`
 	}
 	if err := json.Unmarshal([]byte(payload), &req); err != nil {
 		return `{"error":"Invalid request"}`, nil
 	}
-	if req.UserID == "" {
-		return `{"error":"User ID is required"}`, nil
+
+	query := "SELECT id, username, email, display_name, avatar_url, lang_tag, location, timezone, metadata, wallet, create_time, update_time, disabled FROM users WHERE id = $1"
+
+	var player struct {
+		ID          string `json:"id"`
+		Username    string `json:"username"`
+		Email       string `json:"email"`
+		DisplayName string `json:"displayName"`
+		AvatarURL   string `json:"avatarUrl"`
+		LangTag     string `json:"langTag"`
+		Location    string `json:"location"`
+		Timezone    string `json:"timezone"`
+		Metadata    string `json:"metadata"`
+		Wallet      string `json:"wallet"`
+		CreateTime  string `json:"createTime"`
+		UpdateTime  string `json:"updateTime"`
+		Disabled    bool   `json:"disabled"`
 	}
 
-	gormDB := database.GetDB()
-	roleIDs, err := models.AdminUser{}.GetRoleIDs(gormDB, req.UserID)
+	err := db.QueryRowContext(ctx, query, req.UserID).Scan(
+		&player.ID, &player.Username, &player.Email, &player.DisplayName,
+		&player.AvatarURL, &player.LangTag, &player.Location, &player.Timezone,
+		&player.Metadata, &player.Wallet, &player.CreateTime, &player.UpdateTime, &player.Disabled,
+	)
 	if err != nil {
-		return `{"error":"Database error"}`, nil
+		logger.Error("Failed to get player: %v", err)
+		return `{"error":"Player not found"}`, nil
 	}
 
-	data, _ := jsonMarshal(roleIDs)
+	data, _ := jsonMarshal(player)
 	return data, nil
 }
 
-func adminUpdateUserRoles(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	_, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
+// adminBanPlayer 封禁玩家
+//
+// 将玩家状态设置为封禁
+func adminBanPlayer(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
 	var req struct {
-		UserID  string   `json:"userId"`
-		RoleIDs []string `json:"roleIds"`
+		UserID string `json:"userId"`
+		Reason string `json:"reason"`
 	}
 	if err := json.Unmarshal([]byte(payload), &req); err != nil {
 		return `{"error":"Invalid request"}`, nil
 	}
-	if req.UserID == "" {
-		return `{"error":"User ID is required"}`, nil
-	}
 
-	gormDB := database.GetDB()
-	if err := (models.AdminUser{}).SetRoles(gormDB, req.UserID, req.RoleIDs); err != nil {
-		return `{"error":"Failed to update roles"}`, nil
+	query := "UPDATE users SET disabled = true, update_time = NOW() WHERE id = $1"
+	_, err := db.ExecContext(ctx, query, req.UserID)
+	if err != nil {
+		logger.Error("Failed to ban player: %v", err)
+		return `{"error":"Failed to ban player"}`, nil
 	}
 
 	return `{"success":true}`, nil
 }
 
-func adminCreateUser(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	_, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
+// adminUnbanPlayer 解封玩家
+//
+// 解除玩家封禁状态
+func adminUnbanPlayer(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
 	var req struct {
-		Username string   `json:"username"`
-		Password string   `json:"password"`
-		Nickname string   `json:"nickname"`
-		Email    string   `json:"email"`
-		Phone    string   `json:"phone"`
-		Status   int      `json:"status"`
-		Roles    []string `json:"roles"`
+		UserID string `json:"userId"`
 	}
 	if err := json.Unmarshal([]byte(payload), &req); err != nil {
 		return `{"error":"Invalid request"}`, nil
 	}
-	if req.Username == "" || req.Password == "" {
-		return `{"error":"Username and password are required"}`, nil
-	}
 
-	gormDB := database.GetDB()
-	if (models.AdminUser{}).ExistsByUsername(gormDB, req.Username) {
-		return `{"error":"Username already exists"}`, nil
-	}
-
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	query := "UPDATE users SET disabled = false, update_time = NOW() WHERE id = $1"
+	_, err := db.ExecContext(ctx, query, req.UserID)
 	if err != nil {
-		return `{"error":"Failed to hash password"}`, nil
-	}
-
-	user := &models.AdminUser{
-		ID:       generateUUID(),
-		Username: req.Username,
-		Password: string(passwordHash),
-		Nickname: req.Nickname,
-		Email:    req.Email,
-		Phone:    req.Phone,
-		Status:   req.Status,
-	}
-
-	if err := user.Create(gormDB); err != nil {
-		return `{"error":"Failed to create user"}`, nil
-	}
-
-	if len(req.Roles) > 0 {
-		models.AdminUser{}.SetRoles(gormDB, user.ID, req.Roles)
-	}
-
-	return `{"success":true,"userId":"` + user.ID + `"}`, nil
-}
-
-func adminUpdateUser(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	_, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
-	var req struct {
-		ID       string   `json:"id"`
-		Nickname string   `json:"nickname"`
-		Email    string   `json:"email"`
-		Phone    string   `json:"phone"`
-		Status   int      `json:"status"`
-		Password string   `json:"password"`
-		Roles    []string `json:"roles"`
-	}
-	if err := json.Unmarshal([]byte(payload), &req); err != nil {
-		return `{"error":"Invalid request"}`, nil
-	}
-	if req.ID == "" {
-		return `{"error":"User ID is required"}`, nil
-	}
-
-	gormDB := database.GetDB()
-	user, err := models.AdminUser{}.FindByID(gormDB, req.ID)
-	if err != nil {
-		return `{"error":"User not found"}`, nil
-	}
-
-	user.Nickname = req.Nickname
-	user.Email = req.Email
-	user.Phone = req.Phone
-	user.Status = req.Status
-
-	if req.Password != "" {
-		passwordHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return `{"error":"Failed to hash password"}`, nil
-		}
-		user.Password = string(passwordHash)
-	}
-
-	if err := user.Update(gormDB); err != nil {
-		return `{"error":"Failed to update user"}`, nil
-	}
-
-	if req.Roles != nil {
-		models.AdminUser{}.SetRoles(gormDB, req.ID, req.Roles)
+		logger.Error("Failed to unban player: %v", err)
+		return `{"error":"Failed to unban player"}`, nil
 	}
 
 	return `{"success":true}`, nil
-}
-
-func adminDeleteUser(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	_, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
-	var req struct {
-		ID string `json:"id"`
-	}
-	if err := json.Unmarshal([]byte(payload), &req); err != nil {
-		return `{"error":"Invalid request"}`, nil
-	}
-	if req.ID == "" {
-		return `{"error":"User ID is required"}`, nil
-	}
-
-	gormDB := database.GetDB()
-	user, err := models.AdminUser{}.FindByID(gormDB, req.ID)
-	if err != nil {
-		return `{"error":"User not found"}`, nil
-	}
-
-	if err := user.Delete(gormDB); err != nil {
-		return `{"error":"Failed to delete user"}`, nil
-	}
-
-	return `{"success":true}`, nil
-}
-
-type RouteItem struct {
-	Name      string      `json:"name"`
-	Path      string      `json:"path"`
-	Component string      `json:"component"`
-	Meta      RouteMeta   `json:"meta"`
-	Children  []RouteItem `json:"children,omitempty"`
-}
-
-type RouteMeta struct {
-	Title      string `json:"title"`
-	Icon       string `json:"icon,omitempty"`
-	Order      int    `json:"order,omitempty"`
-	HideInMenu bool   `json:"hideInMenu,omitempty"`
-}
-
-func adminGetRoutes(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	userID, ok := checkAuth(ctx)
-	if !ok {
-		return `{"error":"Unauthorized"}`, nil
-	}
-
-	gormDB := database.GetDB()
-	permissions, err := models.AdminPermission{}.GetMenusByUserID(gormDB, userID)
-	if err != nil {
-		return `{"error":"Database error"}`, nil
-	}
-
-	routes := buildRouteTree(permissions, "")
-	data, _ := jsonMarshal(routes)
-	return data, nil
-}
-
-func buildRouteTree(permissions []models.PermissionDTO, parentID string) []RouteItem {
-	var routes []RouteItem
-	for _, p := range permissions {
-		if p.ParentID == parentID {
-			route := RouteItem{
-				Name: p.Code,
-				Path: p.Path,
-				Meta: RouteMeta{
-					Title: p.Name,
-					Icon:  p.Icon,
-					Order: p.SortOrder,
-				},
-			}
-			if p.Component != "" {
-				route.Component = p.Component
-			}
-			route.Children = buildRouteTree(permissions, p.ID)
-			routes = append(routes, route)
-		}
-	}
-	return routes
-}
-
-func adminCheckRoute(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
-	userID, ok := checkAuth(ctx)
-	if !ok {
-		return "false", nil
-	}
-
-	var req struct {
-		Route string `json:"route"`
-	}
-	if err := json.Unmarshal([]byte(payload), &req); err != nil {
-		return "false", nil
-	}
-
-	gormDB := database.GetDB()
-	hasAccess, _ := models.AdminPermission{}.CheckRouteAccess(gormDB, userID, req.Route)
-	if hasAccess {
-		return "true", nil
-	}
-	return "false", nil
 }

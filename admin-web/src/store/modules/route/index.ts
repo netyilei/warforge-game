@@ -22,6 +22,18 @@ import {
   transformMenuToSearchMenus
 } from './shared';
 
+const HOME_ROUTE: ElegantConstRoute = {
+  name: 'home',
+  path: '/home',
+  component: 'layout.base$view.home',
+  meta: {
+    title: '仪表盘',
+    i18nKey: 'route.home',
+    icon: 'mdi:monitor-dashboard',
+    order: 0
+  }
+};
+
 export const useRouteStore = defineStore(SetupStoreId.Route, () => {
   const authStore = useAuthStore();
   const tabStore = useTabStore();
@@ -114,7 +126,7 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     } else {
       const { data, error } = await fetchGetConstantRoutes();
 
-      if (!error) {
+      if (!error && data) {
         addConstantRoutes(data);
       } else {
         addConstantRoutes(staticRoute.constantRoutes);
@@ -164,7 +176,19 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     if (!error && data) {
       const { routes, home } = data;
 
-      addAuthRoutes(routes as ElegantConstRoute[]);
+      const backendRoutes = routes as ElegantConstRoute[];
+
+      const hasHomeInBackend = backendRoutes.some(route => route.name === 'home');
+
+      let mergedRoutes: ElegantConstRoute[];
+
+      if (hasHomeInBackend) {
+        mergedRoutes = backendRoutes;
+      } else {
+        mergedRoutes = [HOME_ROUTE, ...backendRoutes];
+      }
+
+      addAuthRoutes(mergedRoutes);
 
       handleConstantAndAuthRoutes();
 

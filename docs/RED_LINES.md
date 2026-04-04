@@ -192,28 +192,19 @@
 
 ---
 
-## 十三、移动端兼容红线
-
-### 13.1 布局设计要求
-
-- **必须兼顾移动端**：对管理员后台、代理管理后台做布局、设计工作时，必须兼顾移动端浏览。
-- **响应式设计**：所有页面必须采用响应式设计，确保在不同屏幕尺寸下正常显示。
-
----
-
 ## 十四、数据库操作红线
 
-### 14.1 GORM 优先原则
+### 14.1 原生 SQL 优先原则
 
-- **禁止直接写原生 SQL**：所有数据库操作必须优先使用 GORM ORM 方式。
-- **简单 CRUD**：必须使用 GORM 的 `Create()`, `Save()`, `Delete()`, `First()`, `Find()` 等方法。
-- **条件查询**：必须使用 GORM 的 `Where()`, `Order()`, `Limit()`, `Offset()` 等链式调用。
+- **使用原生 SQL**：所有数据库操作使用 Go 标准库 `database/sql` 的原生 SQL 方式。
+- **参数化查询**：必须使用参数化查询（`$1`, `$2` 等）防止 SQL 注入。
 
-### 14.2 复杂查询封装规范
+### 14.2 SQL 语句封装红线（强制）
 
-- **关联查询封装**：对于涉及多表 JOIN、复杂条件等无法用简单 GORM 链式调用完成的查询，必须在对应的 Model 文件中封装为方法。
-- **封装位置**：统一放在 `server/models/` 目录下，按表名命名文件（如 `admin_user.go`）。
-- **方法命名**：使用清晰的业务语义命名，如 `GetRoleCodes()`, `GetMenusByUserID()`, `CheckRouteAccess()`。
+- **🔴 红线：SQL 必须在 Model 中**：所有 SQL 语句必须封装在对应的 Model 文件中，**禁止在 Handler、Controller、Service 等其他地方直接编写 SQL 语句**。
+- **封装位置**：统一放在 `server/models/` 目录下，按表名命名文件（如 `admin_user.go`、`admin_permission.go`）。
+- **方法命名**：使用清晰的业务语义命名，如 `GetRoleCodes()`、`GetMenusByUserID()`、`CheckRouteAccess()`。
+- **调用方式**：Handler 只负责调用 Model 方法，不接触 SQL 细节。
 
 ### 14.3 Models 组织规范
 
@@ -227,28 +218,108 @@
 
 ```go
 // server/models/admin_user.go
-func (AdminUser) GetRoleCodes(db *gorm.DB, userID string) ([]string, error) {
+func (AdminUser) GetRoleCodes(db *sql.DB, userID string) ([]string, error) {
+    query := `
+        SELECT r.code 
+        FROM admin_roles r 
+        INNER JOIN admin_user_roles ur ON r.id = ur.role_id 
+        WHERE ur.user_id = $1 AND r.status = 1
+    `
+    rows, err := db.Query(query, userID)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+    
     var codes []string
-    err := db.Model(&AdminRole{}).
-        Select("admin_roles.code").
-        Joins("INNER JOIN admin_user_roles ON admin_roles.id = admin_user_roles.role_id").
-        Where("admin_user_roles.user_id = ? AND admin_roles.status = 1", userID).
-        Pluck("admin_roles.code", &codes).Error
-    return codes, err
+    for rows.Next() {
+        var code string
+        if err := rows.Scan(&code); err != nil {
+            return nil, err
+        }
+        codes = append(codes, code)
+    }
+    return codes, nil
 }
 
-// server/modules/admin/admin.go
-import "warforge-server/models"
-
-codes, err := models.AdminUser{}.GetRoleCodes(gormDB, userID)
+// 使用
+codes, err := models.AdminUser{}.GetRoleCodes(db, userID)
 ```
 
-**错误做法**：
+---
 
-```go
-// 直接在业务代码中写原生 SQL
-rows, err := db.Query("SELECT r.code FROM admin_roles r INNER JOIN admin_user_roles ur ON r.id = ur.role_id WHERE ur.user_id = $1", userID)
+## 十五、路由管理红线
+
+### 15.1 核心原则
+
+- **前端路由为准**：elegant-router 根据文件结构自动生成路由，数据库菜单必须与前端路由结构保持一致。
+- **禁止反向操作**：不得在数据库中创建前端不存在的路由。
+
+### 15.2 路由命名规范
+
+| 项目 | 规则 | 示例 |
+|------|------|------|
+| 路由名称 | 下划线分隔，禁止使用冒号 | `storage_config` ✓, `storage:config` ✗ |
+| 路由路径 | 根据文件夹层级自动生成 | `/storage/config` |
+| 一级菜单 component | 有子菜单时使用 `layout.base` | `layout.base` |
+| 二级菜单 component | 使用 `view.{路由名称}` | `view.storage_config` |
+| 父级关系 | 必须与前端文件结构一致 | `storage_config` 父级必须是 `storage` |
+
+### 15.3 添加新菜单流程
+
 ```
+步骤 1: 创建前端页面
+        └─ 文件位置: src/views/{父目录}/{子目录}/index.vue
+
+步骤 2: 等待路由生成
+        └─ 重启 dev server 或等待热更新
+        └─ 检查: src/router/elegant/routes.ts
+
+步骤 3: 配置数据库菜单
+        └─ code = 前端路由名称 (下划线格式)
+        └─ path = 前端路由路径
+        └─ component = 根据层级设置
+        └─ parent_id = 与前端路由层级一致
+
+步骤 4: 分配权限
+        └─ 给相应角色分配菜单和按钮权限
+```
+
+### 15.4 前端路由与数据库映射示例
+
+**前端文件结构**：
+
+```
+src/views/
+├── storage/
+│   ├── config/
+│   │   └── index.vue      → 路由: storage_config, 路径: /storage/config
+│   └── records/
+│       └── index.vue      → 路由: storage_records, 路径: /storage/records
+```
+
+**数据库菜单配置**：
+
+```sql
+-- 一级菜单 (storage)
+INSERT INTO admin_permissions (code, name, parent_id, path, component) VALUES
+('storage', '存储', NULL, '/storage', 'layout.base');
+
+-- 二级菜单 (storage_config)
+INSERT INTO admin_permissions (code, name, parent_id, path, component) VALUES
+('storage_config', '存储配置', '{storage_id}', '/storage/config', 'view.storage_config');
+
+-- 二级菜单 (storage_records)
+INSERT INTO admin_permissions (code, name, parent_id, path, component) VALUES
+('storage_records', '上传记录', '{storage_id}', '/storage/records', 'view.storage_records');
+```
+
+### 15.5 禁止事项
+
+- ❌ 禁止在数据库中创建前端不存在的路由
+- ❌ 禁止使用冒号(:)作为路由名称分隔符，必须使用下划线(_)
+- ❌ 禁止数据库菜单层级与前端路由层级不一致
+- ❌ 禁止跳过前端直接在数据库添加菜单
 
 ---
 
@@ -271,9 +342,227 @@ rows, err := db.Query("SELECT r.code FROM admin_roles r INNER JOIN admin_user_ro
 - [ ] **是否进行了功能测试？（新增）**
 - [ ] **Nakama RPC 调用是否符合双重编码规范？（新增）**
 - [ ] **是否考虑了移动端兼容性？（新增）**
-- [ ] **数据库操作是否使用 GORM？（新增）**
-- [ ] **复杂查询是否封装在 Model 方法中？（新增）**
+- [ ] **数据库操作是否使用原生 SQL？（新增）**
+- [ ] **🔴 SQL 语句是否封装在 Model 文件中？（强制）**
+- [ ] **查询是否封装在 Model 方法中？（新增）**
 - [ ] **Models 是否统一存放在 server/models/ 目录？（新增）**
+- [ ] **路由配置是否与前端一致？（新增）**
+- [ ] **路由名称是否使用下划线格式？（新增）**
+- [ ] **Redis Key 是否统一定义在 redis_keys.go？（新增）**
+- [ ] **Admin 与 webadmin 职责是否正确分离？（新增）**
+- [ ] **认证系统是否正确隔离？（新增）**
+- [ ] **Gin 代码是否只在 webadmin和webproxy 目录下？（新增）**
+- [ ] **文件头部是否有中文注释说明用途？（新增）**
+- [ ] **函数是否有中文注释说明作用？（新增）**
+- [ ] **重要逻辑是否有中文注释？（新增）**
+
+---
+
+## 十六、Redis Key 管理红线
+
+### 16.1 统一定义原则
+
+- **禁止硬编码**：所有 Redis Key 必须在 `server/database/redis_keys.go` 中统一定义，禁止在其他地方硬编码。
+- **命名规范**：`{模块}:{功能}:{标识}`
+
+### 16.2 示例
+
+**正确做法**：
+
+```go
+// server/database/redis_keys.go
+const (
+    RedisKeyAdminTokenPrefix   = "admin:token:"
+    RedisKeyAdminRefreshPrefix = "admin:refresh:"
+)
+
+func GetAdminTokenKey(userID string) string {
+    return RedisKeyAdminTokenPrefix + userID
+}
+
+// 使用
+redisKey := database.GetAdminTokenKey(userID)
+```
+
+**错误做法**：
+
+```go
+// 直接硬编码
+redisKey := "admin:token:" + userID
+```
+
+---
+
+## 十七、Admin 与 webadmin 职责分离红线
+
+### 17.1 模块职责划分
+
+| 模块 | 位置 | 职责 | 数据操作 |
+|------|------|------|----------|
+| `modules/admin` | Nakama RPC | Nakama 核心功能 | 调用 Nakama API |
+| `webadmin` | Gin HTTP API | 后台管理 | 原生SQL操作 |
+
+### 17.2 判断标准
+
+功能是否涉及 Nakama 核心功能（玩家、好友、匹配、房间、排行榜）？
+
+- **是** → `modules/admin/` 实现 RPC
+- **否** → `webadmin/handlers/` 实现 HTTP API
+
+### 17.3 禁止事项
+
+- ❌ 禁止在 webadmin 中调用 Nakama RPC 处理非核心功能
+- ❌ 禁止在 modules/admin 中处理后台管理业务（用户、角色、权限、内容、设置、存储）
+
+---
+
+## 十九、Gin 模块独立性红线
+
+### 19.1 模块隔离原则
+
+- **Gin 代码专属目录**：Gin 相关代码只在 `webadmin/` 目录下，禁止与其他模块混用。
+- **目录结构**：
+  - 路由：`server/webadmin/routes.go`
+  - 处理器：`server/webadmin/handlers/`
+  - 中间件：`server/webadmin/middleware.go`
+  - JWT 工具：`server/webadmin/jwtutil/`
+
+### 19.2 公共资源
+
+- **全局共用**：`models/`, `database/`, `config/` 可被所有模块引用
+- **禁止复制**：不得在 Gin 模块中复制公共模块的代码
+
+---
+
+## 十八、双轨认证红线
+
+### 18.1 认证系统隔离
+
+| 系统 | 用户类型 | 认证方式 | Token 存储 |
+|------|----------|----------|------------|
+| Nakama 认证 | 游戏玩家 | Nakama Session | Nakama 内部 |
+| Admin 认证 | 后台管理员 | 自定义 JWT | Redis |
+
+### 18.2 禁止混用
+
+- **管理员认证不依赖 Nakama**：后台管理员使用独立的 JWT 系统，不依赖 Nakama 的认证。
+- **玩家认证不依赖 Admin JWT**：游戏玩家使用 Nakama Session，不使用 Admin JWT。
+
+### 18.3 参考文件
+
+- JWT 工具：`server/webadmin/jwtutil/jwt.go`
+
+---
+
+---
+
+## 二十、代码注释红线
+
+### 20.1 文件头部注释
+
+- **必须添加**：每个文件头部必须添加注释，说明该文件的用途。
+- **格式要求**：
+
+  ```go
+  // Package xxx 提供xxx功能
+  //
+  // 本文件实现xxx核心逻辑，包括：
+  // - 功能1
+  // - 功能2
+  package xxx
+  ```
+
+### 20.2 函数注释
+
+- **必须添加**：每个函数必须添加注释，说明函数的作用。
+- **格式要求**：
+
+  ```go
+  // FunctionName 函数功能简述
+  //
+  // 详细说明（可选）：
+  // - 参数说明
+  // - 返回值说明
+  // - 注意事项
+  func FunctionName(param string) error {
+  ```
+
+### 20.3 重要逻辑注释
+
+- **必须添加**：重要逻辑、复杂算法、业务规则必须添加注释说明。
+- **注释语言**：所有注释必须使用中文。
+
+### 20.4 示例
+
+**正确做法**：
+
+```go
+// Package rpc 提供 Nakama RPC 接口实现
+//
+// 本文件实现游戏核心 RPC 接口，包括：
+// - 健康检查接口
+// - 用户信息查询接口
+package rpc
+
+import (
+    "context"
+    "database/sql"
+
+    "github.com/heroiclabs/nakama-common/runtime"
+)
+
+// Init 初始化 RPC 模块
+//
+// 注册所有 RPC 接口到 Nakama 运行时
+func Init(logger runtime.Logger, initializer runtime.Initializer) error {
+    logger.Info("Nakama RPC Module Loading...")
+
+    // 注册健康检查接口
+    if err := initializer.RegisterRpc("health", healthCheck); err != nil {
+        return err
+    }
+
+    logger.Info("Nakama RPC Module Loaded!")
+    return nil
+}
+
+// healthCheck 健康检查接口
+//
+// 返回服务状态信息，用于监控和负载均衡检测
+func healthCheck(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
+    return `{"status":"ok","service":"warforge-nakama"}`, nil
+}
+```
+
+### 20.5 禁止事项
+
+- ❌ 禁止文件无头部注释
+- ❌ 禁止函数无功能说明
+- ❌ 禁止使用英文注释
+- ❌ 禁止注释与代码不一致
+
+---
+
+## 二十一、代码编辑后检查红线
+
+### 21.1 强制检查要求
+
+- **必须检查错误**：每次编辑代码后，必须检查是否有编译错误、类型错误或运行时错误。
+- **检查方式**：
+  - Go 代码：运行 `go build` 检查编译错误
+  - TypeScript 代码：运行 `npm run typecheck` 或查看 IDE 诊断
+  - 前端代码：运行 `npm run build` 检查构建错误
+
+### 21.2 检查时机
+
+- **编辑后立即检查**：代码编辑完成后，必须立即进行错误检查。
+- **提交前检查**：提交代码前必须再次确认无错误。
+
+### 21.3 禁止事项
+
+- ❌ 禁止编辑代码后不检查错误
+- ❌ 禁止忽略编译错误或类型错误
+- ❌ 禁止在存在错误的情况下继续其他任务
 
 ---
 

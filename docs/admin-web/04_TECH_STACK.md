@@ -66,7 +66,6 @@
 | Go | 1.26.1 | 编程语言 |
 | Nakama | 3.33.0 | 开源游戏服务器框架 |
 | nakama-common | v1.45.0 | Nakama 运行时 API |
-| GORM | v1.25.12 | Go ORM 库，数据库操作 |
 | Hiro | v1.32.0 | Nakama 扩展框架（成就、任务、排行榜） |
 
 ### 数据库
@@ -75,6 +74,14 @@
 |------|------|------|
 | CockroachDB | v23.2.5 | 分布式 SQL 数据库，PostgreSQL 兼容 |
 | Redis | latest | 缓存、会话存储 |
+
+### 对象存储
+
+| 技术 | 说明 |
+|------|------|
+| AWS SDK for Go v2 | S3 兼容存储 SDK |
+| Cloudflare R2 | 推荐，无出站流量费用 |
+| AWS S3 | 备选，成熟稳定 |
 
 ### 容器化
 

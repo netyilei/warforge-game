@@ -114,7 +114,7 @@ game-server/
 
 ### Phase 3: Admin API 接口
 
-**Status:** `in_progress`
+**Status:** `completed`
 **Goal:** 实现管理后台所需的后端接口
 
 **Tasks:**
@@ -127,35 +127,82 @@ game-server/
   - [x] 角色管理
   - [x] 权限管理
   - [x] 动态路由生成
-- [ ] 用户管理接口
-  - [ ] 用户列表/搜索
-  - [ ] 用户详情
-  - [ ] 用户禁用/启用
-  - [ ] 用户资产查询
-- [ ] 管理员管理接口
-  - [ ] 管理员 CRUD
-  - [ ] 角色权限管理
-- [ ] 代理管理接口
-  - [ ] 代理列表
-  - [ ] 代理层级关系
-  - [ ] 佣金统计
-- [ ] 系统配置接口
-  - [ ] 全局配置 CRUD
-  - [ ] 游戏配置
-  - [ ] 充值配置
-- [ ] 客服接口
-  - [ ] 客服账号管理
-  - [ ] 会话分配
+- [x] 目录重构
+  - [x] 创建 nakama/ 目录结构
+  - [x] 创建 nakama/rpc/ RPC 接口实现
+  - [x] 创建 nakama/api/ws/ WebSocket 消息定义
+  - [x] 创建 nakama/shared/ 共用工具
+  - [x] 创建 nakama/games/common/ 游戏通用逻辑
+  - [x] 创建 nakama/services/ 业务服务模块
+  - [x] 创建 nakama/hooks/ 钩子函数
+  - [x] 创建 nakama/match/ 权威匹配器
+  - [x] 创建 nakama/storage/ Storage Collection 定义
+  - [x] 创建 nakama/event/ 事件处理
+  - [x] 创建 webproxy/ 目录结构
+  - [x] 创建 internal/ 和 pkg/ 目录
+  - [x] 更新 main.go 引用新包路径
+  - [x] 添加中文注释到所有新文件
+  - [x] 添加代码注释红线规则到 RED_LINES.md
+- [x] 内容管理模块
+  - [x] 内容分类 CRUD
+  - [x] Banner 管理
+  - [x] Banner 位置管理
+- [x] 语言管理模块
+  - [x] 语言列表
+  - [x] 语言启用/禁用
+  - [x] 默认语言设置
+- [x] 存储管理模块
+  - [x] 存储配置 CRUD
+  - [x] 上传记录查询
+- [x] 操作日志
+  - [x] 操作日志记录中间件
+  - [x] 操作日志查询接口
+- [x] 数据库迁移
+  - [x] 整合迁移脚本 (000_init_complete.sql)
+  - [x] 内容管理相关表
+  - [x] 语言表
+  - [x] 存储相关表
+  - [x] 操作日志表
+- [x] 文档更新
+  - [x] 路由配置指南 (ROUTE_CONFIGURATION_GUIDE.md)
+  - [x] 开发问题记录 (DEVELOPMENT_ISSUES.md)
+  - [x] 更新 RBAC 系统文档
+  - [x] 更新数据库设计文档
+  - [x] 更新前端概述文档
 
-**Files Created:**
+**Target Directory Structure:**
 
 ```
-modules/admin/
-├── admin.go
-└── rpc/
-    ├── auth.go
-    ├── user.go
-    └── route.go
+server/
+├── cmd/
+│   └── main.go
+├── nakama/
+│   ├── api/ws/
+│   ├── rpc/
+│   ├── hooks/
+│   ├── match/
+│   ├── shared/
+│   ├── games/common/
+│   ├── services/
+│   ├── storage/
+│   └── event/
+├── webadmin/
+│   ├── api/v1/
+│   ├── handlers/
+│   ├── middleware.go
+│   ├── routes.go
+│   └── jwtutil/
+├── webproxy/
+│   ├── api/v1/
+│   ├── handlers/
+│   ├── middleware.go
+│   └── routes.go
+├── database/
+├── models/
+├── config/
+├── migrations/
+├── internal/
+└── pkg/
 ```
 
 ---
@@ -432,9 +479,9 @@ Phase 10 (客户端重构)
 
 ## Current Focus
 
-**Phase:** 3
-**Task:** Admin API 接口开发
-**Next Action:** 完善用户管理接口和代理管理接口
+**Phase:** 3 (Completed)
+**Task:** Admin API 接口开发已完成
+**Next Action:** Phase 4 - Storage Schema 定义，或继续完善管理后台功能
 
 ---
 

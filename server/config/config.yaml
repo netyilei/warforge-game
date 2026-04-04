@@ -4,20 +4,25 @@ server:
   websocket_port: 7351
 
 database:
-  host: ${DB_HOST:dev_cockroach}
-  port: ${DB_PORT:26257}
-  user: ${DB_USER:root}
-  password: ${DB_PASSWORD:}
-  name: ${DB_NAME:nakama}
+  host: localhost
+  port: 26257
+  user: root
+  password: ""
+  name: nakama
   sslmode: disable
   max_open_conns: 100
   max_idle_conns: 10
 
 redis:
-  host: ${REDIS_HOST:dev_redis}
-  port: ${REDIS_PORT:6379}
-  password: ${REDIS_PASSWORD:}
+  host: localhost
+  port: 6379
+  password: ""
   db: 2
+
+web_admin:
+  enabled: true
+  port: 9528
+  secret_key: "warforge-admin-secret-key-2024"
 
 log:
   level: debug

@@ -9,6 +9,8 @@
 | 文档 | 说明 | 优先级 |
 |------|------|--------|
 | [docs/RED_LINES.md](./docs/RED_LINES.md) | **项目红线文档** | ⭐⭐⭐⭐ |
+| [docs/ROUTE_CONFIGURATION_GUIDE.md](./docs/ROUTE_CONFIGURATION_GUIDE.md) | **路由配置指南** | ⭐⭐⭐⭐ |
+| [docs/DEVELOPMENT_ISSUES.md](./docs/DEVELOPMENT_ISSUES.md) | **开发问题记录** | ⭐⭐⭐ |
 | [task_plan.md](./task_plan.md) | 开发任务计划 | ⭐⭐⭐ |
 | [findings.md](./findings.md) | 研究发现 | ⭐⭐⭐ |
 | [progress.md](./progress.md) | 开发进度日志 | ⭐⭐⭐ |
@@ -30,6 +32,8 @@
 | [06_TEST_ENVIRONMENT.md](./docs/server/06_TEST_ENVIRONMENT.md) | 测试环境配置（Docker、验证） |
 | [07_PROTOCOL_MAPPING.md](./docs/server/07_PROTOCOL_MAPPING.md) | 协议映射（老客户端兼容） |
 | [08_NAKAMA_API_REFERENCE.md](./docs/server/08_NAKAMA_API_REFERENCE.md) | Nakama API 参考（Runtime 接口） |
+| [09_NAKAMA_MODULES.md](./docs/server/09_NAKAMA_MODULES.md) | Nakama 功能模块参考 |
+| [10_STORAGE_MODULE.md](./docs/server/10_STORAGE_MODULE.md) | 存储模块（文件上传、对象存储） |
 
 ### 管理后台文档 ([docs/admin-web/](./docs/admin-web/00_OVERVIEW.md))
 
@@ -40,6 +44,8 @@
 | [02_API_LAYER.md](./docs/admin-web/02_API_LAYER.md) | API 层设计（Nakama RPC、WebSocket） |
 | [03_RBAC_SYSTEM.md](./docs/admin-web/03_RBAC_SYSTEM.md) | RBAC 权限系统（角色、权限管理） |
 | [04_TECH_STACK.md](./docs/admin-web/04_TECH_STACK.md) | 技术选型详情（版本、选型理由） |
+| [05_ICON_GUIDE.md](./docs/admin-web/05_ICON_GUIDE.md) | 图标使用指南 |
+| [06_STORAGE_MODULE.md](./docs/admin-web/06_STORAGE_MODULE.md) | 存储模块（文件上传、存储配置） |
 
 ### 老客户端文档 ([docs/old_client/](./docs/old_client/00_OVERVIEW.md))
 

@@ -130,9 +130,6 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     localStg.set('token', loginToken.token);
     localStg.set('refreshToken', loginToken.refreshToken);
 
-    // eslint-disable-next-line no-console
-    console.log('[loginByToken] token stored:', loginToken.token.substring(0, 20) + '...');
-
     const pass = await getUserInfo();
 
     if (pass) {

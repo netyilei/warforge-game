@@ -6,7 +6,70 @@
 
 ## Session Log
 
-### Session 7: 2026-04-03
+### Session 8: 2026-04-04
+
+**Completed:**
+
+- [x] 整合迁移脚本
+  - [x] 创建 server/migrations/000_init_complete.sql
+  - [x] 包含所有核心表结构（使用 IF NOT EXISTS）
+  - [x] 包含初始数据（使用 ON CONFLICT DO NOTHING）
+  - [x] 保留已存在的测试数据
+- [x] 修复内容分类功能
+  - [x] 创建 content_categories 表
+  - [x] 实现 ContentCategory Model
+  - [x] 实现 CRUD Handler
+- [x] 更新文档
+  - [x] 创建路由配置指南 (docs/ROUTE_CONFIGURATION_GUIDE.md)
+  - [x] 创建开发问题记录 (docs/DEVELOPMENT_ISSUES.md)
+  - [x] 更新 RBAC 系统文档
+  - [x] 更新数据库设计文档
+  - [x] 更新前端概述文档
+  - [x] 更新 README.md 文档索引
+  - [x] 更新 task_plan.md
+
+**Files Created:**
+
+```
+docs/ROUTE_CONFIGURATION_GUIDE.md   # 路由配置指南
+docs/DEVELOPMENT_ISSUES.md         # 开发问题记录
+server/migrations/000_init_complete.sql  # 整合迁移脚本
+```
+
+**Files Updated:**
+
+```
+docs/admin-web/03_RBAC_SYSTEM.md    # 添加动态路由和操作日志
+docs/server/05_DATABASE_DESIGN.md  # 添加新表结构
+docs/admin-web/00_OVERVIEW.md      # 添加常见问题
+docs/00_OVERVIEW.md                # 添加文档索引
+README.md                          # 添加新文档链接
+task_plan.md                       # 更新 Phase 3 状态
+```
+
+**Key Decisions:**
+
+1. 迁移脚本使用 `docker cp` 方式执行，避免编码问题
+2. 路由配置遵循：前端文件结构为准，数据库权限必须匹配
+3. 组件路径格式：
+   - 一级菜单（有子菜单）：`layout.base`
+   - 二级菜单：`view.{路由名}`
+   - 首页：`layout.base$view.home`
+4. 路由命名使用下划线分隔，禁止使用冒号或横杠
+
+**Common Issues Fixed:**
+
+- P001: 登录后跳转 404 - 修复 home 路由 component 为 `layout.base$view.home`
+- P002: 菜单点击无反应 - 修复路由名称与数据库 code 匹配
+- P003: NULL 值转换失败 - 使用指针类型接收可能为 NULL 的字段
+- P004: 迁移脚本编码错误 - 使用 `docker cp` 替代 PowerShell 管道
+- P005: 权限层级混乱 - 修正 parent_id 设置
+- P010: SQL 写在 Handler - 遵循红线规则，SQL 封装在 Model 中
+
+**Next Session:**
+
+- 继续完善管理后台功能
+- 实现用户管理接口
 
 **Completed:**
 

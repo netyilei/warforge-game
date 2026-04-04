@@ -13,8 +13,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: '403',
       i18nKey: 'route.403',
-      constant: true,
-      hideInMenu: true
+      constant: true
     }
   },
   {
@@ -24,8 +23,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: '404',
       i18nKey: 'route.404',
-      constant: true,
-      hideInMenu: true
+      constant: true
     }
   },
   {
@@ -35,28 +33,101 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: '500',
       i18nKey: 'route.500',
-      constant: true,
-      hideInMenu: true
+      constant: true
     }
   },
   {
     name: 'admin',
     path: '/admin',
-    component: 'layout.base$view.admin',
+    component: 'layout.base',
     meta: {
-      title: 'admin',
+      title: '系统管理',
       i18nKey: 'route.admin'
-    }
+    },
+    children: [
+      {
+        name: 'admin_list',
+        path: '/admin/list',
+        component: 'view.admin_list',
+        meta: {
+          title: '管理员列表',
+          i18nKey: 'route.admin_list'
+        }
+      },
+      {
+        name: 'admin_permission',
+        path: '/admin/permission',
+        component: 'view.admin_permission',
+        meta: {
+          title: '权限管理',
+          i18nKey: 'route.admin_permission'
+        }
+      },
+      {
+        name: 'admin_role',
+        path: '/admin/role',
+        component: 'view.admin_role',
+        meta: {
+          title: '角色管理',
+          i18nKey: 'route.admin_role'
+        }
+      }
+    ]
+  },
+  {
+    name: 'content',
+    path: '/content',
+    component: 'layout.base',
+    meta: {
+      title: '内容管理',
+      i18nKey: 'route.content'
+    },
+    children: [
+      {
+        name: 'content_banner',
+        path: '/content/banner',
+        component: 'view.content_banner',
+        meta: {
+          title: 'Banner管理',
+          i18nKey: 'route.content_banner'
+        }
+      },
+      {
+        name: 'content_banner-position',
+        path: '/content/banner-position',
+        component: 'view.content_banner-position',
+        meta: {
+          title: 'Banner位置',
+          i18nKey: 'route.content_banner-position'
+        }
+      },
+      {
+        name: 'content_category',
+        path: '/content/category',
+        component: 'view.content_category',
+        meta: {
+          title: '分类管理',
+          i18nKey: 'route.content_category'
+        }
+      },
+      {
+        name: 'content_list',
+        path: '/content/list',
+        component: 'view.content_list',
+        meta: {
+          title: '内容列表',
+          i18nKey: 'route.content_list'
+        }
+      }
+    ]
   },
   {
     name: 'home',
     path: '/home',
     component: 'layout.base$view.home',
     meta: {
-      title: 'home',
-      i18nKey: 'route.home',
-      icon: 'mdi:monitor-dashboard',
-      order: 1
+      title: '首页',
+      i18nKey: 'route.home'
     }
   },
   {
@@ -66,40 +137,146 @@ export const generatedRoutes: GeneratedRoute[] = [
     props: true,
     meta: {
       title: 'iframe-page',
-      i18nKey: 'route.iframe-page',
-      constant: true,
-      hideInMenu: true,
-      keepAlive: true
+      i18nKey: 'route.iframe-page'
     }
   },
   {
     name: 'login',
     path: '/login/:module(pwd-login)?',
     component: 'layout.blank$view.login',
-    props: true,
     meta: {
       title: 'login',
       i18nKey: 'route.login',
-      constant: true,
+      constant: true
+    },
+    props: true
+  },
+  {
+    name: 'operations',
+    path: '/operations',
+    component: 'layout.base',
+    meta: {
+      title: '运维管理',
+      i18nKey: 'route.operations'
+    },
+    children: [
+      {
+        name: 'operations_log',
+        path: '/operations/log',
+        component: 'view.operations_log',
+        meta: {
+          title: '后台日志',
+          i18nKey: 'route.operations_log'
+        }
+      }
+    ]
+  },
+  {
+    name: 'profile',
+    path: '/profile',
+    component: 'layout.base',
+    meta: {
+      title: '个人设置',
+      i18nKey: 'route.profile',
       hideInMenu: true
-    }
+    },
+    children: [
+      {
+        name: 'profile_settings',
+        path: '/profile/settings',
+        component: 'view.profile_settings',
+        meta: {
+          title: '个人设置',
+          i18nKey: 'route.profile_settings'
+        }
+      }
+    ]
   },
   {
-    name: 'permission',
-    path: '/permission',
-    component: 'layout.base$view.permission',
+    name: 'settings',
+    path: '/settings',
+    component: 'layout.base',
     meta: {
-      title: 'permission',
-      i18nKey: 'route.permission'
-    }
+      title: '设置',
+      i18nKey: 'route.settings'
+    },
+    children: [
+      {
+        name: 'settings_language',
+        path: '/settings/language',
+        component: 'view.settings_language',
+        meta: {
+          title: '语言设置',
+          i18nKey: 'route.settings_language'
+        }
+      },
+      {
+        name: 'settings_user',
+        path: '/settings/user',
+        component: 'view.settings_user',
+        meta: {
+          title: '用户设置',
+          i18nKey: 'route.settings_user'
+        }
+      }
+    ]
   },
   {
-    name: 'role',
-    path: '/role',
-    component: 'layout.base$view.role',
+    name: 'storage',
+    path: '/storage',
+    component: 'layout.base',
     meta: {
-      title: 'role',
-      i18nKey: 'route.role'
-    }
+      title: '存储管理',
+      i18nKey: 'route.storage'
+    },
+    children: [
+      {
+        name: 'storage_config',
+        path: '/storage/config',
+        component: 'view.storage_config',
+        meta: {
+          title: '存储配置',
+          i18nKey: 'route.storage_config'
+        }
+      },
+      {
+        name: 'storage_records',
+        path: '/storage/records',
+        component: 'view.storage_records',
+        meta: {
+          title: '上传记录',
+          i18nKey: 'route.storage_records'
+        }
+      }
+    ]
+  },
+  {
+    name: 'user',
+    path: '/user',
+    component: 'layout.base',
+    meta: {
+      title: '用户管理',
+      i18nKey: 'route.user'
+    },
+    children: [
+      {
+        name: 'user_approval',
+        path: '/user/approval',
+        component: 'view.user_approval',
+        meta: {
+          title: 'user_approval',
+          i18nKey: 'route.user_approval'
+        }
+      },
+      {
+        name: 'user_manage',
+        path: '/user/manage',
+        component: 'view.user_manage',
+        meta: {
+          title: '用户列表',
+          i18nKey: 'route.user_manage'
+        }
+      }
+    ]
   }
 ];

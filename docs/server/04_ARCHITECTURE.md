@@ -3,6 +3,8 @@
 > WarForge Server 整体架构设计
 >
 > 创建日期：2026-04-03
+>
+> 最后更新：2026-04-04
 
 ## 技术栈
 
@@ -12,8 +14,9 @@
 | 运行时扩展 | Go 1.26.1 Runtime | 自定义 Match Handler、RPC |
 | 游戏框架 | **Hiro v1.32.0** | 成就、任务、排行榜系统 |
 | 数据库 | CockroachDB v23 | Nakama 官方推荐，分布式 SQL 数据库 |
-| 缓存 | Redis | Nakama 内置缓存 |
-| 协议翻译层 | **内置模块** | `adapter/` 目录，老客户端兼容 |
+| 缓存 | Redis | Nakama 内置缓存 + 自定义缓存 |
+| HTTP 框架 | Gin | 管理后台/代理后台 API |
+| 对象存储 | AWS SDK for Go v2 | S3 兼容存储（Cloudflare R2、AWS S3） |
 
 ---
 
@@ -24,29 +27,50 @@
 │                           客户端层                                   │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│   老客户端                        新客户端                           │
-│   (Cocos)                        (Vue3 + PixiJS)                    │
-│       │                              │                              │
-│       │ 老协议                       │ Nakama 原生协议               │
-│       │ {m, d}                      │ WebSocket/HTTP                │
-│       ▼                              │                              │
+│   管理后台              代理后台              游戏客户端             │
+│   (Vue3)               (Vue3)               (Cocos/PixiJS)         │
+│       │                    │                      │                 │
+│       │ HTTP/REST          │ HTTP/REST            │ WebSocket       │
+│       │ (客服WS除外)       │                      │                 │
+│       ▼                    ▼                      ▼                 │
+│   ┌─────────────────────────────────────────────────────────────┐   │
+│   │                      Nginx 反向代理                         │   │
+│   │                                                             │   │
+│   │  • 管理后台/代理后台 HTTP → Gin Server                      │   │
+│   │  • 客服 WebSocket → Nakama Server                           │   │
+│   │  • 游戏客户端 WebSocket → Nakama Server                     │   │
+│   └─────────────────────────────────────────────────────────────┘   │
+│                    │                    │                │           │
+│                    │                    │                │           │
+│                    ▼                    ▼                ▼           │
+│   ┌─────────────────────────────────────────────────────────────┐   │
+│   │                      Gin HTTP Server                        │   │
+│   │                                                             │   │
+│   │  webadmin/              webproxy/                           │   │
+│   │  (管理员后台API)        (代理后台API)                        │   │
+│   │                                                             │   │
+│   │  注：Gin 仅提供 HTTP API，不提供 WebSocket 服务              │   │
+│   │       客服聊天通过 Nakama WebSocket 实现                     │   │
+│   └─────────────────────────────────────────────────────────────┘   │
+│                                                            │        │
+│                                                            │        │
+│                                                            ▼        │
 │   ┌─────────────────────────────────────────────────────────────┐   │
 │   │                      Nakama Server                          │   │
 │   │                                                             │   │
 │   │  ┌─────────────────────────────────────────────────────┐   │   │
-│   │  │ adapter/  (翻译器模块 - 老客户端兼容)               │   │   │
+│   │  │ nakama/rpc/  (RPC 客户端封装)                       │   │   │
 │   │  │                                                     │   │   │
-│   │  │  老协议:              内部调用:                     │   │   │
-│   │  │  {m:"GSC_Bet",d:...} ──▶ Match Handler             │   │   │
-│   │  │  POST /api/user/login ──▶ RPC Function             │   │   │
+│   │  │  user.go    friend.go    match.go    group.go      │   │   │
+│   │  │  (用户)     (好友)       (匹配)       (群组)        │   │   │
 │   │  └─────────────────────────────────────────────────────┘   │   │
 │   │                          │                                  │   │
 │   │                          ▼                                  │   │
 │   │  ┌─────────────────────────────────────────────────────┐   │   │
-│   │  │ modules/  (核心模块)                                │   │   │
+│   │  │ nakama/games/  (游戏模块)                           │   │   │
 │   │  │                                                     │   │   │
-│   │  │  match/    rpc/    hooks/    hiro/    bot/         │   │   │
-│   │  │  (游戏)   (API)   (钩子)   (框架)   (机器人)       │   │   │
+│   │  │  common/    texas/    niuniu/    doudizhu/         │   │   │
+│   │  │  (通用)     (德州)    (牛牛)      (斗地主)          │   │   │
 │   │  └─────────────────────────────────────────────────────┘   │   │
 │   │                                                             │   │
 │   │  ┌─────────────────────────────────────────────────────┐   │   │
@@ -68,8 +92,8 @@
 │   │                   │          │                   │             │
 │   │ • 用户数据        │          │ • 会话缓存        │             │
 │   │ • Storage Objects │          │ • Match 状态      │             │
-│   │ • 俱乐部数据      │          │ • 在线状态        │             │
-│   │ • 交易记录        │          │ • 排行榜缓存      │             │
+│   │ • 管理员数据      │          │ • Admin Token     │             │
+│   │ • 代理数据        │          │ • 在线状态        │             │
 │   └───────────────────┘          └───────────────────┘             │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -77,117 +101,163 @@
 
 ---
 
+## 客户端与服务端通信关系
+
+| 客户端 | 通信方式 | 经过 Nginx | 目标服务 |
+|--------|----------|------------|----------|
+| 管理后台 | HTTP/REST | ✅ | Gin (webadmin) |
+| 管理后台(客服) | WebSocket | ✅ | Nakama Server |
+| 代理后台 | HTTP/REST | ✅ | Gin (webproxy) |
+| 游戏客户端 | WebSocket | ✅ | Nakama Server |
+
+**关键点**：
+
+- Gin 仅服务于管理后台和代理后台的 HTTP API
+- 所有 WebSocket 连接（游戏客户端、客服）都直接连接 Nakama
+- 客户端不与 Gin 直接通信，全部通过 Nginx 反向代理
+
+---
+
+## 双轨认证系统
+
+| 系统 | 用户类型 | 认证方式 | Token 存储 |
+|------|----------|----------|------------|
+| Nakama 认证 | 游戏玩家 | Nakama Session | Nakama 内部 |
+| Admin 认证 | 后台管理员 | 自定义 JWT | Redis |
+| Proxy 认证 | 代理用户 | 自定义 JWT | Redis |
+
+---
+
 ## 项目目录结构
 
 ```
 server/
-├── cmd/
-│   └── main.go                    # 入口文件
+├── cmd/                       # 入口目录
+│   └── main.go                # Nakama 模块初始化入口
 │
-├── modules/                       # Nakama Go Runtime 模块
+├── nakama/                    # Nakama 服务端相关
+│   ├── api/                   # Nakama API 定义
+│   │   ├── ws/                # WebSocket 消息定义
+│   │   │   ├── opcode.go      # 操作码定义
+│   │   │   ├── message.go     # 消息结构定义
+│   │   │   └── notify.go      # 通知消息定义
+│   │   └── proto/             # Protobuf 定义
 │   │
-│   ├── match/                     # Match Handlers (游戏房间)
-│   │   ├── match_texas.go         # 德州扑克
-│   │   ├── match_niuniu.go        # 牛牛
-│   │   ├── match_doudizhu.go      # 斗地主
-│   │   └── match_majiang.go       # 麻将
+│   ├── rpc/                   # RPC 客户端封装（调用 Nakama 核心 API）
+│   │   ├── client.go          # 基础 RPC 客户端
+│   │   ├── user.go            # 用户管理 RPC
+│   │   ├── friend.go          # 好友系统 RPC
+│   │   ├── match.go           # 匹配系统 RPC
+│   │   ├── group.go           # 群组/房间 RPC
+│   │   └── leaderboard.go     # 排行榜 RPC
 │   │
-│   ├── rpc/                       # RPC 函数 (HTTP API)
-│   │   ├── rpc_user.go            # 用户相关
-│   │   ├── rpc_club.go            # 俱乐部相关
-│   │   ├── rpc_match.go           # 比赛相关
-│   │   ├── rpc_payment.go         # 支付相关
-│   │   └── rpc_admin.go           # 管理后台
+│   ├── hooks/                 # Nakama 钩子函数（服务端运行时）
+│   │   ├── match.go           # 匹配钩子
+│   │   ├── leaderboard.go     # 排行榜钩子
+│   │   └── tournament.go      # 锦标赛钩子
 │   │
-│   ├── hooks/                     # 钩子函数
-│   │   ├── hook_auth.go           # 认证钩子
-│   │   ├── hook_storage.go        # 存储钩子
-│   │   └── hook_match.go          # 匹配钩子
+│   ├── match/                 # 权威匹配器
+│   │   └── handler.go         # 匹配处理器
 │   │
-│   ├── hiro/                      # Hiro 框架集成
-│   │   ├── hiro.go                # 初始化
-│   │   ├── achievements.go        # 成就配置
-│   │   ├── quests.go              # 任务配置
-│   │   └── leaderboards.go        # 排行榜配置
+│   ├── shared/                # 共用工具/类型
+│   │   ├── constants.go       # 常量定义
+│   │   ├── utils.go           # 工具函数
+│   │   └── types.go           # 共用类型/结构体
 │   │
-│   ├── bot/                       # 机器人 AI
-│   │   ├── bot.go                 # 机器人基类
-│   │   ├── texas_ai.go            # 德州扑克 AI
-│   │   ├── niuniu_ai.go           # 牛牛 AI
-│   │   └── difficulty.go          # 难度配置
+│   ├── games/                 # 游戏模块
+│   │   ├── common/            # 游戏通用逻辑
+│   │   │   ├── base.go        # 游戏基类/接口
+│   │   │   ├── room.go        # 通用房间逻辑
+│   │   │   └── player.go      # 通用玩家状态
+│   │   └── {game_name}/       # 具体游戏目录
+│   │       ├── handler.go     # 游戏逻辑处理
+│   │       └── match.go       # 游戏匹配逻辑
 │   │
-│   └── shared/                    # 共享模块
-│       ├── cards/
-│       │   ├── deck.go            # 牌组
-│       │   └── hand_rank.go       # 牌型判断
-│       ├── room/
-│       │   └── room_base.go       # 房间基类
-│       └── player/
-│           └── player_state.go    # 玩家状态
+│   ├── services/              # 业务服务模块（扩展功能）
+│   │   ├── inventory/         # 用户物品/背包
+│   │   │   ├── rpc.go         # RPC 接口
+│   │   │   ├── storage.go     # Storage 定义
+│   │   │   └── logic.go       # 业务逻辑
+│   │   ├── shop/              # 商城系统
+│   │   ├── mail/              # 邮件系统
+│   │   ├── achievement/       # 成就系统
+│   │   └── task/              # 任务系统
+│   │
+│   ├── storage/               # Storage Collection 定义
+│   │   └── collections.go     # 全局 Collection 定义
+│   │
+│   └── event/                 # 事件/消息处理
+│       └── notifier.go        # 通知推送
 │
-├── adapter/                       # 协议翻译层 (老客户端兼容)
-│   ├── adapter.go                 # 适配器主入口
-│   ├── api_adapter.go             # API 协议转换
-│   ├── ws_adapter.go              # WebSocket 协议转换
-│   └── protocol/
-│       ├── old_api.go             # 老 API 协议定义
-│       ├── old_ws.go              # 老 WS 协议定义
-│       └── mapping.go             # 协议映射表
+├── webadmin/                  # Gin HTTP API（管理员后台）
+│   ├── api/                   # 管理后台 API 定义
+│   │   ├── v1/                # 版本控制
+│   │   └── types.go           # 请求/响应类型定义
+│   ├── handlers/              # 处理器
+│   ├── middleware.go          # 中间件
+│   ├── routes.go              # 路由
+│   └── jwtutil/               # JWT 工具
 │
-├── storage/                       # Storage Schema 定义
-│   ├── user.go                    # 用户数据结构
-│   ├── club.go                    # 俱乐部数据结构
-│   ├── match.go                   # 比赛数据结构
-│   └── item.go                    # 道具数据结构
+├── webproxy/                  # Gin HTTP API（代理后台）
+│   ├── api/                   # 代理后台 API 定义
+│   │   ├── v1/
+│   │   └── types.go
+│   ├── handlers/
+│   ├── middleware.go
+│   └── routes.go
 │
-├── config/
-│   └── config.yaml                # Nakama 配置
+├── database/                  # 数据库连接 + Redis Key
+│   ├── database.go            # 数据库连接 初始化
+│   └── redis_keys.go          # Redis Key 统一定义
 │
-└── docker/
-    ├── Dockerfile
-    └── docker-compose.yml
+├── models/                    # 数据模型（原生SQL）
+│   ├── admin_user.go          # 管理员用户
+│   ├── admin_role.go          # 角色
+│   ├── admin_permission.go    # 权限
+│   └── admin_relations.go     # 关联表
+│
+├── config/                    # 配置文件和加载
+│   └── config.yaml            # 服务器配置
+│
+├── migrations/                # 数据库迁移文件
+│
+├── internal/                  # 私有包（不对外暴露）
+│
+└── pkg/                       # 公共包（可被外部引用）
 ```
 
 ---
 
-## 协议翻译层设计
+## 模块职责划分
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        协议翻译层架构                                │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│   老客户端请求                                                      │
-│       │                                                             │
-│       ▼                                                             │
-│   ┌─────────────────────────────────────────────────────────────┐   │
-│   │                     API Adapter                              │   │
-│   │                                                              │   │
-│   │   老协议:                      Nakama RPC:                   │   │
-│   │   POST /api/user/login   ──▶  POST /v2/rpc/user_login       │   │
-│   │   POST /api/user/info    ──▶  POST /v2/rpc/user_info        │   │
-│   │   POST /api/club/list    ──▶  POST /v2/rpc/club_list        │   │
-│   │                                                              │   │
-│   │   响应转换:                                                  │   │
-│   │   Nakama: {result: {...}}  ──▶  老协议: {code:0, data:{...}}│   │
-│   └─────────────────────────────────────────────────────────────┘   │
-│                                                                     │
-│   ┌─────────────────────────────────────────────────────────────┐   │
-│   │                     WS Adapter                               │   │
-│   │                                                              │   │
-│   │   老协议 WS:                  Nakama Match:                  │   │
-│   │   {m:"GSC_CM_Bet", d:...} ──▶  OpCode: 101, data: {...}     │   │
-│   │   {m:"GSC_Ready", d:...} ──▶  OpCode: 102, data: {...}      │   │
-│   │                                                              │   │
-│   │   消息名称映射表:                                            │   │
-│   │   ├── GSC_CM_Bet      ──▶  OpCode 101                       │   │
-│   │   ├── GSC_CM_Buyin    ──▶  OpCode 102                       │   │
-│   │   ├── GSC_Ready       ──▶  OpCode 103                       │   │
-│   │   └── GSC_Chat        ──▶  OpCode 104                       │   │
-│   └─────────────────────────────────────────────────────────────┘   │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-```
+### Nakama 模块 (`nakama/`)
+
+| 目录 | 职责 | 调用方 |
+|------|------|--------|
+| `api/` | WebSocket/Protobuf 定义 | 游戏客户端 |
+| `rpc/` | Nakama 核心 API 封装 | Gin / Nakama 内部 |
+| `hooks/` | Nakama 运行时钩子 | Nakama 运行时 |
+| `match/` | 权威匹配器 | Nakama 运行时 |
+| `games/` | 游戏业务逻辑 | Nakama 运行时 |
+| `services/` | 业务扩展模块 | Nakama 运行时 |
+| `shared/` | 共用工具和类型 | 所有模块 |
+
+### Gin 模块 (`webadmin/`, `webproxy/`)
+
+| 目录 | 职责 | 用户 |
+|------|------|------|
+| `webadmin/` | 管理员后台 API | 管理员 |
+| `webproxy/` | 代理后台 API | 代理用户 |
+
+### 公共模块
+
+| 目录 | 职责 |
+|------|------|
+| `database/` | 数据库连接、Redis Key 管理 |
+| `models/` | 原生SQL 数据模型 |
+| `config/` | 配置加载 |
+| `internal/` | 私有包 |
+| `pkg/` | 公共包 |
 
 ---
 
@@ -195,65 +265,24 @@ server/
 
 | 能力 | Nakama 模块 | 说明 |
 |------|-------------|------|
-| 游戏房间 | Match Handler | 德州扑克等游戏逻辑 |
-| 匹配系统 | Matchmaker | 自动匹配玩家 |
-| 实时通信 | WebSocket | 内置，无需自己实现 |
-| 用户认证 | Authenticate | 多种登录方式 |
-| 数据存储 | Storage Engine | 键值存储 |
-| 排行榜 | Leaderboard | 积分排名 |
-| 聊天系统 | Chat API | 实时聊天 |
-| 组队系统 | Party | 好友组队 |
+| 用户认证 | Authentication | 设备ID、邮箱、社交账号登录 |
+| 好友系统 | Friends | 添加好友、黑名单、在线状态 |
+| 匹配系统 | Matchmaker | 实时匹配、房间分配 |
+| 房间系统 | Match | 游戏房间、状态同步 |
+| 排行榜 | Leaderboard | 全球/好友排行榜 |
+| 聊天系统 | Chat | 实时聊天、频道 |
+| 存储系统 | Storage | 玩家数据持久化 |
+| 群组系统 | Group | 公会、俱乐部 |
 
 ---
 
-## Hiro 框架（基于 Nakama）
+## 客服系统设计
 
-| 功能 | 使用 | 说明 |
-|------|------|------|
-| 成就系统 | ✅ **使用** | 游戏成就、里程碑奖励 |
-| 任务系统 | ✅ **使用** | 每日任务、周任务 |
-| 事件排行榜 | ✅ **使用** | 限时比赛排名 |
-| 经济系统 | ⚠️ 部分使用 | 虚拟货币（钱包需自研事务） |
-| 商店系统 | ✅ **使用** | 道具商店 |
-| 能量系统 | ❌ 不使用 | 德州扑克不需要体力 |
-| 捐赠系统 | ❌ 不使用 | 不需要好友捐赠 |
-
----
-
-## 我们需要开发的内容
-
-| 内容 | 说明 | 优先级 |
-|------|------|--------|
-| **协议翻译层** | 老客户端协议 → Nakama 协议 | 🔴 高 |
-| **Match Handler** | 德州扑克等游戏逻辑 | 🔴 高 |
-| **钱包系统** | PostgreSQL 事务保证一致性 | 🔴 高 |
-| **机器人 AI** | 德州扑克 AI 对手 | 🟡 中 |
-| **RPC 函数** | 自定义 API 接口 | 🔴 高 |
-| **Hooks** | 认证、存储等钩子 | 🟡 中 |
-| **Storage Schema** | 数据结构定义 | 🔴 高 |
-
----
-
-## 架构优势
-
-### 为什么选择 Nakama
-
-| 优势 | 说明 |
-|------|------|
-| **成熟稳定** | 经过大量商业项目验证 |
-| **功能完整** | 内置匹配、房间、聊天、排行榜等 |
-| **性能优秀** | 单节点支持数万并发连接 |
-| **开发效率高** | 只需关注游戏逻辑，无需重复造轮子 |
-| **协议翻译层** | 通过适配器兼容老客户端，降低迁移风险 |
-
-### 迁移风险控制
+客服聊天复用 Nakama 聊天系统：
 
 ```
-老客户端 ──▶ 协议翻译层 ──▶ Nakama ──▶ 游戏逻辑
-              ↓
-         只需做好这一层
+客服前端 → 登录 webadmin HTTP API → 获取 JWT + Nakama Session
+         → 连接 Nakama WebSocket → 与玩家通信
 ```
 
-- **不需要重写所有逻辑**：Nakama 已处理状态同步、并发控制、房间管理
-- **主要工作是翻译层**：读懂老代码协议，做好映射转换
-- **渐进式迁移**：先非游戏功能，再游戏功能，风险可控
+客服账号作为 Nakama 特殊用户，复用 Nakama 聊天能力。

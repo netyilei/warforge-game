@@ -92,6 +92,8 @@
 | 文档 | 说明 |
 |------|------|
 | [RED_LINES.md](./RED_LINES.md) | **项目红线文档** |
+| [ROUTE_CONFIGURATION_GUIDE.md](./ROUTE_CONFIGURATION_GUIDE.md) | **路由配置指南** |
+| [DEVELOPMENT_ISSUES.md](./DEVELOPMENT_ISSUES.md) | **开发问题记录** |
 
 ### 子目录文档
 

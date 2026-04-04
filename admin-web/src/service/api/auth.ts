@@ -1,65 +1,49 @@
-import { nakamaRpc } from './nakama';
+import { request } from '../request';
 
 export function fetchLogin(userName: string, password: string) {
-  return nakamaRpc<Api.Auth.LoginToken>('admin_login', {
-    username: userName,
-    password
-  }).then(data => ({
-    data,
-    error: null
-  })).catch(error => ({
-    data: null,
-    error
-  }));
+  return request<Api.Auth.LoginToken>({
+    url: '/login',
+    method: 'POST',
+    data: {
+      username: userName,
+      password
+    }
+  });
 }
 
 export function fetchLogout() {
-  return nakamaRpc<{ success: boolean }>('admin_logout')
-    .then(data => ({
-      data,
-      error: null
-    }))
-    .catch(error => ({
-      data: null,
-      error
-    }));
+  return request<{ success: boolean }>({
+    url: '/logout',
+    method: 'POST'
+  });
 }
 
 export function fetchChangePassword(oldPassword: string, newPassword: string) {
-  return nakamaRpc<{ success: boolean }>('admin_change_password', {
-    oldPassword,
-    newPassword
-  }).then(data => ({
-    data,
-    error: null
-  })).catch(error => ({
-    data: null,
-    error
-  }));
+  return request<{ success: boolean }>({
+    url: '/change-password',
+    method: 'POST',
+    data: {
+      oldPassword,
+      newPassword
+    }
+  });
 }
 
 export function fetchGetUserInfo() {
-  return nakamaRpc<Api.Auth.UserInfo>('admin_get_user_info')
-    .then(data => ({
-      data,
-      error: null
-    }))
-    .catch(error => ({
-      data: null,
-      error
-    }));
+  return request<Api.Auth.UserInfo>({
+    url: '/userinfo',
+    method: 'GET'
+  });
 }
 
 export function fetchRefreshToken(refreshToken: string) {
-  return nakamaRpc<Api.Auth.LoginToken>('admin_refresh_token', {
-    refreshToken
-  }).then(data => ({
-    data,
-    error: null
-  })).catch(error => ({
-    data: null,
-    error
-  }));
+  return request<Api.Auth.LoginToken>({
+    url: '/refresh-token',
+    method: 'POST',
+    data: {
+      refreshToken
+    }
+  });
 }
 
 export function fetchCustomBackendError(code: string, msg: string) {

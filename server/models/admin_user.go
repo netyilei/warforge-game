@@ -1,120 +1,398 @@
+// Package models 提供数据模型定义
+//
+// 本文件定义管理员用户模型及相关数据库操作方法
 package models
 
 import (
+	"database/sql"
 	"time"
-
-	"gorm.io/gorm"
 )
 
+// AdminUser 管理员用户模型
 type AdminUser struct {
-	ID          string         `gorm:"primaryKey;type:VARCHAR(36)" json:"id"`
-	Username    string         `gorm:"type:VARCHAR(50);uniqueIndex;not null" json:"username"`
-	Password    string         `gorm:"type:VARCHAR(255);not null" json:"-"`
-	Nickname    string         `gorm:"type:VARCHAR(50)" json:"nickname"`
-	Email       string         `gorm:"type:VARCHAR(100)" json:"email"`
-	Phone       string         `gorm:"type:VARCHAR(20)" json:"phone"`
-	Avatar      string         `gorm:"type:VARCHAR(255)" json:"avatar"`
-	Status      int            `gorm:"type:INT;default:1" json:"status"`
-	LastLoginAt *time.Time     `gorm:"type:TIMESTAMP" json:"lastLoginAt"`
-	LastLoginIP string         `gorm:"type:VARCHAR(45)" json:"lastLoginIp"`
-	CreatedAt   time.Time      `gorm:"type:TIMESTAMP;default:CURRENT_TIMESTAMP" json:"createdAt"`
-	UpdatedAt   time.Time      `gorm:"type:TIMESTAMP;default:CURRENT_TIMESTAMP" json:"updatedAt"`
-	DeletedAt   gorm.DeletedAt `gorm:"type:TIMESTAMP;index" json:"-"`
-	Roles       []AdminRole    `gorm:"many2many:admin_user_roles;" json:"roles,omitempty"`
+	ID          string      `json:"id"`
+	Username    string      `json:"username"`
+	Password    string      `json:"-"`
+	Nickname    string      `json:"nickname"`
+	Email       string      `json:"email"`
+	Phone       string      `json:"phone"`
+	Avatar      string      `json:"avatar"`
+	Status      int         `json:"status"`
+	LastLoginAt *time.Time  `json:"lastLoginAt"`
+	LastLoginIP string      `json:"lastLoginIp"`
+	CreatedAt   time.Time   `json:"createdAt"`
+	UpdatedAt   time.Time   `json:"updatedAt"`
+	DeletedAt   *time.Time  `json:"-"`
+	Roles       []AdminRole `json:"roles,omitempty"`
 }
 
+// TableName 返回表名
 func (AdminUser) TableName() string {
 	return "admin_users"
 }
 
-func (u *AdminUser) Create(db *gorm.DB) error {
-	return db.Create(u).Error
+// Create 创建用户
+//
+// 插入新用户记录到数据库
+func (u *AdminUser) Create(db *sql.DB) error {
+	query := `
+		INSERT INTO admin_users (id, username, password_hash, nickname, email, phone, avatar, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	`
+	now := time.Now()
+	_, err := db.Exec(query, u.ID, u.Username, u.Password, u.Nickname, u.Email, u.Phone, u.Avatar, u.Status, now, now)
+	if err != nil {
+		return err
+	}
+	u.CreatedAt = now
+	u.UpdatedAt = now
+	return nil
 }
 
-func (u *AdminUser) Update(db *gorm.DB) error {
-	return db.Save(u).Error
+// Update 更新用户
+//
+// 更新用户信息
+func (u *AdminUser) Update(db *sql.DB) error {
+	query := `
+		UPDATE admin_users 
+		SET nickname = $1, email = $2, phone = $3, avatar = $4, status = $5, updated_at = $6
+		WHERE id = $7
+	`
+	now := time.Now()
+	_, err := db.Exec(query, u.Nickname, u.Email, u.Phone, u.Avatar, u.Status, now, u.ID)
+	if err != nil {
+		return err
+	}
+	u.UpdatedAt = now
+	return nil
 }
 
-func (u *AdminUser) Delete(db *gorm.DB) error {
-	return db.Delete(u).Error
+// Delete 删除用户
+//
+// 软删除用户记录
+func (u *AdminUser) Delete(db *sql.DB) error {
+	query := `UPDATE admin_users SET deleted_at = $1 WHERE id = $2`
+	now := time.Now()
+	_, err := db.Exec(query, now, u.ID)
+	return err
 }
 
-func (AdminUser) FindByID(db *gorm.DB, id string) (*AdminUser, error) {
-	var user AdminUser
-	err := db.First(&user, "id = ?", id).Error
+// FindByID 根据ID查找用户
+//
+// 返回指定ID的用户信息
+func (AdminUser) FindByID(db *sql.DB, id string) (*AdminUser, error) {
+	query := `
+		SELECT id, username, password_hash, nickname, email, phone, avatar, status, 
+			   last_login_at, last_login_ip, created_at, updated_at
+		FROM admin_users 
+		WHERE id = $1 AND deleted_at IS NULL
+	`
+	user := &AdminUser{}
+	var lastLoginAt sql.NullTime
+	var nickname, email, phone, avatar, lastLoginIP sql.NullString
+	err := db.QueryRow(query, id).Scan(
+		&user.ID, &user.Username, &user.Password, &nickname,
+		&email, &phone, &avatar, &user.Status,
+		&lastLoginAt, &lastLoginIP, &user.CreatedAt, &user.UpdatedAt,
+	)
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	user.Nickname = nickname.String
+	user.Email = email.String
+	user.Phone = phone.String
+	user.Avatar = avatar.String
+	user.LastLoginIP = lastLoginIP.String
+	if lastLoginAt.Valid {
+		user.LastLoginAt = &lastLoginAt.Time
+	}
+	return user, nil
 }
 
-func (AdminUser) FindByUsername(db *gorm.DB, username string) (*AdminUser, error) {
-	var user AdminUser
-	err := db.First(&user, "username = ?", username).Error
+// FindByUsername 根据用户名查找用户
+//
+// 返回指定用户名的用户信息
+func (AdminUser) FindByUsername(db *sql.DB, username string) (*AdminUser, error) {
+	query := `
+		SELECT id, username, password_hash, nickname, email, phone, avatar, status, 
+			   last_login_at, last_login_ip, created_at, updated_at
+		FROM admin_users 
+		WHERE username = $1 AND deleted_at IS NULL
+	`
+	user := &AdminUser{}
+	var lastLoginAt sql.NullTime
+	var nickname, email, phone, avatar, lastLoginIP sql.NullString
+	err := db.QueryRow(query, username).Scan(
+		&user.ID, &user.Username, &user.Password, &nickname,
+		&email, &phone, &avatar, &user.Status,
+		&lastLoginAt, &lastLoginIP, &user.CreatedAt, &user.UpdatedAt,
+	)
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	user.Nickname = nickname.String
+	user.Email = email.String
+	user.Phone = phone.String
+	user.Avatar = avatar.String
+	user.LastLoginIP = lastLoginIP.String
+	if lastLoginAt.Valid {
+		user.LastLoginAt = &lastLoginAt.Time
+	}
+	return user, nil
 }
 
-func (AdminUser) ExistsByUsername(db *gorm.DB, username string) bool {
-	var count int64
-	db.Model(&AdminUser{}).Where("username = ?", username).Count(&count)
+// ExistsByUsername 检查用户名是否存在
+//
+// 返回用户名是否已被使用
+func (AdminUser) ExistsByUsername(db *sql.DB, username string) bool {
+	query := `SELECT COUNT(*) FROM admin_users WHERE username = $1 AND deleted_at IS NULL`
+	var count int
+	db.QueryRow(query, username).Scan(&count)
 	return count > 0
 }
 
-func (AdminUser) ListAll(db *gorm.DB) ([]AdminUser, error) {
+// ListAll 获取所有用户列表
+//
+// 返回所有未删除的用户
+func (AdminUser) ListAll(db *sql.DB) ([]AdminUser, error) {
+	query := `
+		SELECT id, username, password_hash, nickname, email, phone, avatar, status, 
+			   last_login_at, last_login_ip, created_at, updated_at
+		FROM admin_users 
+		WHERE deleted_at IS NULL
+		ORDER BY created_at DESC
+	`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
 	var users []AdminUser
-	err := db.Order("created_at DESC").Find(&users).Error
-	return users, err
+	for rows.Next() {
+		var user AdminUser
+		var lastLoginAt sql.NullTime
+		var nickname, email, phone, avatar, lastLoginIP sql.NullString
+		err := rows.Scan(
+			&user.ID, &user.Username, &user.Password, &nickname,
+			&email, &phone, &avatar, &user.Status,
+			&lastLoginAt, &lastLoginIP, &user.CreatedAt, &user.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		user.Nickname = nickname.String
+		user.Email = email.String
+		user.Phone = phone.String
+		user.Avatar = avatar.String
+		user.LastLoginIP = lastLoginIP.String
+		if lastLoginAt.Valid {
+			user.LastLoginAt = &lastLoginAt.Time
+		}
+		users = append(users, user)
+	}
+	return users, nil
 }
 
-func (AdminUser) UpdatePassword(db *gorm.DB, id, passwordHash string) error {
-	return db.Model(&AdminUser{}).Where("id = ?", id).Update("password_hash", passwordHash).Error
+// List 分页获取用户列表
+//
+// 返回分页用户列表和总数
+func (AdminUser) List(db *sql.DB, page, pageSize int) ([]AdminUser, int, error) {
+	offset := (page - 1) * pageSize
+
+	countQuery := `SELECT COUNT(*) FROM admin_users WHERE deleted_at IS NULL`
+	var total int
+	db.QueryRow(countQuery).Scan(&total)
+
+	query := `
+		SELECT id, username, password_hash, nickname, email, phone, avatar, status, 
+			   last_login_at, last_login_ip, created_at, updated_at
+		FROM admin_users 
+		WHERE deleted_at IS NULL
+		ORDER BY created_at DESC
+		LIMIT $1 OFFSET $2
+	`
+	rows, err := db.Query(query, pageSize, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var users []AdminUser
+	for rows.Next() {
+		var user AdminUser
+		var lastLoginAt sql.NullTime
+		var nickname, email, phone, avatar, lastLoginIP sql.NullString
+		err := rows.Scan(
+			&user.ID, &user.Username, &user.Password, &nickname,
+			&email, &phone, &avatar, &user.Status,
+			&lastLoginAt, &lastLoginIP, &user.CreatedAt, &user.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, err
+		}
+		user.Nickname = nickname.String
+		user.Email = email.String
+		user.Phone = phone.String
+		user.Avatar = avatar.String
+		user.LastLoginIP = lastLoginIP.String
+		if lastLoginAt.Valid {
+			user.LastLoginAt = &lastLoginAt.Time
+		}
+		users = append(users, user)
+	}
+	return users, total, nil
 }
 
-func (AdminUser) UpdateLastLogin(db *gorm.DB, id string) error {
-	return db.Model(&AdminUser{}).Where("id = ?", id).Update("last_login_at", time.Now()).Error
+// UpdatePassword 更新密码
+//
+// 更新用户密码哈希
+func (AdminUser) UpdatePassword(db *sql.DB, id, passwordHash string) error {
+	query := `UPDATE admin_users SET password_hash = $1, updated_at = $2 WHERE id = $3`
+	_, err := db.Exec(query, passwordHash, time.Now(), id)
+	return err
 }
 
-func (AdminUser) GetRoleIDs(db *gorm.DB, userID string) ([]string, error) {
+// UpdateLastLogin 更新最后登录时间
+//
+// 记录用户最后登录时间
+func (AdminUser) UpdateLastLogin(db *sql.DB, id string) error {
+	query := `UPDATE admin_users SET last_login_at = $1, updated_at = $2 WHERE id = $3`
+	now := time.Now()
+	_, err := db.Exec(query, now, now, id)
+	return err
+}
+
+// GetRoleIDs 获取用户角色ID列表
+//
+// 返回用户关联的所有角色ID
+func (AdminUser) GetRoleIDs(db *sql.DB, userID string) ([]string, error) {
+	query := `SELECT role_id FROM admin_user_roles WHERE user_id = $1`
+	rows, err := db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
 	var roleIDs []string
-	err := db.Model(&AdminUserRole{}).Where("user_id = ?", userID).Pluck("role_id", &roleIDs).Error
-	return roleIDs, err
+	for rows.Next() {
+		var roleID string
+		if err := rows.Scan(&roleID); err != nil {
+			return nil, err
+		}
+		roleIDs = append(roleIDs, roleID)
+	}
+	return roleIDs, nil
 }
 
-func (AdminUser) SetRoles(db *gorm.DB, userID string, roleIDs []string) error {
-	return db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("user_id = ?", userID).Delete(&AdminUserRole{}).Error; err != nil {
+// GetRoles 获取用户角色列表
+//
+// 返回用户关联的所有角色信息
+func (AdminUser) GetRoles(db *sql.DB, userID string) ([]AdminRole, error) {
+	query := `
+		SELECT r.id, r.name, r.code, r.description, r.status, r.created_at, r.updated_at
+		FROM admin_roles r
+		INNER JOIN admin_user_roles ur ON r.id = ur.role_id
+		WHERE ur.user_id = $1 AND r.deleted_at IS NULL
+	`
+	rows, err := db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var roles []AdminRole
+	for rows.Next() {
+		var role AdminRole
+		err := rows.Scan(
+			&role.ID, &role.Name, &role.Code, &role.Description,
+			&role.Status, &role.CreatedAt, &role.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		roles = append(roles, role)
+	}
+	return roles, nil
+}
+
+// SetRoles 设置用户角色
+//
+// 替换用户的所有角色关联
+func (AdminUser) SetRoles(db *sql.DB, userID string, roleIDs []string) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// 删除旧的角色关联
+	if _, err := tx.Exec(`DELETE FROM admin_user_roles WHERE user_id = $1`, userID); err != nil {
+		return err
+	}
+
+	// 插入新的角色关联
+	for _, roleID := range roleIDs {
+		_, err := tx.Exec(`INSERT INTO admin_user_roles (user_id, role_id) VALUES ($1, $2)`, userID, roleID)
+		if err != nil {
 			return err
 		}
-		for _, roleID := range roleIDs {
-			userRole := AdminUserRole{UserID: userID, RoleID: roleID}
-			if err := tx.Create(&userRole).Error; err != nil {
-				return err
-			}
+	}
+
+	return tx.Commit()
+}
+
+// GetRoleCodes 获取用户角色代码列表
+//
+// 返回用户关联的所有有效角色代码
+func (AdminUser) GetRoleCodes(db *sql.DB, userID string) ([]string, error) {
+	query := `
+		SELECT r.code
+		FROM admin_roles r
+		INNER JOIN admin_user_roles ur ON r.id = ur.role_id
+		WHERE ur.user_id = $1 AND r.status = 1 AND r.deleted_at IS NULL
+	`
+	rows, err := db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var codes []string
+	for rows.Next() {
+		var code string
+		if err := rows.Scan(&code); err != nil {
+			return nil, err
 		}
-		return nil
-	})
+		codes = append(codes, code)
+	}
+	return codes, nil
 }
 
-func (AdminUser) GetRoleCodes(db *gorm.DB, userID string) ([]string, error) {
-	var codes []string
-	err := db.Model(&AdminRole{}).
-		Select("admin_roles.code").
-		Joins("INNER JOIN admin_user_roles ON admin_roles.id = admin_user_roles.role_id").
-		Where("admin_user_roles.user_id = ? AND admin_roles.status = 1", userID).
-		Pluck("admin_roles.code", &codes).Error
-	return codes, err
-}
+// GetButtonCodes 获取用户按钮权限代码列表
+//
+// 返回用户拥有的所有按钮权限代码
+func (AdminUser) GetButtonCodes(db *sql.DB, userID string) ([]string, error) {
+	query := `
+		SELECT DISTINCT p.code
+		FROM admin_permissions p
+		INNER JOIN admin_role_permissions rp ON p.id = rp.permission_id
+		INNER JOIN admin_user_roles ur ON rp.role_id = ur.role_id
+		WHERE ur.user_id = $1 AND p.type = 'button' AND p.status = 1 AND p.deleted_at IS NULL
+	`
+	rows, err := db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-func (AdminUser) GetButtonCodes(db *gorm.DB, userID string) ([]string, error) {
 	var codes []string
-	err := db.Model(&AdminPermission{}).
-		Select("DISTINCT admin_permissions.code").
-		Joins("INNER JOIN admin_role_permissions ON admin_permissions.id = admin_role_permissions.permission_id").
-		Joins("INNER JOIN admin_user_roles ON admin_role_permissions.role_id = admin_user_roles.role_id").
-		Where("admin_user_roles.user_id = ? AND admin_permissions.type = 'button' AND admin_permissions.status = 1", userID).
-		Pluck("admin_permissions.code", &codes).Error
-	return codes, err
+	for rows.Next() {
+		var code string
+		if err := rows.Scan(&code); err != nil {
+			return nil, err
+		}
+		codes = append(codes, code)
+	}
+	return codes, nil
 }
