@@ -3,7 +3,7 @@ module.exports = {
 
 	email: {
 		from: "admin@wforge.net",
-		password: "IEAWhsV1",
+		password: "VecqbgDjT2",
 		host: "smtp.wforge.net",
 		port: 587,
 		ssl: false,

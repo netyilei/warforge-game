@@ -15,12 +15,14 @@ if %errorlevel% equ 0 (
     )
 ) else (
     echo 创建新的编译容器...
-    docker run -d --name warforge-builder --entrypoint sh -v "%cd%":/app -w /app heroiclabs/nakama-pluginbuilder:latest -c "sleep infinity"
+    docker run -d --name warforge-builder --entrypoint sh --network warforge-network -p 9528:9528 -v "%cd%":/app -w /app heroiclabs/nakama-pluginbuilder:latest -c "sleep infinity"
 )
 
 echo.
 echo ========================================
 echo 编译容器已就绪
+echo 网络: warforge-network
+echo 端口映射: 9528 -^> 9528 (WebAdmin API)
 echo 使用 build.bat 进行编译
 echo 使用 builder-shell.bat 进入容器
 echo ========================================

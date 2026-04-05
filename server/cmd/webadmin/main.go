@@ -15,6 +15,7 @@ import (
 
 	"warforge-server/config"
 	"warforge-server/database"
+	"warforge-server/migrations"
 	"warforge-server/webadmin"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -55,13 +56,17 @@ func main() {
 
 	database.InitDB(sqlDB)
 
+	if err := migrations.Run(sqlDB); err != nil {
+		fmt.Printf("Failed to run migrations: %v\n", err)
+	}
+
 	if cfg.Redis.Host != "" {
 		if err := database.InitRedis(cfg.Redis.Host, cfg.Redis.Port, cfg.Redis.Password, cfg.Redis.DB); err != nil {
 			fmt.Printf("Failed to init Redis: %v\n", err)
 		}
 	}
 
-	server := webadmin.StartServer()
+	server := webadmin.NewServer()
 	if server == nil {
 		fmt.Println("Web Admin server is disabled")
 		return

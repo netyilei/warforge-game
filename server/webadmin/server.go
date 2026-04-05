@@ -15,7 +15,6 @@ package webadmin
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -26,11 +25,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// StartServer 启动 Web Admin 服务
+// NewServer 创建 Web Admin 服务
 //
 // 启动前会检查数据库和 Redis 连接是否可用
 // 如果连接不可用，服务将无法启动
-func StartServer() *http.Server {
+func NewServer() *http.Server {
 	cfg := config.AppConfig
 	if cfg == nil || !cfg.WebAdmin.Enabled {
 		return nil
@@ -53,12 +52,6 @@ func StartServer() *http.Server {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-
-	go func() {
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			return
-		}
-	}()
 
 	return server
 }

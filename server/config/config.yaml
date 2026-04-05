@@ -4,17 +4,18 @@ server:
   websocket_port: 7351
 
 database:
-  host: localhost
+  host: dev_cockroach
   port: 26257
   user: root
-  password: ""
+  password: "123456"
   name: nakama
   sslmode: disable
   max_open_conns: 100
   max_idle_conns: 10
+  table_prefix: "wf_"
 
 redis:
-  host: localhost
+  host: dev_redis
   port: 6379
   password: ""
   db: 2

@@ -70,51 +70,10 @@ func PermissionMiddleware(permission string) gin.HandlerFunc {
 	}
 }
 
-// actionConfig 操作配置
-//
-// 记录操作类型和目标类型
-type actionConfig struct {
-	action     string
-	targetType string
-}
-
-// routeActionMap 路由-操作映射表
-//
-// 定义路由与操作类型的对应关系，用于操作日志记录
-var routeActionMap = map[string]actionConfig{
-	"POST /api-v1/admin-users":             {"create", "admin_user"},
-	"PUT /api-v1/admin-users":              {"update", "admin_user"},
-	"DELETE /api-v1/admin-users":           {"delete", "admin_user"},
-	"POST /api-v1/roles":                   {"create", "role"},
-	"PUT /api-v1/roles":                    {"update", "role"},
-	"DELETE /api-v1/roles":                 {"delete", "role"},
-	"POST /api-v1/permissions":             {"create", "permission"},
-	"PUT /api-v1/permissions":              {"update", "permission"},
-	"DELETE /api-v1/permissions":           {"delete", "permission"},
-	"POST /api-v1/languages":               {"create", "language"},
-	"PUT /api-v1/languages":                {"update", "language"},
-	"DELETE /api-v1/languages":             {"delete", "language"},
-	"POST /api-v1/banners":                 {"create", "banner"},
-	"PUT /api-v1/banners":                  {"update", "banner"},
-	"DELETE /api-v1/banners":               {"delete", "banner"},
-	"POST /api-v1/banner-positions":        {"create", "banner_position"},
-	"PUT /api-v1/banner-positions":         {"update", "banner_position"},
-	"DELETE /api-v1/banner-positions":      {"delete", "banner_position"},
-	"POST /api-v1/categories":              {"create", "category"},
-	"PUT /api-v1/categories":               {"update", "category"},
-	"DELETE /api-v1/categories":            {"delete", "category"},
-	"POST /api-v1/contents":                {"create", "content"},
-	"PUT /api-v1/contents":                 {"update", "content"},
-	"DELETE /api-v1/contents":              {"delete", "content"},
-	"POST /api-v1/storage-configs":         {"create", "storage_config"},
-	"PUT /api-v1/storage-configs":          {"update", "storage_config"},
-	"DELETE /api-v1/storage-configs":       {"delete", "storage_config"},
-	"POST /api-v1/storage-configs/default": {"set_default", "storage_config"},
-}
-
 // OperationLogMiddleware 操作日志中间件
 //
 // 记录所有写操作（POST/PUT/DELETE）到操作日志表
+// 根据请求方法和路径自动推断操作类型和目标类型
 func OperationLogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -130,21 +89,9 @@ func OperationLogMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		path := c.Request.URL.Path
-		routeKey := method + " " + path
-
-		config, ok := routeActionMap[routeKey]
-		if !ok {
-			for key, cfg := range routeActionMap {
-				if strings.HasPrefix(routeKey, key) {
-					config = cfg
-					ok = true
-					break
-				}
-			}
-		}
-
-		if !ok {
+		action := inferAction(method)
+		targetType := inferTargetType(c.Request.URL.Path)
+		if targetType == "" {
 			return
 		}
 
@@ -165,18 +112,73 @@ func OperationLogMiddleware() gin.HandlerFunc {
 		log := &models.OperationLog{
 			UserID:     userIDPtr,
 			Username:   usernameStr,
-			Action:     config.action,
-			TargetType: config.targetType,
+			Action:     action,
+			TargetType: targetType,
 			TargetID:   extractTargetID(c),
 			Details:    buildDetails(c, start),
 			IP:         c.ClientIP(),
 			UserAgent:  c.Request.UserAgent(),
 		}
 
-		db := database.GetDB()
-		if db != nil {
-			log.Create(db)
+		db := database.MustGetDB()
+		log.Create(db)
+	}
+}
+
+// inferAction 根据请求方法推断操作类型
+func inferAction(method string) string {
+	switch method {
+	case "POST":
+		return "create"
+	case "PUT":
+		return "update"
+	case "DELETE":
+		return "delete"
+	default:
+		return method
+	}
+}
+
+// inferTargetType 根据请求路径推断目标类型
+//
+// 从路径中提取资源名称，例如：
+// - /api-v1/admin -> admin_user
+// - /api-v1/roles -> role
+// - /api-v1/content/categories -> category
+func inferTargetType(path string) string {
+	path = strings.TrimPrefix(path, "/api-v1/")
+
+	parts := strings.Split(path, "/")
+	if len(parts) == 0 {
+		return ""
+	}
+
+	resource := parts[0]
+	switch resource {
+	case "admin":
+		return "admin_user"
+	case "roles":
+		return "role"
+	case "permissions":
+		return "permission"
+	case "languages":
+		return "language"
+	case "banner-groups":
+		return "banner_group"
+	case "banners":
+		return "banner"
+	case "content":
+		if len(parts) > 1 && parts[1] == "categories" {
+			return "category"
 		}
+		return "content"
+	case "storage":
+		if len(parts) > 1 && parts[1] == "config" {
+			return "storage_config"
+		}
+		return "storage"
+	default:
+		return resource
 	}
 }
 

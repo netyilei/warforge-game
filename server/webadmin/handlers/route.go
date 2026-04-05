@@ -5,187 +5,177 @@ package handlers
 
 import (
 	"sort"
+	"strings"
 
 	"warforge-server/database"
 	"warforge-server/models"
+	"warforge-server/webadmin/response"
 
 	"github.com/gin-gonic/gin"
 )
 
-// GetConstantRoutes 获取常量路由
-//
-// 返回不需要权限验证的路由列表
-func GetConstantRoutes(c *gin.Context) {
-	routes := []map[string]interface{}{
-		{
-			"name":      "login",
-			"path":      "/login/:module(pwd-login)?",
-			"component": "layout.blank$view.login",
-			"props":     true,
-			"meta": map[string]interface{}{
-				"title":      "登录",
-				"i18nKey":    "route.login",
-				"constant":   true,
-				"hideInMenu": true,
-			},
-		},
-		{
-			"name":      "403",
-			"path":      "/403",
-			"component": "layout.blank$view.403",
-			"meta": map[string]interface{}{
-				"title":      "无权限",
-				"i18nKey":    "route.403",
-				"constant":   true,
-				"hideInMenu": true,
-			},
-		},
-		{
-			"name":      "404",
-			"path":      "/404",
-			"component": "layout.blank$view.404",
-			"meta": map[string]interface{}{
-				"title":      "页面不存在",
-				"i18nKey":    "route.404",
-				"constant":   true,
-				"hideInMenu": true,
-			},
-		},
-		{
-			"name":      "500",
-			"path":      "/500",
-			"component": "layout.blank$view.500",
-			"meta": map[string]interface{}{
-				"title":      "服务器错误",
-				"i18nKey":    "route.500",
-				"constant":   true,
-				"hideInMenu": true,
-			},
-		},
-	}
+// RouteMeta 路由元数据
+type RouteMeta struct {
+	Title      string `json:"title"`
+	I18nKey    string `json:"i18nKey"`
+	Icon       string `json:"icon,omitempty"`
+	Href       string `json:"href,omitempty"`
+	Order      int    `json:"order,omitempty"`
+	HideInMenu bool   `json:"hideInMenu,omitempty"`
+	Constant   bool   `json:"constant,omitempty"`
+}
 
-	c.JSON(200, gin.H{
-		"code": 0,
-		"data": routes,
-		"msg":  "success",
-	})
+// ElegantRoute 符合 elegant-router 格式的路由
+type ElegantRoute struct {
+	Name      string         `json:"name"`
+	Path      string         `json:"path"`
+	Component string         `json:"component,omitempty"`
+	Props     bool           `json:"props,omitempty"`
+	Meta      RouteMeta      `json:"meta"`
+	Children  []ElegantRoute `json:"children,omitempty"`
+}
+
+// UserRoutesResponse 用户路由响应
+type UserRoutesResponse struct {
+	Routes []ElegantRoute `json:"routes"`
+	Home   string         `json:"home"`
 }
 
 // GetUserRoutes 获取用户路由
 //
-// 返回当前用户有权限访问的路由列表
+// 返回当前用户有权限访问的业务路由列表
 func GetUserRoutes(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(200, gin.H{
-			"code": 401,
-			"msg":  "未登录",
-		})
+		response.Unauthorized(c, "")
 		return
 	}
 
-	db := database.GetDB()
-	if db == nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "数据库错误",
-		})
-		return
-	}
+	db := database.MustGetDB()
 
-	// 获取用户的菜单权限
-	permissions, err := models.AdminPermission{}.GetMenusByUserID(db, userID.(string))
+	permissions, err := models.AdminPermission{}.GetAllMenusByUserID(db, userID.(string))
 	if err != nil {
-		c.JSON(200, gin.H{
-			"code": 500,
-			"msg":  "获取权限失败",
-		})
+		response.DBError(c, "获取权限失败")
 		return
 	}
 
-	// 构建路由树
-	routes := buildRouteTree(permissions, nil)
+	routes := buildElegantRouteTree(permissions)
 
-	c.JSON(200, gin.H{
-		"code": 0,
-		"data": gin.H{
-			"routes": routes,
-			"home":   "home",
-		},
-		"msg": "success",
-	})
+	resp := UserRoutesResponse{
+		Routes: routes,
+		Home:   "home",
+	}
+
+	response.Success(c, resp)
 }
 
-// buildRouteTree 构建路由树
-func buildRouteTree(permissions []models.MenuPermission, parentID *string) []map[string]interface{} {
-	var routes []map[string]interface{}
-
-	// 筛选出当前层级的权限
-	var currentLevel []models.MenuPermission
+// buildElegantRouteTree 构建 elegant-router 格式的路由树
+//
+// 前端路由格式规则：
+// 1. 一级路由（目录型）：有 children，component 为 layout.base
+// 2. 二级路由（页面型）：无 children，component 为 view.xxx
+// 3. 单层一级路由（如 home）：无 children，component 为 layout.base$view.xxx
+func buildElegantRouteTree(permissions []models.MenuPermission) []ElegantRoute {
+	permissionMap := make(map[string]models.MenuPermission)
 	for _, p := range permissions {
-		if p.ParentID == nil && parentID == nil {
-			currentLevel = append(currentLevel, p)
-		} else if p.ParentID != nil && parentID != nil && *p.ParentID == *parentID {
-			currentLevel = append(currentLevel, p)
+		permissionMap[p.ID] = p
+	}
+
+	childrenMap := make(map[string][]models.MenuPermission)
+	for _, p := range permissions {
+		if p.ParentID != nil {
+			parentID := *p.ParentID
+			childrenMap[parentID] = append(childrenMap[parentID], p)
 		}
 	}
 
-	// 按 sortOrder 排序
-	sort.Slice(currentLevel, func(i, j int) bool {
-		return currentLevel[i].SortOrder < currentLevel[j].SortOrder
+	var rootPermissions []models.MenuPermission
+	for _, p := range permissions {
+		if p.ParentID == nil {
+			rootPermissions = append(rootPermissions, p)
+		}
+	}
+
+	sort.Slice(rootPermissions, func(i, j int) bool {
+		return rootPermissions[i].SortOrder < rootPermissions[j].SortOrder
 	})
 
-	for _, p := range currentLevel {
-		route := map[string]interface{}{
-			"name": p.Code,
-			"meta": map[string]interface{}{
-				"title":   p.Name,
-				"i18nKey": "route." + p.Code,
-			},
+	var routes []ElegantRoute
+	for _, p := range rootPermissions {
+		route := buildRoute(p, childrenMap, true)
+		if route != nil {
+			routes = append(routes, *route)
 		}
-
-		// 设置路径
-		if p.Path != nil {
-			route["path"] = *p.Path
-		}
-
-		// 设置图标
-		if p.Icon != nil && *p.Icon != "" {
-			route["meta"].(map[string]interface{})["icon"] = *p.Icon
-		}
-
-		// 设置组件
-		if p.Component != nil && *p.Component != "" {
-			// 使用数据库中的组件配置
-			route["component"] = *p.Component
-		} else if parentID == nil {
-			// 顶级菜单默认使用 layout.base
-			route["component"] = "layout.base"
-		}
-
-		// 递归构建子路由
-		children := buildRouteTree(permissions, &p.ID)
-		if len(children) > 0 {
-			route["children"] = children
-		}
-
-		routes = append(routes, route)
 	}
 
 	return routes
 }
 
+// buildRoute 构建单个路由
+func buildRoute(p models.MenuPermission, childrenMap map[string][]models.MenuPermission, isRoot bool) *ElegantRoute {
+	route := &ElegantRoute{
+		Name: p.Code,
+		Meta: RouteMeta{
+			Title:      p.Name,
+			I18nKey:    "route." + p.Code,
+			HideInMenu: !p.ShowInMenu,
+			Order:      p.SortOrder,
+		},
+	}
+
+	if p.Path != nil {
+		route.Path = *p.Path
+	}
+
+	if p.Icon != nil && *p.Icon != "" {
+		route.Meta.Icon = *p.Icon
+	}
+
+	if p.Href != nil && *p.Href != "" {
+		route.Meta.Href = *p.Href
+	}
+
+	children := childrenMap[p.ID]
+	hasChildren := len(children) > 0
+
+	if p.Component != nil && *p.Component != "" {
+		route.Component = *p.Component
+	} else if isRoot {
+		if hasChildren {
+			route.Component = "layout.base"
+		} else {
+			route.Component = "layout.base$view." + p.Code
+		}
+	} else {
+		route.Component = "view." + p.Code
+	}
+
+	if hasChildren {
+		sort.Slice(children, func(i, j int) bool {
+			return children[i].SortOrder < children[j].SortOrder
+		})
+
+		route.Children = []ElegantRoute{}
+		for _, child := range children {
+			childRoute := buildRoute(child, childrenMap, false)
+			if childRoute != nil {
+				route.Children = append(route.Children, *childRoute)
+			}
+		}
+	}
+
+	if strings.HasPrefix(route.Component, "layout.") && strings.Contains(route.Component, "$") {
+		route.Children = nil
+	}
+
+	return route
+}
+
 // CheckRouteExist 检查路由是否存在
-//
-// 检查指定路由名称是否存在
 func CheckRouteExist(c *gin.Context) {
 	routeName := c.Query("routeName")
 
 	exists := routeName != ""
 
-	c.JSON(200, gin.H{
-		"code": 0,
-		"data": exists,
-		"msg":  "success",
-	})
+	response.Success(c, exists)
 }

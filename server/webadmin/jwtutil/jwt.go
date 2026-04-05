@@ -132,3 +132,43 @@ func InvalidateToken(userID string) {
 		redisClient.Del(ctx, refreshKey)
 	}
 }
+
+// RefreshAccessToken 使用 refresh token 刷新 access token
+//
+// 验证 refresh token，如果有效则生成新的 access token
+func RefreshAccessToken(refreshTokenString string) (string, string, error) {
+	cfg := config.AppConfig
+	secretKey := []byte(cfg.WebAdmin.SecretKey)
+
+	token, err := jwt.ParseWithClaims(refreshTokenString, &AdminClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return secretKey, nil
+	})
+
+	if err != nil {
+		return "", "", err
+	}
+
+	claims, ok := token.Claims.(*AdminClaims)
+	if !ok || !token.Valid {
+		return "", "", errors.New("invalid refresh token")
+	}
+
+	if claims.TokenType != "refresh" {
+		return "", "", errors.New("token is not a refresh token")
+	}
+
+	redisClient := database.GetRedis()
+	if redisClient != nil {
+		ctx := context.Background()
+		refreshKey := database.GetAdminRefreshKey(claims.UserID)
+		storedToken, err := redisClient.Get(ctx, refreshKey).Result()
+		if err != nil || storedToken != refreshTokenString {
+			return "", "", errors.New("refresh token invalidated")
+		}
+	}
+
+	return GenerateToken(claims.UserID, claims.Username)
+}

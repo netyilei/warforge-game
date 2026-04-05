@@ -14,7 +14,7 @@ func registerRoutes(router *gin.Engine) {
 		api.POST("/logout", AuthMiddleware(), handlers.Logout)
 		api.GET("/userinfo", AuthMiddleware(), handlers.GetUserInfo)
 		api.POST("/change-password", AuthMiddleware(), handlers.ChangePassword)
-		api.GET("/constant-routes", handlers.GetConstantRoutes)
+		api.POST("/refresh-token", handlers.RefreshToken)
 	}
 
 	routes := api.Group("/routes", AuthMiddleware())
@@ -48,8 +48,12 @@ func registerRoutes(router *gin.Engine) {
 	permissions := api.Group("/permissions", AuthMiddleware())
 	{
 		permissions.GET("", handlers.GetPermissions)
+		permissions.GET("/tree", handlers.GetPermissionTree)
+		permissions.GET("/:id", handlers.GetPermission)
 		permissions.POST("", handlers.CreatePermission)
 		permissions.PUT("/:id", handlers.UpdatePermission)
+		permissions.PUT("/:id/move", handlers.MovePermission)
+		permissions.PUT("/batch-sort", handlers.BatchUpdateSortOrder)
 		permissions.DELETE("/:id", handlers.DeletePermission)
 	}
 
@@ -85,14 +89,17 @@ func registerRoutes(router *gin.Engine) {
 		languages.PUT("/:id/default", handlers.SetDefaultLanguage)
 	}
 
+	bannerGroups := api.Group("/banner-groups", AuthMiddleware())
+	{
+		bannerGroups.GET("", handlers.GetBannerGroups)
+		bannerGroups.POST("", handlers.CreateBannerGroup)
+		bannerGroups.PUT("/:id", handlers.UpdateBannerGroup)
+		bannerGroups.DELETE("/:id", handlers.DeleteBannerGroup)
+	}
+
 	banners := api.Group("/banners", AuthMiddleware())
 	{
-		banners.GET("/positions", handlers.GetBannerPositions)
-		banners.POST("/positions", handlers.CreateBannerPosition)
-		banners.PUT("/positions/:id", handlers.UpdateBannerPosition)
-		banners.DELETE("/positions/:id", handlers.DeleteBannerPosition)
 		banners.GET("", handlers.GetBanners)
-		banners.GET("/:id", handlers.GetBanner)
 		banners.POST("", handlers.CreateBanner)
 		banners.PUT("/:id", handlers.UpdateBanner)
 		banners.DELETE("/:id", handlers.DeleteBanner)
@@ -114,5 +121,25 @@ func registerRoutes(router *gin.Engine) {
 	operations := api.Group("/operations", AuthMiddleware())
 	{
 		operations.GET("/logs", handlers.GetOperationLogs)
+	}
+
+	email := api.Group("/email", AuthMiddleware())
+	{
+		email.GET("/configs", handlers.GetEmailConfigs)
+		email.GET("/configs/:id", handlers.GetEmailConfig)
+		email.POST("/configs", handlers.CreateEmailConfig)
+		email.PUT("/configs/:id", handlers.UpdateEmailConfig)
+		email.DELETE("/configs/:id", handlers.DeleteEmailConfig)
+		email.GET("/templates", handlers.GetEmailTemplates)
+		email.GET("/templates/:id", handlers.GetEmailTemplate)
+		email.POST("/templates", handlers.CreateEmailTemplate)
+		email.PUT("/templates/:id", handlers.UpdateEmailTemplate)
+		email.DELETE("/templates/:id", handlers.DeleteEmailTemplate)
+		email.POST("/send-test", handlers.SendTestEmail)
+	}
+
+	support := api.Group("/support", AuthMiddleware())
+	{
+		support.POST("/send-email", handlers.SendSupportEmail)
 	}
 }

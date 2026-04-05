@@ -1,12 +1,5 @@
 import { request } from '../request';
 
-export function fetchGetConstantRoutes() {
-  return request<Api.Route.MenuRoute[]>({
-    url: '/constant-routes',
-    method: 'GET'
-  });
-}
-
 export function fetchGetUserRoutes() {
   return request<Api.Route.UserRoute>({
     url: '/routes',

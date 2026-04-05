@@ -5,6 +5,7 @@ package models
 
 import (
 	"time"
+	"warforge-server/config"
 )
 
 // AdminUserRole 用户角色关联表
@@ -16,7 +17,7 @@ type AdminUserRole struct {
 
 // TableName 返回表名
 func (AdminUserRole) TableName() string {
-	return "admin_user_roles"
+	return config.GetTableName("admin_user_roles")
 }
 
 // AdminRolePermission 角色权限关联表
@@ -28,5 +29,5 @@ type AdminRolePermission struct {
 
 // TableName 返回表名
 func (AdminRolePermission) TableName() string {
-	return "admin_role_permissions"
+	return config.GetTableName("admin_role_permissions")
 }

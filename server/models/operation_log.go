@@ -5,7 +5,10 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
+
+	"warforge-server/config"
 )
 
 // OperationLog 操作日志模型
@@ -50,31 +53,31 @@ func (OperationLog) List(db *sql.DB, req OperationLogListRequest) (*OperationLog
 
 	offset := (req.Page - 1) * req.PageSize
 
-	countQuery := `
-		SELECT COUNT(*) FROM admin_operation_logs
-		WHERE ($1 = '' OR username LIKE '%' || $1 || '%')
+	countQuery := fmt.Sprintf(`
+		SELECT COUNT(*) FROM %s
+		WHERE ($1 = '' OR username LIKE '%%' || $1 || '%%')
 		AND ($2 = '' OR action = $2)
 		AND ($3 = '' OR target_type = $3)
 		AND ($4 = '' OR created_at >= $4::timestamp)
 		AND ($5 = '' OR created_at <= $5::timestamp)
-	`
+	`, config.GetTableName("admin_operation_logs"))
 	var total int
 	err := db.QueryRow(countQuery, req.Username, req.Action, req.TargetType, req.StartTime, req.EndTime).Scan(&total)
 	if err != nil {
 		return nil, err
 	}
 
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, user_id, username, action, target_type, target_id, details, ip, user_agent, created_at
-		FROM admin_operation_logs
-		WHERE ($1 = '' OR username LIKE '%' || $1 || '%')
+		FROM %s
+		WHERE ($1 = '' OR username LIKE '%%' || $1 || '%%')
 		AND ($2 = '' OR action = $2)
 		AND ($3 = '' OR target_type = $3)
 		AND ($4 = '' OR created_at >= $4::timestamp)
 		AND ($5 = '' OR created_at <= $5::timestamp)
 		ORDER BY created_at DESC
 		LIMIT $6 OFFSET $7
-	`
+	`, config.GetTableName("admin_operation_logs"))
 	rows, err := db.Query(query, req.Username, req.Action, req.TargetType, req.StartTime, req.EndTime, req.PageSize, offset)
 	if err != nil {
 		return nil, err
@@ -118,11 +121,11 @@ func (OperationLog) List(db *sql.DB, req OperationLogListRequest) (*OperationLog
 
 // Create 创建操作日志
 func (l *OperationLog) Create(db *sql.DB) error {
-	query := `
-		INSERT INTO admin_operation_logs (user_id, username, action, target_type, target_id, details, ip, user_agent)
+	query := fmt.Sprintf(`
+		INSERT INTO %s (user_id, username, action, target_type, target_id, details, ip, user_agent)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at
-	`
+	`, config.GetTableName("admin_operation_logs"))
 	return db.QueryRow(query, l.UserID, l.Username, l.Action, l.TargetType, l.TargetID, l.Details, l.IP, l.UserAgent).Scan(
 		&l.ID, &l.CreatedAt,
 	)

@@ -191,7 +191,7 @@ func GetAdminRoles(c *gin.Context) {
 		return
 	}
 	db := database.MustGetDB()
-	roles, err := models.AdminUser{}.GetRoles(db, id)
+	roles, err := models.AdminUser{}.GetRoleIDs(db, id)
 	if err != nil {
 		response.DBError(c, "数据库错误")
 		return

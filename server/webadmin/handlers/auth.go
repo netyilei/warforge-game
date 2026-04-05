@@ -134,3 +134,28 @@ func GetUserInfo(c *gin.Context) {
 		Buttons:  buttons,
 	})
 }
+
+// RefreshTokenRequest 刷新令牌请求
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refreshToken" binding:"required"`
+}
+
+// RefreshToken 刷新访问令牌
+func RefreshToken(c *gin.Context) {
+	var req RefreshTokenRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, 400, "Invalid request")
+		return
+	}
+
+	accessToken, refreshToken, err := jwtutil.RefreshAccessToken(req.RefreshToken)
+	if err != nil {
+		response.Error(c, 401, "Invalid or expired refresh token")
+		return
+	}
+
+	response.Success(c, LoginResponse{
+		Token:        accessToken,
+		RefreshToken: refreshToken,
+	})
+}

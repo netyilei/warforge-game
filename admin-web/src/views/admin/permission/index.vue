@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, h } from 'vue';
+import { ref, onMounted, h, computed } from 'vue';
 import {
   NCard,
   NDataTable,
@@ -17,6 +17,8 @@ import {
   NGrid,
   NGridItem,
   NInputNumber,
+  NSwitch,
+  NTooltip,
 } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 import { adminApi } from '@/service/api';
@@ -31,6 +33,8 @@ interface Permission {
   path: string;
   component: string;
   icon: string;
+  href: string;
+  showInMenu: boolean;
   sortOrder: number;
   status: number;
   children?: Permission[];
@@ -57,23 +61,32 @@ const typeOptions = [
   { label: '按钮', value: 'button' },
 ];
 
+const isExternalLink = computed(() => {
+  return formData.value.type === 'menu' && formData.value.href && formData.value.href.trim() !== '';
+});
+
 const columns = [
   {
     title: '权限名称',
     key: 'name',
-    width: 300,
+    width: 280,
     render(row: FlatPermission) {
+      const tags = [];
+      if (row.href) {
+        tags.push(h(NTag, { type: 'warning', size: 'small', style: 'margin-left: 6px;' }, { default: () => '外链' }));
+      }
       return h('div', { style: 'display: inline-flex; align-items: center; font-family: monospace;' }, [
         h('span', { style: 'white-space: pre; color: #999;' }, row.prefix),
         row.icon ? h(Icon, { icon: row.icon, style: 'margin-right: 6px; font-size: 16px; flex-shrink: 0;' }) : null,
         h('span', { style: 'white-space: nowrap;' }, row.name),
+        ...tags,
       ]);
     },
   },
   {
     title: '权限编码',
     key: 'code',
-    width: 180,
+    width: 160,
     render(row: FlatPermission) {
       const tagType = row.type === 'menu' ? 'info' : 'success';
       return h(NTag, { type: tagType, size: 'small' }, { default: () => row.code });
@@ -93,12 +106,33 @@ const columns = [
     },
   },
   {
-    title: '路径',
+    title: '路径/链接',
     key: 'path',
-    width: 150,
+    width: 180,
     ellipsis: { tooltip: true },
     render(row: FlatPermission) {
+      if (row.href) {
+        return h(NTooltip, {}, {
+          trigger: () => h('a', { 
+            href: row.href, 
+            target: '_blank',
+            style: 'color: #2080f0; text-decoration: none;'
+          }, row.href),
+          default: () => '点击访问外部链接'
+        });
+      }
       return row.path || '-';
+    },
+  },
+  {
+    title: '显示',
+    key: 'showInMenu',
+    width: 60,
+    render(row: FlatPermission) {
+      if (row.type !== 'menu') return '-';
+      return row.showInMenu
+        ? h(NTag, { type: 'success', size: 'small' }, { default: () => '是' })
+        : h(NTag, { type: 'default', size: 'small' }, { default: () => '否' });
     },
   },
   {
@@ -255,6 +289,8 @@ const handleAdd = () => {
     status: 1,
     sortOrder: 0,
     parentId: '',
+    showInMenu: true,
+    href: '',
   };
   showModal.value = true;
 };
@@ -343,15 +379,36 @@ onMounted(() => {
             :options="typeOptions"
           />
         </NFormItem>
-        <NFormItem v-if="formData.type === 'menu'" label="路径">
-          <NInput v-model:value="formData.path" placeholder="如：/admin/list" />
-        </NFormItem>
-        <NFormItem v-if="formData.type === 'menu'" label="组件">
-          <NInput v-model:value="formData.component" placeholder="如：view.admin_list" />
-        </NFormItem>
-        <NFormItem v-if="formData.type === 'menu'" label="图标">
-          <IconPicker v-model:value="formData.icon" />
-        </NFormItem>
+        
+        <template v-if="formData.type === 'menu'">
+          <NFormItem :label="isExternalLink ? '外部链接' : '路径'">
+            <NInput 
+              v-model:value="formData.href" 
+              placeholder="填写外部链接地址，如：https://example.com（留空则为内部路由）" 
+            />
+          </NFormItem>
+          
+          <template v-if="!isExternalLink">
+            <NFormItem label="路径">
+              <NInput v-model:value="formData.path" placeholder="如：/admin/list" />
+            </NFormItem>
+            <NFormItem label="组件">
+              <NInput v-model:value="formData.component" placeholder="如：view.admin_list" />
+            </NFormItem>
+          </template>
+          
+          <NFormItem label="图标">
+            <IconPicker v-model:value="formData.icon" />
+          </NFormItem>
+          
+          <NFormItem label="显示在菜单">
+            <NSwitch v-model:value="formData.showInMenu">
+              <template #checked>显示</template>
+              <template #unchecked>隐藏</template>
+            </NSwitch>
+          </NFormItem>
+        </template>
+        
         <NFormItem label="排序">
           <NInputNumber v-model:value="formData.sortOrder" :min="0" />
         </NFormItem>

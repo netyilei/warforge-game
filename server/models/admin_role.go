@@ -5,7 +5,10 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
+
+	"warforge-server/config"
 )
 
 // AdminRole 管理员角色模型
@@ -23,17 +26,17 @@ type AdminRole struct {
 
 // TableName 返回表名
 func (AdminRole) TableName() string {
-	return "admin_roles"
+	return config.GetTableName("admin_roles")
 }
 
 // Create 创建角色
 //
 // 插入新角色记录到数据库
 func (r *AdminRole) Create(db *sql.DB) error {
-	query := `
-		INSERT INTO admin_roles (id, name, code, description, status, sort_order, created_at, updated_at)
+	query := fmt.Sprintf(`
+		INSERT INTO %s (id, name, code, description, status, sort_order, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-	`
+	`, config.GetTableName("admin_roles"))
 	now := time.Now()
 	_, err := db.Exec(query, r.ID, r.Name, r.Code, r.Description, r.Status, r.SortOrder, now, now)
 	if err != nil {
@@ -48,11 +51,11 @@ func (r *AdminRole) Create(db *sql.DB) error {
 //
 // 更新角色信息
 func (r *AdminRole) Update(db *sql.DB) error {
-	query := `
-		UPDATE admin_roles 
+	query := fmt.Sprintf(`
+		UPDATE %s 
 		SET name = $1, code = $2, description = $3, status = $4, sort_order = $5, updated_at = $6
 		WHERE id = $7
-	`
+	`, config.GetTableName("admin_roles"))
 	now := time.Now()
 	_, err := db.Exec(query, r.Name, r.Code, r.Description, r.Status, r.SortOrder, now, r.ID)
 	if err != nil {
@@ -66,7 +69,7 @@ func (r *AdminRole) Update(db *sql.DB) error {
 //
 // 软删除角色记录
 func (r *AdminRole) Delete(db *sql.DB) error {
-	query := `UPDATE admin_roles SET deleted_at = $1 WHERE id = $2`
+	query := fmt.Sprintf(`UPDATE %s SET deleted_at = $1 WHERE id = $2`, config.GetTableName("admin_roles"))
 	now := time.Now()
 	_, err := db.Exec(query, now, r.ID)
 	return err
@@ -76,11 +79,11 @@ func (r *AdminRole) Delete(db *sql.DB) error {
 //
 // 返回指定ID的角色信息
 func (AdminRole) FindByID(db *sql.DB, id string) (*AdminRole, error) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, name, code, description, status, sort_order, created_at, updated_at
-		FROM admin_roles 
+		FROM %s 
 		WHERE id = $1 AND deleted_at IS NULL
-	`
+	`, config.GetTableName("admin_roles"))
 	role := &AdminRole{}
 	err := db.QueryRow(query, id).Scan(
 		&role.ID, &role.Name, &role.Code, &role.Description,
@@ -96,12 +99,12 @@ func (AdminRole) FindByID(db *sql.DB, id string) (*AdminRole, error) {
 //
 // 返回所有未删除的角色
 func (AdminRole) ListAll(db *sql.DB) ([]AdminRole, error) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, name, code, description, status, sort_order, created_at, updated_at
-		FROM admin_roles 
+		FROM %s 
 		WHERE deleted_at IS NULL
 		ORDER BY sort_order
-	`
+	`, config.GetTableName("admin_roles"))
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -127,12 +130,12 @@ func (AdminRole) ListAll(db *sql.DB) ([]AdminRole, error) {
 //
 // 返回所有状态为有效的角色
 func (AdminRole) ListActive(db *sql.DB) ([]AdminRole, error) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, name, code, description, status, sort_order, created_at, updated_at
-		FROM admin_roles 
+		FROM %s 
 		WHERE status = 1 AND deleted_at IS NULL
 		ORDER BY sort_order
-	`
+	`, config.GetTableName("admin_roles"))
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -158,11 +161,11 @@ func (AdminRole) ListActive(db *sql.DB) ([]AdminRole, error) {
 //
 // 返回指定代码的角色信息
 func (AdminRole) GetByCode(db *sql.DB, code string) (*AdminRole, error) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, name, code, description, status, sort_order, created_at, updated_at
-		FROM admin_roles 
+		FROM %s 
 		WHERE code = $1 AND deleted_at IS NULL
-	`
+	`, config.GetTableName("admin_roles"))
 	role := &AdminRole{}
 	err := db.QueryRow(query, code).Scan(
 		&role.ID, &role.Name, &role.Code, &role.Description,
@@ -178,7 +181,7 @@ func (AdminRole) GetByCode(db *sql.DB, code string) (*AdminRole, error) {
 //
 // 返回角色关联的所有权限ID
 func (AdminRole) GetPermissions(db *sql.DB, roleID string) ([]string, error) {
-	query := `SELECT permission_id FROM admin_role_permissions WHERE role_id = $1`
+	query := fmt.Sprintf(`SELECT permission_id FROM %s WHERE role_id = $1`, config.GetTableName("admin_role_permissions"))
 	rows, err := db.Query(query, roleID)
 	if err != nil {
 		return nil, err
@@ -206,14 +209,12 @@ func (AdminRole) UpdatePermissions(db *sql.DB, roleID string, permissionIDs []st
 	}
 	defer tx.Rollback()
 
-	// 删除旧的权限关联
-	if _, err := tx.Exec(`DELETE FROM admin_role_permissions WHERE role_id = $1`, roleID); err != nil {
+	if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM %s WHERE role_id = $1`, config.GetTableName("admin_role_permissions")), roleID); err != nil {
 		return err
 	}
 
-	// 插入新的权限关联
 	for _, permID := range permissionIDs {
-		_, err := tx.Exec(`INSERT INTO admin_role_permissions (role_id, permission_id) VALUES ($1, $2)`, roleID, permID)
+		_, err := tx.Exec(fmt.Sprintf(`INSERT INTO %s (role_id, permission_id) VALUES ($1, $2)`, config.GetTableName("admin_role_permissions")), roleID, permID)
 		if err != nil {
 			return err
 		}

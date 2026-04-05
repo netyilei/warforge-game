@@ -116,19 +116,6 @@ const columns: DataTableColumns<ContentWithTranslations> = [
     },
   },
   {
-    title: '位置',
-    key: 'position',
-    width: 100,
-    render: (row) => {
-      const posMap: Record<string, string> = {
-        frontend: '前台',
-        admin: '管理后台',
-        agent: '代理后台',
-      };
-      return posMap[row.content.position] || row.content.position;
-    },
-  },
-  {
     title: '跑马灯',
     key: 'isMarquee',
     width: 80,
@@ -232,7 +219,7 @@ const fetchContents = async () => {
       message.error('获取内容列表失败');
       return;
     }
-    contents.value = res?.contents || [];
+    contents.value = res?.list || [];
     total.value = res?.total || 0;
   } catch (error) {
     message.error('获取内容列表失败');
@@ -260,10 +247,7 @@ const handleAdd = () => {
   formData.value = {
     content: {
       categoryId: selectedCategory.value || categories.value[0]?.id || '',
-      position: 'frontend',
       coverImage: '',
-      linkUrl: '',
-      linkTarget: '_blank',
       isMarquee: false,
       isPopup: false,
       sortOrder: 0,
@@ -315,16 +299,26 @@ const handleSave = async () => {
   saving.value = true;
   try {
     const submitData = {
-      content: {
-        ...formData.value.content,
-        startTime: formData.value.content.startTime || null,
-        endTime: formData.value.content.endTime || null,
-      },
-      translations: formData.value.translations.filter((t) => t.title),
+      categoryId: formData.value.content.categoryId!,
+      coverImage: formData.value.content.coverImage || undefined,
+      isMarquee: formData.value.content.isMarquee,
+      isPopup: formData.value.content.isPopup,
+      startTime: formData.value.content.startTime || undefined,
+      endTime: formData.value.content.endTime || undefined,
+      sortOrder: formData.value.content.sortOrder,
+      status: formData.value.content.status,
+      translations: formData.value.translations
+        .filter((t) => t.title)
+        .map((t) => ({
+          lang: t.lang!,
+          title: t.title!,
+          summary: t.summary || '',
+          content: t.content || '',
+        })),
     };
 
-    if (isEdit.value) {
-      await contentApi.updateContent(submitData);
+    if (isEdit.value && formData.value.content.id) {
+      await contentApi.updateContent(formData.value.content.id, submitData);
       message.success('更新成功');
     } else {
       await contentApi.createContent(submitData);
@@ -402,22 +396,8 @@ onMounted(() => {
             style="width: 200px"
           />
         </NFormItem>
-        <NFormItem label="位置">
-          <NSelect
-            v-model:value="formData.content.position"
-            :options="[
-              { label: '前台', value: 'frontend' },
-              { label: '管理后台', value: 'admin' },
-              { label: '代理后台', value: 'agent' },
-            ]"
-            style="width: 150px"
-          />
-        </NFormItem>
         <NFormItem label="封面图">
           <NInput v-model:value="formData.content.coverImage" placeholder="封面图片URL" />
-        </NFormItem>
-        <NFormItem label="跳转链接">
-          <NInput v-model:value="formData.content.linkUrl" placeholder="点击跳转URL" />
         </NFormItem>
         <NFormItem label="跑马灯">
           <NSwitch v-model:value="formData.content.isMarquee" />

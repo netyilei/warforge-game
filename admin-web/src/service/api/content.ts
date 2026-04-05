@@ -7,6 +7,7 @@ export interface ContentCategory {
   description: string;
   contentType: 'text' | 'html' | 'markdown';
   icon: string;
+  parentId: string;
   sortOrder: number;
   status: number;
   createdAt: string;
@@ -16,17 +17,14 @@ export interface ContentCategory {
 export interface Content {
   id: string;
   categoryId: string;
-  position: string;
+  authorId: string;
   coverImage: string;
-  linkUrl: string;
-  linkTarget: string;
   isMarquee: boolean;
   isPopup: boolean;
   startTime: string | null;
   endTime: string | null;
   sortOrder: number;
   status: number;
-  authorId: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -48,47 +46,49 @@ export interface ContentWithTranslations {
   category?: ContentCategory;
 }
 
-export interface BannerPosition {
+export interface BannerGroup {
   id: string;
   name: string;
   code: string;
   description: string;
   width: number;
   height: number;
-  maxItems: number;
   status: number;
+  sortOrder: number;
+  bannerCount?: number;
   createdAt: string;
   updatedAt: string;
 }
 
+export interface BannerExtraData {
+  [key: string]: string | number | boolean;
+}
+
 export interface Banner {
   id: string;
-  positionId: string;
-  sortOrder: number;
-  status: number;
+  groupId: string;
+  imageUrl: string;
+  linkUrl: string;
+  linkTarget: string;
+  isExternal: boolean;
+  extraData: BannerExtraData;
   startTime: string | null;
   endTime: string | null;
+  sortOrder: number;
+  status: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface BannerTranslation {
-  id: string;
-  bannerId: string;
   lang: string;
-  imageUrl: string;
-  altText: string;
-  linkUrl: string;
-  gameId: string;
-  linkTarget: string;
-  createdAt: string;
-  updatedAt: string;
+  title: string;
+  content: string;
 }
 
 export interface BannerWithTranslations {
   banner: Banner;
   translations: BannerTranslation[];
-  position?: BannerPosition;
 }
 
 export const contentApi = {
@@ -119,7 +119,7 @@ export const contentApi = {
     }),
 
   getContents: (categoryId?: string, page = 1, pageSize = 20) =>
-    request<{ contents: ContentWithTranslations[]; total: number; page: number; pageSize: number }>({
+    request<{ list: ContentWithTranslations[]; total: number; page: number; pageSize: number }>({
       url: '/content',
       method: 'GET',
       params: { categoryId, page, pageSize }
@@ -131,16 +131,37 @@ export const contentApi = {
       method: 'GET'
     }),
 
-  createContent: (data: { content: Partial<Content>; translations: Partial<ContentTranslation>[] }) =>
-    request<{ content: Content; translations: ContentTranslation[] }>({
+  createContent: (data: {
+    categoryId: string;
+    authorId?: string;
+    coverImage?: string;
+    isMarquee?: boolean;
+    isPopup?: boolean;
+    startTime?: string;
+    endTime?: string;
+    sortOrder?: number;
+    status?: number;
+    translations: { lang: string; title: string; summary?: string; content?: string }[];
+  }) =>
+    request<ContentWithTranslations>({
       url: '/content',
       method: 'POST',
       data
     }),
 
-  updateContent: (data: { content: Partial<Content>; translations: Partial<ContentTranslation>[] }) =>
-    request<{ content: Content; translations: ContentTranslation[] }>({
-      url: `/content/${data.content.id}`,
+  updateContent: (id: string, data: {
+    categoryId: string;
+    coverImage?: string;
+    isMarquee?: boolean;
+    isPopup?: boolean;
+    startTime?: string;
+    endTime?: string;
+    sortOrder?: number;
+    status?: number;
+    translations?: { lang: string; title: string; summary?: string; content?: string }[];
+  }) =>
+    request<ContentWithTranslations>({
+      url: `/content/${id}`,
       method: 'PUT',
       data
     }),
@@ -151,55 +172,73 @@ export const contentApi = {
       method: 'DELETE'
     }),
 
-  getBannerPositions: () =>
-    request<{ positions: BannerPosition[] }>({
-      url: '/banners/positions',
+  getBannerGroups: () =>
+    request<{ groups: BannerGroup[] }>({
+      url: '/banner-groups',
       method: 'GET'
     }),
 
-  createBannerPosition: (data: Partial<BannerPosition>) =>
-    request<BannerPosition>({
-      url: '/banners/positions',
+  createBannerGroup: (data: Partial<BannerGroup>) =>
+    request<BannerGroup>({
+      url: '/banner-groups',
       method: 'POST',
       data
     }),
 
-  updateBannerPosition: (data: Partial<BannerPosition>) =>
-    request<BannerPosition>({
-      url: `/banners/positions/${data.id}`,
+  updateBannerGroup: (data: Partial<BannerGroup>) =>
+    request<BannerGroup>({
+      url: `/banner-groups/${data.id}`,
       method: 'PUT',
       data
     }),
 
-  deleteBannerPosition: (id: string) =>
+  deleteBannerGroup: (id: string) =>
     request<{ success: boolean }>({
-      url: `/banners/positions/${id}`,
+      url: `/banner-groups/${id}`,
       method: 'DELETE'
     }),
 
-  getBanners: (positionId?: string) =>
+  getBanners: (groupId: string) =>
     request<{ banners: BannerWithTranslations[] }>({
       url: '/banners',
       method: 'GET',
-      params: { positionId }
+      params: { groupId }
     }),
 
-  getBanner: (id: string) =>
+  createBanner: (data: {
+    groupId: string;
+    imageUrl: string;
+    linkUrl?: string;
+    linkTarget?: string;
+    isExternal?: boolean;
+    extraData?: BannerExtraData;
+    startTime?: string;
+    endTime?: string;
+    sortOrder?: number;
+    status?: number;
+    translations?: BannerTranslation[];
+  }) =>
     request<BannerWithTranslations>({
-      url: `/banners/${id}`,
-      method: 'GET'
-    }),
-
-  createBanner: (data: { banner: Partial<Banner>; translations: Partial<BannerTranslation>[] }) =>
-    request<{ banner: Banner; translations: BannerTranslation[] }>({
       url: '/banners',
       method: 'POST',
       data
     }),
 
-  updateBanner: (data: { banner: Partial<Banner>; translations: Partial<BannerTranslation>[] }) =>
-    request<{ banner: Banner; translations: BannerTranslation[] }>({
-      url: `/banners/${data.banner.id}`,
+  updateBanner: (data: {
+    id: string;
+    imageUrl: string;
+    linkUrl?: string;
+    linkTarget?: string;
+    isExternal?: boolean;
+    extraData?: BannerExtraData;
+    startTime?: string;
+    endTime?: string;
+    sortOrder?: number;
+    status?: number;
+    translations?: BannerTranslation[];
+  }) =>
+    request<{ success: boolean }>({
+      url: `/banners/${data.id}`,
       method: 'PUT',
       data
     }),

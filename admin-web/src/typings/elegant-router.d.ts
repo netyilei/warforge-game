@@ -26,7 +26,6 @@ declare module "@elegant-router/types" {
     "admin_role": "/admin/role";
     "content": "/content";
     "content_banner": "/content/banner";
-    "content_banner-position": "/content/banner-position";
     "content_category": "/content/category";
     "content_list": "/content/list";
     "home": "/home";
@@ -37,11 +36,14 @@ declare module "@elegant-router/types" {
     "profile": "/profile";
     "profile_settings": "/profile/settings";
     "settings": "/settings";
+    "settings_email": "/settings/email";
     "settings_language": "/settings/language";
     "settings_user": "/settings/user";
     "storage": "/storage";
     "storage_config": "/storage/config";
     "storage_records": "/storage/records";
+    "support": "/support";
+    "support_send-email": "/support/send-email";
     "user": "/user";
     "user_approval": "/user/approval";
     "user_manage": "/user/manage";
@@ -88,6 +90,7 @@ declare module "@elegant-router/types" {
     | "profile"
     | "settings"
     | "storage"
+    | "support"
     | "user"
   >;
 
@@ -113,17 +116,18 @@ declare module "@elegant-router/types" {
     | "admin_permission"
     | "admin_role"
     | "admin_list"
-    | "content_banner-position"
     | "content_banner"
     | "content_category"
     | "content_list"
     | "home"
     | "operations_log"
     | "profile_settings"
+    | "settings_email"
     | "settings_language"
     | "settings_user"
     | "storage_config"
     | "storage_records"
+    | "support_send-email"
     | "user_approval"
     | "user_manage"
   >;

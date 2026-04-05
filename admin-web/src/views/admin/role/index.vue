@@ -240,6 +240,11 @@ const handlePermission = async (row: Role) => {
 
 const handleDelete = async (id: string) => {
   try {
+    const { error } = await adminApi.deleteRole(id);
+    if (error) {
+      message.error('删除失败');
+      return;
+    }
     message.success('删除成功');
     fetchData();
   } catch (error) {
@@ -249,6 +254,28 @@ const handleDelete = async (id: string) => {
 
 const handleSubmit = async () => {
   try {
+    if (formData.value.id) {
+      const { error } = await adminApi.updateRole(formData.value.id, {
+        name: formData.value.name,
+        description: formData.value.description,
+        status: formData.value.status,
+      });
+      if (error) {
+        message.error('更新失败');
+        return;
+      }
+    } else {
+      const { error } = await adminApi.createRole({
+        name: formData.value.name!,
+        code: formData.value.code!,
+        description: formData.value.description,
+        status: formData.value.status,
+      });
+      if (error) {
+        message.error('创建失败');
+        return;
+      }
+    }
     message.success('保存成功');
     showModal.value = false;
     fetchData();

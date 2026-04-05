@@ -5,7 +5,10 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
+
+	"warforge-server/config"
 )
 
 // StorageDriver 存储驱动类型
@@ -42,19 +45,19 @@ type StorageConfig struct {
 
 // TableName 返回表名
 func (StorageConfig) TableName() string {
-	return "storage_configs"
+	return config.GetTableName("storage_configs")
 }
 
 // GetByID 根据ID获取存储配置
 //
 // 返回指定ID的存储配置
 func (StorageConfig) GetByID(db *sql.DB, id string) (*StorageConfig, error) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, name, driver, bucket, endpoint, region, access_key, secret_key, 
 			   public_domain, max_file_size, allowed_types, is_default, status, created_at, updated_at
-		FROM storage_configs 
+		FROM %s 
 		WHERE id = $1
-	`
+	`, config.GetTableName("storage_configs"))
 	config := &StorageConfig{}
 	err := db.QueryRow(query, id).Scan(
 		&config.ID, &config.Name, &config.Driver, &config.Bucket,
@@ -72,12 +75,12 @@ func (StorageConfig) GetByID(db *sql.DB, id string) (*StorageConfig, error) {
 //
 // 返回标记为默认的存储配置
 func (StorageConfig) GetDefault(db *sql.DB) (*StorageConfig, error) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, name, driver, bucket, endpoint, region, access_key, secret_key, 
 			   public_domain, max_file_size, allowed_types, is_default, status, created_at, updated_at
-		FROM storage_configs 
+		FROM %s 
 		WHERE is_default = true AND status = 1
-	`
+	`, config.GetTableName("storage_configs"))
 	config := &StorageConfig{}
 	err := db.QueryRow(query).Scan(
 		&config.ID, &config.Name, &config.Driver, &config.Bucket,
@@ -95,12 +98,12 @@ func (StorageConfig) GetDefault(db *sql.DB) (*StorageConfig, error) {
 //
 // 返回所有存储配置
 func (StorageConfig) ListAll(db *sql.DB) ([]StorageConfig, error) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, name, driver, bucket, endpoint, region, access_key, secret_key, 
 			   public_domain, max_file_size, allowed_types, is_default, status, created_at, updated_at
-		FROM storage_configs 
+		FROM %s 
 		ORDER BY is_default DESC, created_at DESC
-	`
+	`, config.GetTableName("storage_configs"))
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -128,12 +131,12 @@ func (StorageConfig) ListAll(db *sql.DB) ([]StorageConfig, error) {
 //
 // 插入新的存储配置记录
 func (s *StorageConfig) Create(db *sql.DB) error {
-	query := `
-		INSERT INTO storage_configs (name, driver, bucket, endpoint, region, access_key, secret_key, 
+	query := fmt.Sprintf(`
+		INSERT INTO %s (name, driver, bucket, endpoint, region, access_key, secret_key, 
 									 public_domain, max_file_size, allowed_types, is_default, status, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 		RETURNING id
-	`
+	`, config.GetTableName("storage_configs"))
 	now := time.Now()
 	err := db.QueryRow(query, s.Name, s.Driver, s.Bucket, s.Endpoint, s.Region,
 		s.AccessKey, s.SecretKey, s.PublicDomain, s.MaxFileSize, s.AllowedTypes,
@@ -150,13 +153,13 @@ func (s *StorageConfig) Create(db *sql.DB) error {
 //
 // 更新存储配置信息
 func (s *StorageConfig) Update(db *sql.DB) error {
-	query := `
-		UPDATE storage_configs 
+	query := fmt.Sprintf(`
+		UPDATE %s 
 		SET name = $1, driver = $2, bucket = $3, endpoint = $4, region = $5, 
 			access_key = $6, secret_key = $7, public_domain = $8, max_file_size = $9, 
 			allowed_types = $10, is_default = $11, status = $12, updated_at = $13
 		WHERE id = $14
-	`
+	`, config.GetTableName("storage_configs"))
 	now := time.Now()
 	_, err := db.Exec(query, s.Name, s.Driver, s.Bucket, s.Endpoint, s.Region,
 		s.AccessKey, s.SecretKey, s.PublicDomain, s.MaxFileSize, s.AllowedTypes,
@@ -172,7 +175,7 @@ func (s *StorageConfig) Update(db *sql.DB) error {
 //
 // 删除指定ID的存储配置
 func (StorageConfig) Delete(db *sql.DB, id string) error {
-	query := `DELETE FROM storage_configs WHERE id = $1`
+	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, config.GetTableName("storage_configs"))
 	_, err := db.Exec(query, id)
 	return err
 }
@@ -187,13 +190,15 @@ func (StorageConfig) SetDefault(db *sql.DB, id string) error {
 	}
 	defer tx.Rollback()
 
+	tableName := config.GetTableName("storage_configs")
+
 	// 取消所有默认配置
-	if _, err := tx.Exec(`UPDATE storage_configs SET is_default = false`); err != nil {
+	if _, err := tx.Exec(fmt.Sprintf(`UPDATE %s SET is_default = false`, tableName)); err != nil {
 		return err
 	}
 
 	// 设置新的默认配置
-	if _, err := tx.Exec(`UPDATE storage_configs SET is_default = true WHERE id = $1`, id); err != nil {
+	if _, err := tx.Exec(fmt.Sprintf(`UPDATE %s SET is_default = true WHERE id = $1`, tableName), id); err != nil {
 		return err
 	}
 
@@ -204,7 +209,7 @@ func (StorageConfig) SetDefault(db *sql.DB, id string) error {
 //
 // 将所有存储配置的默认标记清除
 func (StorageConfig) ClearDefault(db *sql.DB) error {
-	query := `UPDATE storage_configs SET is_default = false`
+	query := fmt.Sprintf(`UPDATE %s SET is_default = false`, config.GetTableName("storage_configs"))
 	_, err := db.Exec(query)
 	return err
 }
@@ -213,7 +218,7 @@ func (StorageConfig) ClearDefault(db *sql.DB) error {
 //
 // 返回状态为活跃的存储配置数量
 func (StorageConfig) GetActiveCount(db *sql.DB) (int, error) {
-	query := `SELECT COUNT(*) FROM storage_configs WHERE status = 1`
+	query := fmt.Sprintf(`SELECT COUNT(*) FROM %s WHERE status = 1`, config.GetTableName("storage_configs"))
 	var count int
 	err := db.QueryRow(query).Scan(&count)
 	return count, err

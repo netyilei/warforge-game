@@ -41,6 +41,7 @@ type DatabaseConfig struct {
 	Sslmode      string `yaml:"sslmode"`
 	MaxOpenConns int    `yaml:"max_open_conns"`
 	MaxIdleConns int    `yaml:"max_idle_conns"`
+	TablePrefix  string `yaml:"table_prefix"`
 }
 
 // RedisConfig Redis 配置
@@ -66,6 +67,23 @@ type LogConfig struct {
 
 // AppConfig 全局配置实例
 var AppConfig *Config
+
+// GetTablePrefix 获取表前缀
+//
+// 返回配置中的表前缀
+func GetTablePrefix() string {
+	if AppConfig == nil {
+		return ""
+	}
+	return AppConfig.Database.TablePrefix
+}
+
+// GetTableName 获取带前缀的表名
+//
+// 将表前缀与表名拼接返回完整表名
+func GetTableName(name string) string {
+	return GetTablePrefix() + name
+}
 
 // LoadConfig 加载配置文件
 //
@@ -117,6 +135,9 @@ func expandEnvVars(cfg *Config) {
 	}
 	if v := os.Getenv("DB_NAME"); v != "" {
 		cfg.Database.Name = v
+	}
+	if v := os.Getenv("TABLE_PREFIX"); v != "" {
+		cfg.Database.TablePrefix = v
 	}
 	if v := os.Getenv("REDIS_HOST"); v != "" {
 		cfg.Redis.Host = v

@@ -207,7 +207,7 @@ const handleSubmit = async () => {
         message.error('用户名和密码不能为空');
         return;
       }
-      const { error } = await adminApi.createAdminUser({
+      const { data: res, error } = await adminApi.createAdminUser({
         username: formData.value.username,
         password: formData.value.password,
         nickname: formData.value.nickname,
@@ -218,6 +218,9 @@ const handleSubmit = async () => {
       if (error) {
         message.error('保存失败');
         return;
+      }
+      if (formData.value.roles && formData.value.roles.length > 0 && res?.id) {
+        await adminApi.updateAdminUserRoles(res.id, formData.value.roles);
       }
     }
     message.success('保存成功');
@@ -272,7 +275,7 @@ onMounted(() => {
     >
       <NForm label-placement="left" label-width="100px">
         <NFormItem label="用户名">
-          <NInput v-model:value="formData.username" placeholder="请输入用户名" />
+          <NInput v-model:value="formData.username" placeholder="请输入用户名" :disabled="!!formData.id" />
         </NFormItem>
         <NFormItem label="昵称">
           <NInput v-model:value="formData.nickname" placeholder="请输入昵称" />

@@ -9,7 +9,6 @@ import {
   NForm,
   NFormItem,
   NInput,
-  NSelect,
   NInputNumber,
   NSwitch,
   NPopconfirm,
@@ -18,30 +17,53 @@ import {
   NTabPane,
   NDatePicker,
   NImage,
+  NSelect,
+  NDynamicInput,
   useMessage,
   type DataTableColumns,
 } from 'naive-ui';
-import { contentApi, type BannerPosition, type Banner, type BannerTranslation, type BannerWithTranslations } from '@/service/api/content';
+import { contentApi, type BannerGroup, type Banner, type BannerTranslation, type BannerWithTranslations, type BannerExtraData } from '@/service/api/content';
 import { languageApi, type Language } from '@/service/api/language';
 
 const message = useMessage();
 
 const loading = ref(false);
-const positions = ref<BannerPosition[]>([]);
+const groups = ref<BannerGroup[]>([]);
 const languages = ref<Language[]>([]);
 const banners = ref<BannerWithTranslations[]>([]);
-const selectedPosition = ref<string>('');
+const selectedGroup = ref<string>('');
 
-const showModal = ref(false);
+const showGroupModal = ref(false);
+const showBannerModal = ref(false);
 const isEdit = ref(false);
 const saving = ref(false);
 const currentTab = ref('');
+const editingBannerId = ref('');
 
-const formData = ref<{
-  banner: Partial<Banner>;
+const groupFormData = ref<Partial<BannerGroup>>({});
+const bannerFormData = ref<{
+  groupId: string;
+  imageUrl: string;
+  linkUrl: string;
+  linkTarget: string;
+  isExternal: boolean;
+  extraData: { key: string; value: string }[];
+  startTime: string | null;
+  endTime: string | null;
+  sortOrder: number;
+  status: number;
   translations: Partial<BannerTranslation>[];
 }>({
-  banner: {},
+  groupId: '',
+  imageUrl: '',
+  linkUrl: '',
+  linkTarget: '_blank',
+  isExternal: false,
+  extraData: [],
+  startTime: null,
+  endTime: null,
+  sortOrder: 0,
+  status: 1,
   translations: [],
 });
 
@@ -51,76 +73,130 @@ const supportedLanguages = computed(() =>
   languages.value.filter((l) => l.isSupported).sort((a, b) => a.sortOrder - b.sortOrder)
 );
 
-const positionOptions = computed(() =>
-  positions.value.map((p) => ({
-    label: `${p.name} (${p.code})`,
-    value: p.id,
-  }))
-);
+const groupColumns: DataTableColumns<BannerGroup> = [
+  {
+    title: '分组名称',
+    key: 'name',
+    width: 150,
+  },
+  {
+    title: '分组标识',
+    key: 'code',
+    width: 120,
+  },
+  {
+    title: '尺寸',
+    key: 'size',
+    width: 100,
+    render: (row) => `${row.width}x${row.height}`,
+  },
+  {
+    title: 'Banner数量',
+    key: 'bannerCount',
+    width: 100,
+    render: (row) => row.bannerCount || 0,
+  },
+  {
+    title: '状态',
+    key: 'status',
+    width: 80,
+    render: (row) =>
+      row.status === 1
+        ? h(NTag, { type: 'success' }, () => '启用')
+        : h(NTag, { type: 'default' }, () => '禁用'),
+  },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 200,
+    render: (row) =>
+      h(NSpace, {}, () => [
+        h(
+          NButton,
+          {
+            size: 'small',
+            onClick: () => {
+              selectedGroup.value = row.id;
+              fetchBanners();
+            },
+          },
+          () => '管理Banner'
+        ),
+        h(
+          NButton,
+          {
+            size: 'small',
+            onClick: () => handleEditGroup(row),
+          },
+          () => '编辑'
+        ),
+        h(
+          NPopconfirm,
+          {
+            onPositiveClick: () => handleDeleteGroup(row.id),
+          },
+          {
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  size: 'small',
+                  type: 'error',
+                },
+                () => '删除'
+              ),
+            default: () => '确定删除此分组吗？',
+          }
+        ),
+      ]),
+  },
+];
 
-const startTimeTs = computed({
-  get: () => formData.value.banner.startTime ? new Date(formData.value.banner.startTime).getTime() : null,
-  set: (v: number | null) => { formData.value.banner.startTime = v ? new Date(v).toISOString() : null; }
-});
-
-const endTimeTs = computed({
-  get: () => formData.value.banner.endTime ? new Date(formData.value.banner.endTime).getTime() : null,
-  set: (v: number | null) => { formData.value.banner.endTime = v ? new Date(v).toISOString() : null; }
-});
-
-const columns: DataTableColumns<BannerWithTranslations> = [
+const bannerColumns: DataTableColumns<BannerWithTranslations> = [
   {
     title: '图片',
     key: 'imageUrl',
     width: 150,
     render: (row) => {
       const defaultTrans = row.translations.find((t) => t.lang === defaultLang.value);
-      return defaultTrans?.imageUrl
+      return row.banner.imageUrl
         ? h(NImage, {
-            src: defaultTrans.imageUrl,
+            src: row.banner.imageUrl,
             width: 120,
             height: 60,
             objectFit: 'cover',
-            previewSrc: defaultTrans.imageUrl,
+            previewSrc: row.banner.imageUrl,
           })
         : '-';
     },
   },
   {
-    title: '位置',
-    key: 'positionId',
-    width: 120,
-    render: (row) => {
-      const pos = positions.value.find((p) => p.id === row.banner.positionId);
-      return pos?.name || '-';
-    },
-  },
-  {
-    title: 'Alt文本',
-    key: 'altText',
-    width: 150,
-    render: (row) => {
-      const defaultTrans = row.translations.find((t) => t.lang === defaultLang.value);
-      return defaultTrans?.altText || '-';
-    },
-  },
-  {
-    title: '跳转链接',
+    title: '链接',
     key: 'linkUrl',
     width: 150,
     ellipsis: { tooltip: true },
-    render: (row) => {
-      const defaultTrans = row.translations.find((t) => t.lang === defaultLang.value);
-      return defaultTrans?.linkUrl || '-';
-    },
+    render: (row) => row.banner.linkUrl || '-',
   },
   {
-    title: '游戏ID',
-    key: 'gameId',
-    width: 100,
+    title: '外部链接',
+    key: 'isExternal',
+    width: 80,
+    render: (row) =>
+      row.banner.isExternal
+        ? h(NTag, { type: 'info' }, () => '是')
+        : h(NTag, { type: 'default' }, () => '否'),
+  },
+  {
+    title: '自定义参数',
+    key: 'extraData',
+    width: 150,
+    ellipsis: { tooltip: true },
     render: (row) => {
-      const defaultTrans = row.translations.find((t) => t.lang === defaultLang.value);
-      return defaultTrans?.gameId || '-';
+      const extra = row.banner.extraData;
+      if (!extra || Object.keys(extra).length === 0) return '-';
+      return Object.entries(extra)
+        .map(([k, v]) => `${k}:${v}`)
+        .join(', ');
     },
   },
   {
@@ -149,14 +225,14 @@ const columns: DataTableColumns<BannerWithTranslations> = [
           NButton,
           {
             size: 'small',
-            onClick: () => handleEdit(row),
+            onClick: () => handleEditBanner(row),
           },
           () => '编辑'
         ),
         h(
           NPopconfirm,
           {
-            onPositiveClick: () => handleDelete(row.banner.id),
+            onPositiveClick: () => handleDeleteBanner(row.banner.id),
           },
           {
             trigger: () =>
@@ -188,23 +264,30 @@ const fetchLanguages = async () => {
   }
 };
 
-const fetchPositions = async () => {
+const fetchGroups = async () => {
+  loading.value = true;
   try {
-    const { data: res, error } = await contentApi.getBannerPositions();
+    const { data: res, error } = await contentApi.getBannerGroups();
     if (error) {
-      message.error('获取位置列表失败');
+      message.error('获取分组列表失败');
       return;
     }
-    positions.value = res?.positions || [];
+    groups.value = res?.groups || [];
   } catch (error) {
-    message.error('获取位置列表失败');
+    message.error('获取分组列表失败');
+  } finally {
+    loading.value = false;
   }
 };
 
 const fetchBanners = async () => {
+  if (!selectedGroup.value) {
+    banners.value = [];
+    return;
+  }
   loading.value = true;
   try {
-    const { data: res, error } = await contentApi.getBanners(selectedPosition.value);
+    const { data: res, error } = await contentApi.getBanners(selectedGroup.value);
     if (error) {
       message.error('获取Banner列表失败');
       return;
@@ -222,34 +305,96 @@ const initTranslations = () => {
   supportedLanguages.value.forEach((lang) => {
     translations.push({
       lang: lang.code,
-      imageUrl: '',
-      altText: '',
-      linkUrl: '',
-      gameId: '',
-      linkTarget: '_blank',
+      title: '',
+      content: '',
     });
   });
   return translations;
 };
 
-const handleAdd = () => {
+const handleAddGroup = () => {
   isEdit.value = false;
-  currentTab.value = defaultLang.value;
-  formData.value = {
-    banner: {
-      positionId: selectedPosition.value || positions.value[0]?.id || '',
-      sortOrder: 0,
-      status: 1,
-    },
-    translations: initTranslations(),
+  groupFormData.value = {
+    name: '',
+    code: '',
+    description: '',
+    width: 0,
+    height: 0,
+    status: 1,
+    sortOrder: groups.value.length + 1,
   };
-  showModal.value = true;
+  showGroupModal.value = true;
 };
 
-const handleEdit = async (row: BannerWithTranslations) => {
+const handleEditGroup = (row: BannerGroup) => {
   isEdit.value = true;
+  groupFormData.value = { ...row };
+  showGroupModal.value = true;
+};
+
+const handleDeleteGroup = async (id: string) => {
+  try {
+    await contentApi.deleteBannerGroup(id);
+    message.success('删除成功');
+    fetchGroups();
+  } catch (error) {
+    message.error('删除失败');
+  }
+};
+
+const handleSaveGroup = async () => {
+  if (!groupFormData.value.name || !groupFormData.value.code) {
+    message.warning('请填写分组名称和标识');
+    return;
+  }
+
+  saving.value = true;
+  try {
+    if (isEdit.value) {
+      await contentApi.updateBannerGroup(groupFormData.value as BannerGroup);
+      message.success('更新成功');
+    } else {
+      await contentApi.createBannerGroup(groupFormData.value as BannerGroup);
+      message.success('创建成功');
+    }
+    showGroupModal.value = false;
+    fetchGroups();
+  } catch (error) {
+    message.error(isEdit.value ? '更新失败' : '创建失败');
+  } finally {
+    saving.value = false;
+  }
+};
+
+const handleAddBanner = () => {
+  if (!selectedGroup.value) {
+    message.warning('请先选择一个分组');
+    return;
+  }
+  isEdit.value = false;
+  editingBannerId.value = '';
   currentTab.value = defaultLang.value;
-  
+  bannerFormData.value = {
+    groupId: selectedGroup.value,
+    imageUrl: '',
+    linkUrl: '',
+    linkTarget: '_blank',
+    isExternal: false,
+    extraData: [],
+    startTime: null,
+    endTime: null,
+    sortOrder: banners.value.length + 1,
+    status: 1,
+    translations: initTranslations(),
+  };
+  showBannerModal.value = true;
+};
+
+const handleEditBanner = (row: BannerWithTranslations) => {
+  isEdit.value = true;
+  editingBannerId.value = row.banner.id;
+  currentTab.value = defaultLang.value;
+
   const translations = initTranslations();
   row.translations.forEach((t) => {
     const idx = translations.findIndex((tr) => tr.lang === t.lang);
@@ -258,14 +403,30 @@ const handleEdit = async (row: BannerWithTranslations) => {
     }
   });
 
-  formData.value = {
-    banner: { ...row.banner },
+  const extraData: { key: string; value: string }[] = [];
+  if (row.banner.extraData) {
+    Object.entries(row.banner.extraData).forEach(([key, value]) => {
+      extraData.push({ key, value: String(value) });
+    });
+  }
+
+  bannerFormData.value = {
+    groupId: row.banner.groupId,
+    imageUrl: row.banner.imageUrl,
+    linkUrl: row.banner.linkUrl || '',
+    linkTarget: row.banner.linkTarget || '_blank',
+    isExternal: row.banner.isExternal,
+    extraData,
+    startTime: row.banner.startTime,
+    endTime: row.banner.endTime,
+    sortOrder: row.banner.sortOrder,
+    status: row.banner.status,
     translations,
   };
-  showModal.value = true;
+  showBannerModal.value = true;
 };
 
-const handleDelete = async (id: string) => {
+const handleDeleteBanner = async (id: string) => {
   try {
     await contentApi.deleteBanner(id);
     message.success('删除成功');
@@ -275,34 +436,52 @@ const handleDelete = async (id: string) => {
   }
 };
 
-const handleSave = async () => {
-  const defaultTrans = formData.value.translations.find(
-    (t) => t.lang === defaultLang.value
-  );
-  if (!defaultTrans?.imageUrl) {
-    message.warning('请填写默认语言的图片URL');
+const handleSaveBanner = async () => {
+  if (!bannerFormData.value.imageUrl) {
+    message.warning('请填写图片URL');
     return;
   }
 
   saving.value = true;
   try {
+    const extraData: BannerExtraData = {};
+    bannerFormData.value.extraData.forEach((item) => {
+      if (item.key && item.value) {
+        extraData[item.key] = item.value;
+      }
+    });
+
     const submitData = {
-      banner: {
-        ...formData.value.banner,
-        startTime: formData.value.banner.startTime || null,
-        endTime: formData.value.banner.endTime || null,
-      },
-      translations: formData.value.translations.filter((t) => t.imageUrl),
+      groupId: bannerFormData.value.groupId,
+      imageUrl: bannerFormData.value.imageUrl,
+      linkUrl: bannerFormData.value.linkUrl || undefined,
+      linkTarget: bannerFormData.value.linkTarget,
+      isExternal: bannerFormData.value.isExternal,
+      extraData: Object.keys(extraData).length > 0 ? extraData : undefined,
+      startTime: bannerFormData.value.startTime || undefined,
+      endTime: bannerFormData.value.endTime || undefined,
+      sortOrder: bannerFormData.value.sortOrder,
+      status: bannerFormData.value.status,
+      translations: bannerFormData.value.translations
+        .filter((t) => t.title || t.content)
+        .map((t) => ({
+          lang: t.lang!,
+          title: t.title || '',
+          content: t.content || '',
+        })),
     };
 
     if (isEdit.value) {
-      await contentApi.updateBanner(submitData);
+      await contentApi.updateBanner({
+        id: editingBannerId.value,
+        ...submitData,
+      });
       message.success('更新成功');
     } else {
       await contentApi.createBanner(submitData);
       message.success('创建成功');
     }
-    showModal.value = false;
+    showBannerModal.value = false;
     fetchBanners();
   } catch (error) {
     message.error(isEdit.value ? '更新失败' : '创建失败');
@@ -312,62 +491,142 @@ const handleSave = async () => {
 };
 
 const getTranslation = (lang: string) => {
-  let trans = formData.value.translations.find((t) => t.lang === lang);
+  let trans = bannerFormData.value.translations.find((t) => t.lang === lang);
   if (!trans) {
-    trans = { lang, imageUrl: '', altText: '', linkUrl: '', gameId: '', linkTarget: '_blank' };
-    formData.value.translations.push(trans);
+    trans = { lang, title: '', content: '' };
+    bannerFormData.value.translations.push(trans);
   }
   return trans;
 };
 
-watch(selectedPosition, () => {
-  fetchBanners();
+const startTimeTs = computed({
+  get: () => bannerFormData.value.startTime ? new Date(bannerFormData.value.startTime).getTime() : null,
+  set: (v: number | null) => { bannerFormData.value.startTime = v ? new Date(v).toISOString() : null; }
+});
+
+const endTimeTs = computed({
+  get: () => bannerFormData.value.endTime ? new Date(bannerFormData.value.endTime).getTime() : null,
+  set: (v: number | null) => { bannerFormData.value.endTime = v ? new Date(v).toISOString() : null; }
 });
 
 onMounted(() => {
   fetchLanguages();
-  fetchPositions().then(() => {
-    fetchBanners();
-  });
+  fetchGroups();
 });
 </script>
 
 <template>
   <div class="p-4">
-    <NCard title="Banner管理">
+    <NCard title="Banner分组管理">
+      <template #header-extra>
+        <NButton type="primary" @click="handleAddGroup">添加分组</NButton>
+      </template>
+      <NDataTable
+        :columns="groupColumns"
+        :data="groups"
+        :loading="loading"
+        :pagination="false"
+        :scroll-x="800"
+      />
+    </NCard>
+
+    <NCard v-if="selectedGroup" :title="`Banner列表 - ${groups.find(g => g.id === selectedGroup)?.name || ''}`" class="mt-4">
       <template #header-extra>
         <NSpace>
-          <NSelect
-            v-model:value="selectedPosition"
-            :options="[{ label: '全部位置', value: '' }, ...positionOptions]"
-            style="width: 180px"
-            clearable
-          />
-          <NButton type="primary" @click="handleAdd">添加Banner</NButton>
+          <NButton @click="selectedGroup = ''">返回分组列表</NButton>
+          <NButton type="primary" @click="handleAddBanner">添加Banner</NButton>
         </NSpace>
       </template>
       <NDataTable
-        :columns="columns"
+        :columns="bannerColumns"
         :data="banners"
         :loading="loading"
         :pagination="false"
-        :scroll-x="1100"
+        :scroll-x="900"
       />
     </NCard>
 
     <NModal
-      v-model:show="showModal"
+      v-model:show="showGroupModal"
+      :title="isEdit ? '编辑分组' : '添加分组'"
+      preset="card"
+      style="width: 500px"
+    >
+      <NForm label-placement="left" label-width="80">
+        <NFormItem label="名称" required>
+          <NInput v-model:value="groupFormData.name" placeholder="分组名称" />
+        </NFormItem>
+        <NFormItem label="标识" required>
+          <NInput v-model:value="groupFormData.code" placeholder="分组标识（如：home_banner）" :disabled="isEdit" />
+        </NFormItem>
+        <NFormItem label="描述">
+          <NInput v-model:value="groupFormData.description" placeholder="分组描述" />
+        </NFormItem>
+        <NFormItem label="宽度">
+          <NInputNumber v-model:value="groupFormData.width" :min="0" placeholder="推荐宽度" />
+        </NFormItem>
+        <NFormItem label="高度">
+          <NInputNumber v-model:value="groupFormData.height" :min="0" placeholder="推荐高度" />
+        </NFormItem>
+        <NFormItem label="排序">
+          <NInputNumber v-model:value="groupFormData.sortOrder" :min="0" />
+        </NFormItem>
+        <NFormItem label="状态">
+          <NSwitch
+            :value="groupFormData.status === 1"
+            @update:value="groupFormData.status = $event ? 1 : 0"
+          />
+        </NFormItem>
+      </NForm>
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="showGroupModal = false">取消</NButton>
+          <NButton type="primary" :loading="saving" @click="handleSaveGroup">保存</NButton>
+        </NSpace>
+      </template>
+    </NModal>
+
+    <NModal
+      v-model:show="showBannerModal"
       :title="isEdit ? '编辑Banner' : '添加Banner'"
       preset="card"
       style="width: 900px"
     >
-      <NForm label-placement="left" label-width="80">
-        <NFormItem label="位置" required>
+      <NForm label-placement="left" label-width="100">
+        <NFormItem label="图片URL" required>
+          <NInput v-model:value="bannerFormData.imageUrl" placeholder="图片URL" />
+        </NFormItem>
+        <NFormItem label="链接URL">
+          <NInput v-model:value="bannerFormData.linkUrl" placeholder="点击跳转URL" />
+        </NFormItem>
+        <NFormItem label="链接目标">
           <NSelect
-            v-model:value="formData.banner.positionId"
-            :options="positionOptions"
-            style="width: 250px"
+            v-model:value="bannerFormData.linkTarget"
+            :options="[
+              { label: '新窗口 (_blank)', value: '_blank' },
+              { label: '当前窗口 (_self)', value: '_self' },
+            ]"
+            style="width: 200px"
           />
+        </NFormItem>
+        <NFormItem label="外部链接">
+          <NSwitch v-model:value="bannerFormData.isExternal">
+            <template #checked>是</template>
+            <template #unchecked>否</template>
+          </NSwitch>
+        </NFormItem>
+        <NFormItem label="自定义参数">
+          <NDynamicInput
+            v-model:value="bannerFormData.extraData"
+            :on-create="() => ({ key: '', value: '' })"
+          >
+            <template #default="{ value }">
+              <div style="display: flex; gap: 8px; width: 100%">
+                <NInput v-model:value="value.key" placeholder="参数名（如：game_id）" style="flex: 1" />
+                <NInput v-model:value="value.value" placeholder="参数值" style="flex: 1" />
+              </div>
+            </template>
+          </NDynamicInput>
         </NFormItem>
         <NFormItem label="生效时间">
           <NSpace>
@@ -387,12 +646,12 @@ onMounted(() => {
           </NSpace>
         </NFormItem>
         <NFormItem label="排序">
-          <NInputNumber v-model:value="formData.banner.sortOrder" :min="0" />
+          <NInputNumber v-model:value="bannerFormData.sortOrder" :min="0" />
         </NFormItem>
         <NFormItem label="状态">
           <NSwitch
-            :value="formData.banner.status === 1"
-            @update:value="formData.banner.status = $event ? 1 : 0"
+            :value="bannerFormData.status === 1"
+            @update:value="bannerFormData.status = $event ? 1 : 0"
           />
         </NFormItem>
 
@@ -406,28 +665,20 @@ onMounted(() => {
                 :tab="`${lang.icon} ${lang.name}`"
               >
                 <div class="translation-form">
-                  <NFormItem label="图片URL" required>
+                  <NFormItem label="标题">
                     <NInput
-                      v-model:value="getTranslation(lang.code).imageUrl"
-                      placeholder="请输入图片URL"
+                      v-model:value="getTranslation(lang.code)!.title"
+                      placeholder="Banner标题"
                     />
                   </NFormItem>
-                  <NFormItem label="Alt文本">
+                  <NFormItem label="简单内容">
                     <NInput
-                      v-model:value="getTranslation(lang.code).altText"
-                      placeholder="图片替代文本"
-                    />
-                  </NFormItem>
-                  <NFormItem label="跳转链接">
-                    <NInput
-                      v-model:value="getTranslation(lang.code).linkUrl"
-                      placeholder="点击跳转URL"
-                    />
-                  </NFormItem>
-                  <NFormItem label="游戏ID">
-                    <NInput
-                      v-model:value="getTranslation(lang.code).gameId"
-                      placeholder="关联游戏ID（可选）"
+                      v-model:value="getTranslation(lang.code)!.content"
+                      type="textarea"
+                      placeholder="简单内容（最多255字符）"
+                      :maxlength="255"
+                      show-count
+                      :rows="2"
                     />
                   </NFormItem>
                 </div>
@@ -438,10 +689,8 @@ onMounted(() => {
       </NForm>
       <template #footer>
         <NSpace justify="end">
-          <NButton @click="showModal = false">取消</NButton>
-          <NButton type="primary" :loading="saving" @click="handleSave">
-            保存
-          </NButton>
+          <NButton @click="showBannerModal = false">取消</NButton>
+          <NButton type="primary" :loading="saving" @click="handleSaveBanner">保存</NButton>
         </NSpace>
       </template>
     </NModal>

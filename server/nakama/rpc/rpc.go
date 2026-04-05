@@ -28,6 +28,16 @@ func Init(logger runtime.Logger, initializer runtime.Initializer) error {
 		return err
 	}
 
+	// 注册邮件发送接口
+	if err := InitEmail(logger, initializer); err != nil {
+		return err
+	}
+
+	// 注册邮箱认证相关接口
+	if err := InitAuthEmail(logger, initializer); err != nil {
+		return err
+	}
+
 	logger.Info("Nakama RPC Module Loaded!")
 	return nil
 }
