@@ -2,17 +2,23 @@ package system
 
 import (
 	"warforge-server/internal/domain/shared"
+	"warforge-server/pkg/storage"
 )
 
-type StorageDriver string
+type StorageDriver = storage.Driver
 
 const (
-	StorageDriverCloudflare   StorageDriver = "cloudflare"
-	StorageDriverAWS          StorageDriver = "aws"
-	StorageDriverMinIO        StorageDriver = "minio"
-	StorageDriverDigitalOcean StorageDriver = "digitalocean"
-	StorageDriverBackblaze    StorageDriver = "backblaze"
-	StorageDriverWasabi       StorageDriver = "wasabi"
+	StorageDriverCloudflare   = storage.DriverCloudflare
+	StorageDriverAWS          = storage.DriverAWS
+	StorageDriverMinIO        = storage.DriverMinIO
+	StorageDriverDigitalOcean = storage.DriverDigitalOcean
+	StorageDriverBackblaze    = storage.DriverBackblaze
+	StorageDriverWasabi       = storage.DriverWasabi
+	StorageDriverAliyunOSS    = storage.DriverAliyunOSS
+	StorageDriverTencentCOS   = storage.DriverTencentCOS
+	StorageDriverHuaweiOBS    = storage.DriverHuaweiOBS
+	StorageDriverQiniuKodo    = storage.DriverQiniuKodo
+	StorageDriverUpyunUSS     = storage.DriverUpyunUSS
 )
 
 var (
@@ -85,6 +91,24 @@ func (c *StorageConfig) SetDefault(isDefault bool)            { c.isDefault = is
 func (c *StorageConfig) SetStatus(status StorageConfigStatus) { c.status = status; c.Touch() }
 func (c *StorageConfig) SetSortOrder(order int)               { c.sortOrder = order; c.Touch() }
 
+func (c *StorageConfig) ToPkgConfig() *storage.Config {
+	return &storage.Config{
+		ID:           c.ID(),
+		Name:         c.name,
+		Driver:       c.driver,
+		Bucket:       c.bucket,
+		Endpoint:     c.endpoint,
+		Region:       c.region,
+		AccessKey:    c.accessKey,
+		SecretKey:    c.secretKey,
+		CustomURL:    c.customURL,
+		MaxFileSize:  c.maxFileSize,
+		AllowedTypes: c.allowedTypes,
+		IsDefault:    c.isDefault,
+		Status:       int(c.status),
+	}
+}
+
 type StorageConfigDTO struct {
 	ID           string        `json:"id"`
 	Name         string        `json:"name"`
@@ -120,46 +144,5 @@ func (c *StorageConfig) ToDTO() *StorageConfigDTO {
 		SortOrder:    c.sortOrder,
 		MaxFileSize:  c.maxFileSize,
 		AllowedTypes: c.allowedTypes,
-	}
-}
-
-func GetDriverInfo() map[StorageDriver]map[string]interface{} {
-	return map[StorageDriver]map[string]interface{}{
-		StorageDriverCloudflare: {
-			"name":        "Cloudflare R2",
-			"description": "Cloudflare R2 Storage",
-			"endpointTpl": "https://<account_id>.r2.cloudflarestorage.com",
-			"region":      "auto",
-		},
-		StorageDriverAWS: {
-			"name":        "AWS S3",
-			"description": "Amazon S3 Storage",
-			"endpointTpl": "https://s3.<region>.amazonaws.com",
-			"region":      "us-east-1",
-		},
-		StorageDriverMinIO: {
-			"name":        "MinIO",
-			"description": "MinIO Object Storage",
-			"endpointTpl": "http://localhost:9000",
-			"region":      "default",
-		},
-		StorageDriverDigitalOcean: {
-			"name":        "DigitalOcean Spaces",
-			"description": "DigitalOcean Spaces Storage",
-			"endpointTpl": "https://<region>.digitaloceanspaces.com",
-			"region":      "nyc3",
-		},
-		StorageDriverBackblaze: {
-			"name":        "Backblaze B2",
-			"description": "Backblaze B2 Storage",
-			"endpointTpl": "https://s3.<region>.backblazeb2.com",
-			"region":      "us-west-004",
-		},
-		StorageDriverWasabi: {
-			"name":        "Wasabi",
-			"description": "Wasabi Hot Storage",
-			"endpointTpl": "https://s3.<region>.wasabisys.com",
-			"region":      "us-east-1",
-		},
 	}
 }

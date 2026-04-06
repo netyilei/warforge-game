@@ -2,12 +2,13 @@ package system
 
 import (
 	"strconv"
+	"time"
 
 	"warforge-server/database"
 	systemdomain "warforge-server/internal/domain/system"
 	systempersistence "warforge-server/internal/infrastructure/persistence/system"
-	"warforge-server/internal/infrastructure/storage"
 	"warforge-server/internal/interfaces/http/webadmin/response"
+	"warforge-server/pkg/storage"
 
 	"github.com/gin-gonic/gin"
 )
@@ -250,7 +251,7 @@ func DeleteUploadRecord(c *gin.Context) {
 		storageRepo := systempersistence.NewStorageConfigRepository(db)
 		storageConfig, err := storageRepo.FindByID(c.Request.Context(), storageID)
 		if err == nil {
-			client, err := storage.NewClient(storageConfig)
+			client, err := storage.NewClient(storageConfig.ToPkgConfig())
 			if err == nil {
 				client.DeleteObject(c.Request.Context(), filePath)
 			}
@@ -289,12 +290,12 @@ func GetPresignedUpload(c *gin.Context) {
 		response.Error(c, 400, "没有可用的存储配置")
 		return
 	}
-	client, err := storage.NewClient(storageConfig)
+	client, err := storage.NewClient(storageConfig.ToPkgConfig())
 	if err != nil {
 		response.Error(c, 500, "初始化存储客户端失败")
 		return
 	}
-	result, err := client.GeneratePresignedUploadURL(c.Request.Context(), req.UploadType, userID.(string), req.OriginalFilename, 15*60*1000000000)
+	result, err := client.GeneratePresignedUploadURL(c.Request.Context(), req.UploadType, userID.(string), req.OriginalFilename, 15*time.Minute)
 	if err != nil {
 		response.Error(c, 500, "生成上传URL失败")
 		return
