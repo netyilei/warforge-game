@@ -14,6 +14,7 @@ declare namespace Api {
       userId: string;
       userName: string;
       roles: string[];
+      menus: string[];
       buttons: string[];
     }
   }

@@ -34,22 +34,24 @@ export default defineConfig(configEnv => {
     },
     server: {
       host: '0.0.0.0',
-      port: 9527,
+      port: 8203,
       open: true,
       proxy: {
         ...createViteProxy(viteEnv, enableProxy),
-        '/api-v1': {
-          target: 'http://localhost:9528',
+        '/api/v1': {
+          target: 'http://localhost:8201',
+          changeOrigin: true
+        },
+        '/api/v2': {
+          target: 'http://localhost:8201',
           changeOrigin: true
         },
         '/nakama-api': {
-          target: 'http://localhost:7350',
+          target: 'http://localhost:8202',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/nakama-api/, ''),
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyReq, req) => {
-              // 如果请求已有 Authorization header（Bearer token），保留它
-              // 否则添加 HTTP Key 认证
               const authHeader = req.headers.authorization;
               if (!authHeader) {
                 proxyReq.setHeader('Authorization', `Basic ${Buffer.from('dev_http_key_2026:').toString('base64')}`);
@@ -60,7 +62,7 @@ export default defineConfig(configEnv => {
       }
     },
     preview: {
-      port: 9725
+      port: 8206
     },
     build: {
       reportCompressedSize: false,

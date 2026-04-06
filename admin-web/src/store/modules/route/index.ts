@@ -13,6 +13,7 @@ import { useAuthStore } from '../auth';
 import { useTabStore } from '../tab';
 import {
   filterAuthRoutesByRoles,
+  filterAuthRoutesByMenus,
   getBreadcrumbsByRoute,
   getCacheRouteNames,
   getGlobalMenusByAuthRoutes,
@@ -150,7 +151,7 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     if (authStore.isStaticSuper) {
       addAuthRoutes(staticAuthRoutes);
     } else {
-      const filteredAuthRoutes = filterAuthRoutesByRoles(staticAuthRoutes, authStore.userInfo.roles);
+      const filteredAuthRoutes = filterAuthRoutesByMenus(staticAuthRoutes, authStore.userInfo.menus);
 
       addAuthRoutes(filteredAuthRoutes);
     }

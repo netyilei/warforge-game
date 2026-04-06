@@ -24,6 +24,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     userId: '',
     userName: '',
     roles: [],
+    menus: [],
     buttons: []
   });
 

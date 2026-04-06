@@ -27,7 +27,7 @@ export class NakamaWebSocket {
   constructor(options: NakamaWebSocketOptions) {
     this.options = {
       host: options.host || import.meta.env.VITE_NAKAMA_WS_HOST || 'localhost',
-      port: options.port || import.meta.env.VITE_NAKAMA_WS_PORT || 7350,
+      port: options.port || import.meta.env.VITE_NAKAMA_WS_PORT || 8205,
       ...options
     };
   }

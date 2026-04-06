@@ -17,7 +17,7 @@ import {
   useMessage,
   type DataTableColumns,
 } from 'naive-ui';
-import { operationLogApi, type OperationLog } from '@/service/api/operation-log';
+import { operationLogApi, type OperationLog } from '@/service/api/v1/operation-log';
 
 const message = useMessage();
 

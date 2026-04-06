@@ -34,6 +34,7 @@
 | [08_NAKAMA_API_REFERENCE.md](./docs/server/08_NAKAMA_API_REFERENCE.md) | Nakama API 参考（Runtime 接口） |
 | [09_NAKAMA_MODULES.md](./docs/server/09_NAKAMA_MODULES.md) | Nakama 功能模块参考 |
 | [10_STORAGE_MODULE.md](./docs/server/10_STORAGE_MODULE.md) | 存储模块（文件上传、对象存储） |
+| [11_DDD_ARCHITECTURE.md](./docs/server/11_DDD_ARCHITECTURE.md) | **DDD 架构设计（领域驱动设计）** ⭐ |
 
 ### 管理后台文档 ([docs/admin-web/](./docs/admin-web/00_OVERVIEW.md))
 

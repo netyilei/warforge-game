@@ -1,6 +1,7 @@
 import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router';
 import type { ElegantConstRoute, LastLevelRouteKey, RouteKey, RouteMap } from '@elegant-router/types';
 import { useSvgIcon } from '@/hooks/common/icon';
+import { hasRoutePermission } from '@/router/route-permissions';
 
 export function filterAuthRoutesByRoles(routes: ElegantConstRoute[], roles: string[]) {
   return routes.flatMap(route => filterAuthRouteByRoles(route, roles));
@@ -24,6 +25,27 @@ function filterAuthRouteByRoles(route: ElegantConstRoute, roles: string[]): Eleg
   }
 
   return hasPermission || isEmptyRoles ? [filterRoute] : [];
+}
+
+export function filterAuthRoutesByMenus(routes: ElegantConstRoute[], menus: string[]) {
+  return routes.flatMap(route => filterAuthRouteByMenus(route, menus));
+}
+
+function filterAuthRouteByMenus(route: ElegantConstRoute, menus: string[]): ElegantConstRoute[] {
+  const routeName = route.name as RouteKey;
+  const hasPermission = hasRoutePermission(routeName, menus);
+
+  const filterRoute = { ...route };
+
+  if (filterRoute.children?.length) {
+    filterRoute.children = filterRoute.children.flatMap(item => filterAuthRouteByMenus(item, menus));
+  }
+
+  if (filterRoute.children?.length === 0) {
+    return [];
+  }
+
+  return hasPermission ? [filterRoute] : [];
 }
 
 function sortRouteByOrder(route: ElegantConstRoute) {

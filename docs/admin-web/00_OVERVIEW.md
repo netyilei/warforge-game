@@ -160,9 +160,9 @@ VITE_APP_DESC=WarForge Game Server Management Console
 VITE_AUTH_ROUTE_MODE=dynamic
 
 # Nakama 服务配置
-VITE_NAKAMA_HOST=http://localhost:7350
+VITE_NAKAMA_HOST=http://localhost:8202
 VITE_NAKAMA_WS_HOST=localhost
-VITE_NAKAMA_WS_PORT=7350
+VITE_NAKAMA_WS_PORT=8205
 VITE_NAKAMA_SERVER_KEY=dev_server_key_2026
 ```
 
@@ -346,7 +346,7 @@ import dayjs from 'dayjs';
 
 **解决方案**：
 
-1. 检查 `server/webadmin/routes.go` 中是否注册了对应路由
+1. 检查 `internal/interfaces/http/webadmin/router/router.go` 中是否注册了对应路由
 2. 确认前端 API 路径与后端路由一致
 3. 检查代理配置是否正确
 

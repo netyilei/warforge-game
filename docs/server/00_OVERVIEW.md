@@ -4,13 +4,53 @@
 >
 > 创建日期：2026-04-03
 >
-> 最后更新：2026-04-04
+> 最后更新：2026-04-06
 
 **数据库名称：** `nakama`
 
 ## 项目简介
 
 WarForge Server 是基于 Nakama 游戏服务器框架开发的游戏后端服务，提供用户认证、游戏匹配、机器人 AI、实时通信等功能。采用 Go 语言开发，包含 Nakama 运行时扩展和 Gin HTTP API 服务。
+
+---
+
+## 架构说明
+
+> **项目正在进行 DDD 架构升级**
+>
+> 详细架构设计请参考：[11_DDD_ARCHITECTURE.md](./11_DDD_ARCHITECTURE.md)
+
+### DDD 分层架构
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  接口层 (Interfaces)                                                 │
+│  ├── Nakama 接口: RPC / Match Handler / Hooks                       │
+│  └── HTTP 接口: WebAdmin / WebProxy                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│  应用层 (Application)                                                │
+│  └── 应用服务: GameAppService / PlayerAppService / AdminAppService  │
+├─────────────────────────────────────────────────────────────────────┤
+│  领域层 (Domain)                                                     │
+│  ├── 用户领域: User / Player / Admin                                │
+│  ├── 游戏领域: Texas / Niuniu / Slots                               │
+│  ├── 游戏配置: GameConfig / RoomTemplate / BotConfig                │
+│  └── 机器人领域: Bot / AI Strategy                                   │
+├─────────────────────────────────────────────────────────────────────┤
+│  基础设施层 (Infrastructure)                                         │
+│  ├── 持久化: CockroachDB / Redis                                    │
+│  └── 外部服务: Nakama Client / Email / Storage                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 核心优势
+
+| 优势 | 说明 |
+|------|------|
+| **职责清晰** | 每层有明确的职责边界 |
+| **易于扩展** | 新增游戏只需添加 domain/game/{name}/ 目录 |
+| **独立部署** | Gin 服务可独立编译部署 |
+| **多机支持** | 统一配置，支持分布式部署 |
 
 ---
 
@@ -149,7 +189,7 @@ Nakama 服务端相关功能，包括：
 # Nakama 配置
 nakama:
   host: "127.0.0.1"
-  port: 7350
+  port: 8202
   http_key: "defaultkey"
 
 # 数据库配置
@@ -169,13 +209,13 @@ redis:
 # WebAdmin 配置
 web_admin:
   enabled: true
-  port: 9527
+  port: 8201
   secret_key: "your-secret-key"
 
 # WebProxy 配置
 web_proxy:
   enabled: true
-  port: 9528
+  port: 8207
   secret_key: "your-proxy-secret-key"
 ```
 

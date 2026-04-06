@@ -11,7 +11,7 @@ import {
   useMessage,
   type UploadFileInfo,
 } from 'naive-ui';
-import { uploadFile } from '@/service/api/storage';
+import { uploadFile } from '@/service/api/v1/storage';
 
 interface Props {
   uploadType: string;

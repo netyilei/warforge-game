@@ -1,35 +1,41 @@
-// Package main 提供 Web Admin API 服务入口
-//
-// 本文件是 Web Admin API 服务的独立入口点，负责：
-// - 加载配置
-// - 初始化数据库连接
-// - 初始化 Redis 连接
-// - 启动 Gin HTTP API 服务
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"strconv"
+	"syscall"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
+	"github.com/redis/go-redis/v9"
 
 	"warforge-server/config"
 	"warforge-server/database"
-	"warforge-server/migrations"
-	"warforge-server/webadmin"
-
-	_ "github.com/jackc/pgx/v5/stdlib"
+	webadminRouter "warforge-server/internal/interfaces/http/webadmin/router"
+	"warforge-server/pkg/logger"
 )
 
 func main() {
-	cfg, err := config.LoadConfig("./config/config.yaml")
+	cfg, err := config.LoadConfig("config/config.yaml")
 	if err != nil {
-		fmt.Printf("Failed to load config: %v\n", err)
-		return
+		log.Fatalf("[FATAL] Failed to load config: %v", err)
 	}
 
-	dsn := fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
+	logConfig := logger.DefaultConfig()
+	if cfg.Log.Level == "debug" {
+		logConfig.Level = -4
+	}
+	appLogger := logger.NewLogger(logConfig)
+
+	dbDSN := fmt.Sprintf(
+		"postgresql://%s:%s@%s:%d/%s?sslmode=%s",
 		cfg.Database.User,
 		cfg.Database.Password,
 		cfg.Database.Host,
@@ -38,43 +44,69 @@ func main() {
 		cfg.Database.Sslmode,
 	)
 
-	sqlDB, err := sql.Open("pgx", dsn)
+	db, err := sql.Open("postgres", dbDSN)
 	if err != nil {
-		fmt.Printf("Failed to open database: %v\n", err)
-		return
-	}
-	defer sqlDB.Close()
-
-	sqlDB.SetMaxOpenConns(cfg.Database.MaxOpenConns)
-	sqlDB.SetMaxIdleConns(cfg.Database.MaxIdleConns)
-	sqlDB.SetConnMaxLifetime(time.Hour)
-
-	if err := sqlDB.Ping(); err != nil {
-		fmt.Printf("Failed to ping database: %v\n", err)
-		return
+		log.Fatalf("[FATAL] Failed to open database: %v", err)
 	}
 
-	database.InitDB(sqlDB)
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
-	if err := migrations.Run(sqlDB); err != nil {
-		fmt.Printf("Failed to run migrations: %v\n", err)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := db.PingContext(ctx); err != nil {
+		log.Fatalf("[FATAL] Failed to ping database: %v", err)
 	}
+
+	database.InitDB(db)
+	appLogger.Info("Connected to database")
 
 	if cfg.Redis.Host != "" {
-		if err := database.InitRedis(cfg.Redis.Host, cfg.Redis.Port, cfg.Redis.Password, cfg.Redis.DB); err != nil {
-			fmt.Printf("Failed to init Redis: %v\n", err)
+		redisClient := redis.NewClient(&redis.Options{
+			Addr:     cfg.Redis.Host + ":" + strconv.Itoa(cfg.Redis.Port),
+			Password: cfg.Redis.Password,
+			DB:       cfg.Redis.DB,
+		})
+
+		if err := redisClient.Ping(ctx).Err(); err != nil {
+			appLogger.Warn("Redis connection failed: %v, continuing without Redis", err)
+		} else {
+			appLogger.Info("Connected to Redis")
 		}
 	}
 
-	server := webadmin.NewServer()
-	if server == nil {
-		fmt.Println("Web Admin server is disabled")
-		return
+	database.EnsureDB()
+	database.EnsureRedis()
+
+	gin.SetMode(gin.ReleaseMode)
+	engine := webadminRouter.SetupRouter()
+
+	srv := &http.Server{
+		Addr:    ":" + strconv.Itoa(cfg.WebAdmin.Port),
+		Handler: engine,
 	}
 
-	fmt.Printf("Web Admin API server started on port %d\n", cfg.WebAdmin.Port)
+	go func() {
+		appLogger.Info("Starting webadmin server on port %d", cfg.WebAdmin.Port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
 
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		fmt.Printf("Server error: %v\n", err)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	appLogger.Info("Shutting down server...")
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
 	}
+
+	appLogger.Info("Server exited")
 }

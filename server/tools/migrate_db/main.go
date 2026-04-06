@@ -124,7 +124,6 @@ func main() {
 		"wf_admin_operation_logs",
 		"wf_admin_settings",
 		"wf_languages",
-		"wf_user_profiles",
 		"wf_content_categories",
 		"wf_contents",
 		"wf_content_translations",

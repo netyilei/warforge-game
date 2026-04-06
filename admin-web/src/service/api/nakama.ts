@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { localStg } from '@/utils/storage';
 
-const NAKAMA_HOST = import.meta.env.VITE_NAKAMA_HOST || 'http://localhost:7350';
+const NAKAMA_HOST = import.meta.env.VITE_NAKAMA_HOST || 'http://localhost:8202';
 const NAKAMA_PROXY_PATH = '/nakama-api';
 
 interface NakamaRpcResponse {

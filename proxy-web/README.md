@@ -34,4 +34,4 @@ VITE_HTTP_PROXY=Y
 
 ## 端口
 
-- 开发服务器: `http://localhost:9528`
+- 开发服务器: `http://localhost:8207`

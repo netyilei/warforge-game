@@ -27,7 +27,7 @@ import {
 } from 'naive-ui';
 import type { UploadFileInfo } from 'naive-ui';
 import dayjs from 'dayjs';
-import { storageApi, type StorageConfig, type StorageDriver, testStorageConnection, uploadFile } from '@/service/api/storage';
+import { storageApi, type StorageConfig, type StorageDriver, testStorageConnection, uploadFile } from '@/service/api/v1/storage';
 import { useSvgIcon } from '@/hooks/common/icon';
 
 const message = useMessage();

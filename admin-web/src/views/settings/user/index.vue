@@ -11,7 +11,7 @@ import {
   NDescriptions,
   NDescriptionsItem,
 } from 'naive-ui';
-import { fetchGetSettings, fetchUpdateSettings } from '@/service/api/settings';
+import { fetchGetSettings, fetchUpdateSettings } from '@/service/api/v1/settings';
 
 interface SystemSetting {
   key: string;

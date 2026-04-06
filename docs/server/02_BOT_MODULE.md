@@ -3,6 +3,8 @@
 > 游戏机器人 AI：牛牛、德州扑克
 > 
 > 创建日期：2026-04-03
+> 
+> 最后更新：2026-04-06
 
 ## 模块概述
 
@@ -10,14 +12,16 @@ Bot 模块负责游戏机器人的管理和 AI 逻辑实现。支持多种游戏
 
 ---
 
-## 相关文件
+## DDD 架构文件结构
 
-| 文件 | 说明 |
-|------|------|
-| `modules/bot/bot.go` | 机器人管理主文件 |
-| `modules/bot/init.go` | 模块初始化 |
-| `modules/bot/niuniu_ai.go` | 牛牛游戏 AI |
-| `modules/bot/texas_ai.go` | 德州扑克 AI |
+| 层级 | 文件路径 | 说明 |
+|------|----------|------|
+| **领域层** | `internal/domain/bot/` | 机器人领域实体 |
+| | `internal/domain/bot/bot.go` | 机器人实体定义 |
+| | `internal/domain/bot/niuniu_ai.go` | 牛牛游戏 AI |
+| | `internal/domain/bot/texas_ai.go` | 德州扑克 AI |
+| **接口层** | `internal/interfaces/nakama/rpc/` | Nakama RPC 接口 |
+| | `internal/interfaces/nakama/match/` | Match Handler |
 
 ---
 

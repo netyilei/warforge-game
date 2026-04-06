@@ -75,21 +75,20 @@ export function getRouteIcons(route: App.Global.TabRoute) {
 export function getDefaultHomeTab(router: Router, homeRouteName: LastLevelRouteKey) {
   const homeRoutePath = getRoutePath(homeRouteName);
 
-  let homeTab: App.Global.Tab = {
-    id: getRoutePath(homeRouteName),
-    label: '首页',
+  const routes = router.getRoutes();
+  const homeRoute = routes.find(route => route.name === homeRouteName);
+
+  if (homeRoute) {
+    return getTabByRoute(homeRoute);
+  }
+
+  return {
+    id: homeRoutePath,
+    label: '仪表盘',
     routeKey: homeRouteName,
     routePath: homeRoutePath,
     fullPath: homeRoutePath
-  };
-
-  const routes = router.getRoutes();
-  const homeRoute = routes.find(route => route.name === homeRouteName);
-  if (homeRoute) {
-    homeTab = getTabByRoute(homeRoute);
-  }
-
-  return homeTab;
+  } as App.Global.Tab;
 }
 
 export function isTabInTabs(tabId: string, tabs: App.Global.Tab[]) {

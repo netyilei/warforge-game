@@ -36,6 +36,7 @@
 首页路由的 `component` 配置错误。数据库中 home 路由的 component 设置为 `layout.base.home`，但前端需要的是 `layout.base$view.home` 格式。
 
 **解决方案**：
+
 ```sql
 UPDATE admin_permissions 
 SET component = 'layout.base$view.home' 
@@ -43,6 +44,7 @@ WHERE code = 'home';
 ```
 
 **预防措施**：
+
 - 新增菜单时，严格按照组件路径格式配置
 - 一级菜单（有子菜单）：`layout.base`
 - 二级菜单：`view.{路由名}`
@@ -61,13 +63,16 @@ WHERE code = 'home';
 前端路由名称与数据库权限 code 不匹配。数据库中使用了 `admin_list`，但前端路由名称可能是 `admin-list` 或其他。
 
 **解决方案**：
+
 1. 检查 `src/router/elegant/routes.ts` 中的路由名称
 2. 更新数据库权限 code 使其与前端一致：
+
 ```sql
 UPDATE admin_permissions SET code = 'admin_list' WHERE code = 'admin-list';
 ```
 
 **预防措施**：
+
 - 路由命名统一使用下划线分隔：`storage_config`
 - 禁止使用冒号：`storage:config`
 - 新增菜单前，先确认前端路由名称
@@ -85,6 +90,7 @@ API 返回 500 错误，日志显示：`sql: Scan error on column index 5, name 
 数据库字段值为 NULL，但 Go 结构体使用了非指针类型的 string 字段，无法接收 NULL 值。
 
 **解决方案**：
+
 ```go
 // 错误写法
 type Permission struct {
@@ -103,6 +109,7 @@ type Permission struct {
 ```
 
 **预防措施**：
+
 - 所有可能为 NULL 的数据库字段，在 Go 结构体中使用指针类型
 - 扫描时使用 `sql.NullString` 处理
 
@@ -119,6 +126,7 @@ type Permission struct {
 PowerShell 的 `Get-Content` 管道传输可能导致 UTF-8 编码问题，中文字符和特殊字符被错误解析。
 
 **解决方案**：
+
 ```powershell
 # 错误方式：直接管道传输
 Get-Content d:\geme\server\migrations\000_init_complete.sql | docker exec -i dev_cockroach cockroach sql --insecure -d nakama
@@ -129,6 +137,7 @@ docker exec dev_cockroach cockroach sql --insecure -d nakama -f /tmp/migration.s
 ```
 
 **预防措施**：
+
 - 执行包含中文或特殊字符的 SQL 脚本时，使用 `docker cp` 方式
 - 避免通过 PowerShell 管道传输
 
@@ -145,6 +154,7 @@ docker exec dev_cockroach cockroach sql --insecure -d nakama -f /tmp/migration.s
 数据库中 `parent_id` 设置不正确，没有正确反映菜单层级关系。
 
 **解决方案**：
+
 ```sql
 -- 将 storage_config 移到 storage 下
 UPDATE admin_permissions 
@@ -158,6 +168,7 @@ WHERE code = 'storage_records';
 ```
 
 **预防措施**：
+
 - 新增子菜单时，确保 `parent_id` 指向正确的父菜单
 - 使用 `sort_order` 字段控制同级菜单的显示顺序
 
@@ -174,15 +185,18 @@ WHERE code = 'storage_records';
 后端路由未注册或路径配置错误。
 
 **解决方案**：
-1. 在 `server/webadmin/routes.go` 中注册路由：
+
+1. 在 `internal/interfaces/http/webadmin/router/router.go` 中注册路由：
+
 ```go
 r.GET("/languages", handlers.GetLanguages)
 r.GET("/banners", handlers.GetBanners)
 ```
 
-2. 确保前端 API 路径与后端一致
+1. 确保前端 API 路径与后端一致
 
 **预防措施**：
+
 - 新增功能模块时，同步添加后端路由和 Handler
 - 使用统一的 API 响应格式：`{code, msg, data}`
 
@@ -196,19 +210,23 @@ r.GET("/banners", handlers.GetBanners)
 访问存储相关 API 返回 502 错误。
 
 **根本原因**：
+
 1. 后端服务未启动
 2. 代理配置错误
 3. `.env` 文件 JSON 格式错误
 
 **解决方案**：
+
 1. 确认后端服务运行中
 2. 检查 `.env` 文件中的代理配置：
+
 ```
 VITE_SERVICE_PROXY_PATTERN=/proxy-default
-VITE_BACKEND_PROXY_URL=http://localhost:9528
+VITE_BACKEND_PROXY_URL=http://localhost:8201
 ```
 
 **预防措施**：
+
 - 开发前确认后端服务已启动
 - 修改 `.env` 文件后重启前端服务
 
@@ -225,6 +243,7 @@ VITE_BACKEND_PROXY_URL=http://localhost:9528
 接口定义缺少属性，或类型转换不正确。
 
 **解决方案**：
+
 ```typescript
 // 添加缺失的属性
 interface Permission {
@@ -239,6 +258,7 @@ const permission = treeOption as unknown as Permission;
 ```
 
 **预防措施**：
+
 - 保持接口定义与后端数据结构一致
 - 使用 `as unknown as TargetType` 进行类型断言
 
@@ -255,6 +275,7 @@ const permission = treeOption as unknown as Permission;
 图标名称格式错误，Iconify 无法识别。
 
 **解决方案**：
+
 - 使用正确的 Iconify 图标格式：`{集合名}:{图标名}`
 - 常用图标集合：
   - Material Design: `mdi:home`
@@ -262,7 +283,8 @@ const permission = treeOption as unknown as Permission;
   - Emoji One: `emojione:flag-for-china`
 
 **预防措施**：
-- 使用 Iconify 官网搜索图标：https://icon-sets.iconify.design/
+
+- 使用 Iconify 官网搜索图标：<https://icon-sets.iconify.design/>
 - 参考 [图标使用指南](./admin-web/05_ICON_GUIDE.md)
 
 ---
@@ -278,6 +300,7 @@ Handler 文件中直接编写 SQL 语句，违反项目架构规范。
 开发时为图方便，未遵循分层架构原则。
 
 **解决方案**：
+
 ```go
 // 错误：在 Handler 中写 SQL
 func GetUserRoutes(c *gin.Context) {
@@ -291,6 +314,7 @@ func GetUserRoutes(c *gin.Context) {
 ```
 
 **预防措施**：
+
 - 遵循红线规则：SQL 必须封装在 Model 中
 - Code Review 时检查 SQL 位置
 

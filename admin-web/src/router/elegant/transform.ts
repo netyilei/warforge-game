@@ -179,8 +179,6 @@ const routeMap: RouteMap = {
   "login": "/login/:module(pwd-login)?",
   "operations": "/operations",
   "operations_log": "/operations/log",
-  "profile": "/profile",
-  "profile_settings": "/profile/settings",
   "settings": "/settings",
   "settings_email": "/settings/email",
   "settings_language": "/settings/language",

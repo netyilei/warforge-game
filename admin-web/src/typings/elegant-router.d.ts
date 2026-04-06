@@ -33,8 +33,6 @@ declare module "@elegant-router/types" {
     "login": "/login/:module(pwd-login)?";
     "operations": "/operations";
     "operations_log": "/operations/log";
-    "profile": "/profile";
-    "profile_settings": "/profile/settings";
     "settings": "/settings";
     "settings_email": "/settings/email";
     "settings_language": "/settings/language";
@@ -87,7 +85,6 @@ declare module "@elegant-router/types" {
     | "iframe-page"
     | "login"
     | "operations"
-    | "profile"
     | "settings"
     | "storage"
     | "support"
@@ -121,7 +118,6 @@ declare module "@elegant-router/types" {
     | "content_list"
     | "home"
     | "operations_log"
-    | "profile_settings"
     | "settings_email"
     | "settings_language"
     | "settings_user"

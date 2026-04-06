@@ -1,17 +1,17 @@
 # 测试环境配置
 
 > WarForge Server 开发/测试环境配置
-> 
+>
 > 创建日期：2026-04-03
 
 ## 环境概览
 
 | 组件 | 容器名 | 版本 | 端口 |
 |------|--------|------|------|
-| Nakama | warforge-nakama | 3.33.0 | 7349, 7350, 7351 |
+| Nakama | warforge-nakama | 3.33.0 | 8202, 8204, 8205 |
 | CockroachDB | dev_cockroach | v23.2.5 | 26257, 8765 |
 | Redis | dev_redis | latest | 6379 |
-| **编译容器** | warforge-builder | nakama-pluginbuilder | - |
+| Gin (WebAdmin) | warforge-builder | nakama-pluginbuilder | 8201 |
 
 ---
 
@@ -98,9 +98,9 @@ Network: warforge-network
 
 | 宿主机端口 | 容器端口 | 用途 |
 |------------|----------|------|
-| 7349 | 7349 | gRPC API |
-| 7350 | 7350 | HTTP API / WebSocket |
-| 7351 | 7351 | 管理控制台 |
+| 8204 | 7349 | gRPC API |
+| 8202 | 7350 | HTTP API |
+| 8205 | 7351 | 管理控制台 / WebSocket |
 
 **启动参数:**
 
@@ -221,7 +221,7 @@ docker run --rm --network warforge-network heroiclabs/nakama:latest \
 cd d:\geme\server
 docker build -t warforge-nakama -f docker/Dockerfile .
 docker run -d --name warforge-nakama --network warforge-network \
-  -p 7349:7349 -p 7350:7350 -p 7351:7351 \
+  -p 8204:7349 -p 8202:7350 -p 8205:7351 \
   -e TZ=Asia/Shanghai warforge-nakama
 ```
 
@@ -243,7 +243,7 @@ docker logs warforge-nakama 2>&1 | grep -E "Startup done|error|fatal"
 
 ### 3. 访问控制台
 
-浏览器打开: <http://localhost:7351>
+浏览器打开: <http://localhost:8205>
 
 - 用户名: `admin`
 - 密码: `admin123`
@@ -252,10 +252,10 @@ docker logs warforge-nakama 2>&1 | grep -E "Startup done|error|fatal"
 
 ```bash
 # 健康检查
-curl http://localhost:7350/
+curl http://localhost:8202/
 
 # 创建用户
-curl -X POST "http://localhost:7350/v2/account/authenticate/device?create=true" \
+curl -X POST "http://localhost:8202/v2/account/authenticate/device?create=true" \
   --user "dev_server_key_2026:" \
   -H "Content-Type: application/json" \
   -d '{"id": "test-device-id"}'
@@ -325,11 +325,11 @@ docker volume rm cockroach-data
 | ☐ CockroachDB Admin UI (8765) 已关闭或仅内网访问 | |
 | ☐ CockroachDB 已启用证书认证（非 --insecure） | |
 | ☐ Redis 端口 (6379) 不对外暴露 | |
-| ☐ Nakama Console (7351) 已关闭或使用强密码 | |
+| ☐ Nakama Console (8205) 已关闭或使用强密码 | |
 | ☐ Nakama 所有默认密钥已修改 | |
 | ☐ Console 密码强度 >= 16 位 | |
 | ☐ 数据库管理后台已关闭外部访问 | |
-| ☐ 防火墙仅开放必要端口 (7350, 7349) | |
+| ☐ 防火墙仅开放必要端口 (8202, 8204) | |
 
 ### 禁止事项
 

@@ -18,7 +18,7 @@ import {
   type DataTableColumns,
 } from 'naive-ui';
 import { Icon } from '@iconify/vue';
-import { contentApi, type ContentCategory } from '@/service/api/content';
+import { contentApi, type ContentCategory } from '@/service/api/v2/content';
 import IconPicker from '@/components/common/icon-picker.vue';
 
 const message = useMessage();

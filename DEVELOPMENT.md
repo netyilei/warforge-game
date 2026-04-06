@@ -5,12 +5,12 @@
 ### 1. 启动前端项目
 
 ```bash
-# 管理后台（端口 9527）
+# 管理后台（端口 8203）
 cd d:\geme\admin-web
 pnpm install
 pnpm dev
 
-# 代理管理后台（端口 9528）
+# 代理管理后台（端口 8207）
 cd d:\geme\proxy-web
 pnpm install
 pnpm dev
@@ -87,7 +87,7 @@ docker logs -f warforge-nakama
 
 ### Q: 如何进入 Nakama 控制台？
 
-在浏览器中访问：`http://localhost:7351`
+在浏览器中访问：`http://localhost:8205`
 
 ### Q: 如何管理数据库？
 
@@ -99,7 +99,7 @@ CockroachDB 提供了 Web UI，访问：`http://localhost:8080`
 
 ```
 d:\geme\
-├── admin-web\              # 游戏管理后台（端口 9527）
+├── admin-web\              # 游戏管理后台（端口 8203）
 │   ├── src\
 │   │   ├── service\        # API 服务
 │   │   ├── store\          # Pinia 状态管理
@@ -107,7 +107,7 @@ d:\geme\
 │   │   └── views\          # 页面组件
 │   ├── package.json
 │   └── vite.config.ts
-├── proxy-web\              # 代理管理后台（端口 9528）
+├── proxy-web\              # 代理管理后台（端口 8207）
 │   ├── src\
 │   ├── package.json
 │   └── vite.config.ts
@@ -145,10 +145,13 @@ d:\geme\
 
 | 服务 | 端口 | 说明 | 访问地址 |
 |------|------|------|----------|
-| admin-web | 9527 | 游戏管理后台 | <http://localhost:9527> |
-| proxy-web | 9528 | 代理管理后台 | <http://localhost:9528> |
-| Nakama API | 7350 | 游戏服务器 API | <http://localhost:7350> |
-| Nakama Console | 7351 | Nakama 管理控制台 | <http://localhost:7351> |
+| Gin (WebAdmin) | 8201 | 管理后台 API | <http://localhost:8201> |
+| admin-web | 8203 | 游戏管理后台 | <http://localhost:8203> |
+| proxy-web | 8207 | 代理管理后台 | <http://localhost:8207> |
+| Nakama HTTP | 8202 | 游戏服务器 API | <http://localhost:8202> |
+| Nakama gRPC | 8204 | 游戏服务器 gRPC | localhost:8204 |
+| Nakama Console | 8205 | Nakama 管理控制台 | <http://localhost:8205> |
+| Nakama WebSocket | 8205 | WebSocket 连接 | ws://localhost:8205 |
 | CockroachDB | 26257 | 数据库端口 | - |
 | CockroachDB Web UI | 8080 | 数据库管理界面 | <http://localhost:8080> |
 | Redis | 6379 | 缓存服务 | - |

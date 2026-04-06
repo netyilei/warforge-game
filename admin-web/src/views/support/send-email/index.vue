@@ -3,7 +3,7 @@ import { ref, reactive, shallowRef, onBeforeUnmount } from 'vue';
 import { NCard, NForm, NFormItem, NInput, NButton, NSpace, useMessage } from 'naive-ui';
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/editor';
-import { supportApi } from '@/service/api/support';
+import { supportApi } from '@/service/api/v2/support';
 import '@wangeditor/editor/dist/css/style.css';
 
 const message = useMessage();

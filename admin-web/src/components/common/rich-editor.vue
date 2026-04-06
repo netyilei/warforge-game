@@ -11,7 +11,7 @@ import {
   type UploadCustomRequestOptions,
 } from 'naive-ui';
 import { Icon } from '@iconify/vue';
-import { uploadFile } from '@/service/api/storage';
+import { uploadFile } from '@/service/api/v1/storage';
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
 

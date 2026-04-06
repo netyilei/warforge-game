@@ -22,8 +22,8 @@ import {
   useMessage,
   type DataTableColumns,
 } from 'naive-ui';
-import { contentApi, type BannerGroup, type Banner, type BannerTranslation, type BannerWithTranslations, type BannerExtraData } from '@/service/api/content';
-import { languageApi, type Language } from '@/service/api/language';
+import { contentApi, type BannerGroup, type Banner, type BannerTranslation, type BannerWithTranslations, type BannerExtraData } from '@/service/api/v2/content';
+import { languageApi, type Language } from '@/service/api/v2/language';
 
 const message = useMessage();
 

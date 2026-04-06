@@ -103,7 +103,7 @@ game-server/
 
 - [x] 创建 proxy-web 项目 (Vue3 + TypeScript + NaiveUI)
 - [x] 复制 admin-web 基础框架
-- [x] 配置独立端口 (9528)
+- [x] 配置独立端口 (8207)
 - [x] 更新项目配置和描述
 - [x] 登录页面
 - [x] 布局框架
@@ -204,6 +204,320 @@ server/
 ├── internal/
 └── pkg/
 ```
+
+---
+
+### Phase 3.5: DDD 架构升级
+
+**Status:** `in_progress`
+**Goal:** 将项目升级为领域驱动设计（DDD）分层架构
+
+**背景：**
+
+当前架构存在以下问题：
+
+- `modules/` 和 `nakama/` 目录职责重叠
+- 缺少 `internal/` 和 `pkg/` 目录的规范使用
+- 游戏模块分散，缺少统一管理
+- Gin 服务与 Nakama 插件耦合
+- 多机部署配置管理困难
+
+**目标架构：**
+
+```
+server/
+├── cmd/                              # 应用入口（独立编译）
+│   ├── nakama/main.go                # Nakama 插件入口 → warforge.so
+│   └── webadmin/main.go              # Gin 服务入口 → webadmin.exe
+│
+├── config/                           # 统一配置（支持多机部署）
+│
+├── internal/                         # 私有包
+│   ├── domain/                       # 【领域层】核心业务逻辑
+│   │   ├── shared/                   # 共享领域概念
+│   │   ├── user/                     # 用户领域
+│   │   ├── game/                     # 游戏领域
+│   │   │   ├── shared/               # 游戏共享逻辑
+│   │   │   ├── texas/                # 德州扑克
+│   │   │   ├── niuniu/               # 牛牛
+│   │   │   └── slots/                # 老虎机（HTTP 游戏）
+│   │   ├── gameconfig/               # 游戏配置领域
+│   │   ├── bot/                      # 机器人领域
+│   │   └── inventory/                # 背包领域
+│   │
+│   ├── application/                  # 【应用层】用例/应用服务
+│   │   ├── game/                     # 游戏应用服务
+│   │   ├── player/                   # 玩家管理应用服务
+│   │   └── admin/                    # 管理应用服务
+│   │
+│   ├── infrastructure/               # 【基础设施层】
+│   │   ├── persistence/              # 持久化实现
+│   │   ├── nakama/                   # Nakama 基础设施
+│   │   └── external/                 # 外部服务
+│   │
+│   └── interfaces/                   # 【接口层】入口点
+│       ├── nakama/                   # Nakama 接口
+│       │   ├── rpc/                  # RPC 处理器
+│       │   ├── match/                # Match Handler
+│       │   └── hooks/                # 生命周期钩子
+│       └── http/                     # HTTP 接口
+│           ├── webadmin/             # 管理后台 API
+│           └── webproxy/             # 代理后台 API
+│
+└── pkg/                              # 公共包
+```
+
+**Tasks:**
+
+- [x] Phase 3.5.1: 创建领域层框架
+  - [x] 创建 internal/domain/shared/ 基础结构
+  - [x] 定义 Entity、ValueObject、Repository 接口
+  - [x] 定义领域错误类型
+  - [x] 创建 internal/domain/user/ 用户领域
+  - [x] 创建 internal/domain/gameconfig/ 游戏配置领域
+
+- [x] Phase 3.5.2: 创建基础设施层
+  - [x] 创建 internal/infrastructure/persistence/cockroachdb/
+  - [x] 实现 UserRepository
+  - [x] 创建 internal/infrastructure/nakama/ Nakama 客户端封装
+  - [x] 创建 internal/infrastructure/database/ 数据库连接
+
+- [x] Phase 3.5.3: 创建应用层
+  - [x] 创建 internal/application/player/ 玩家应用服务
+  - [x] 创建 internal/application/game/ 游戏应用服务
+  - [x] 创建 internal/application/admin/ 管理应用服务
+  - [x] 定义 DTO 和 Mapper
+
+- [x] Phase 3.5.4: 重构接口层
+  - [x] 创建 internal/interfaces/nakama/rpc/ RPC 适配器
+  - [x] 创建 internal/interfaces/nakama/match/ Match 适配器
+  - [x] 创建 internal/interfaces/http/webadmin/ HTTP 适配器
+  - [x] 分离 Admin 路由到独立目录
+
+- [x] Phase 3.5.5: Gin 服务独立化
+  - [x] 创建 cmd/webadmin/main.go 独立入口
+  - [x] 创建 cmd/nakama/main.go 独立入口
+  - [x] 配置支持环境变量覆盖
+
+- [ ] Phase 3.5.6: 迁移现有代码
+  - [ ] 迁移 modules/admin → internal/domain/admin
+  - [ ] 迁移 modules/bot → internal/domain/bot
+  - [ ] 迁移 nakama/rpc → internal/interfaces/nakama/rpc
+  - [ ] 迁移 nakama/match → internal/interfaces/nakama/match
+  - [ ] 迁移 webadmin → internal/interfaces/http/webadmin
+
+- [x] Phase 3.5.7: 文档更新
+  - [x] 创建 docs/server/11_DDD_ARCHITECTURE.md
+  - [x] 更新 docs/server/04_ARCHITECTURE.md
+  - [x] 更新 docs/server/00_OVERVIEW.md
+  - [x] 更新 README.md
+
+**已完成文件：**
+
+```
+server/
+├── cmd/
+│   ├── nakama/main.go              # Nakama 插件入口
+│   └── webadmin/main.go            # Gin 服务入口
+│
+├── internal/
+│   ├── domain/
+│   │   ├── shared/
+│   │   │   ├── entity.go           # Entity 基础接口
+│   │   │   ├── value_object.go     # ValueObject 接口
+│   │   │   ├── repository.go       # Repository 接口
+│   │   │   └── errors.go           # 领域错误
+│   │   ├── user/
+│   │   │   ├── user.go             # 用户实体
+│   │   │   ├── value_objects.go    # 值对象
+│   │   │   ├── repository.go       # 仓储接口
+│   │   │   └── service.go          # 领域服务
+│   │   └── gameconfig/
+│   │       ├── game.go             # 游戏定义
+│   │       ├── room_template.go    # 房间模板
+│   │       ├── tournament.go       # 比赛配置
+│   │       ├── bot_config.go       # 机器人配置
+│   │       ├── winrate_config.go   # 胜率配置
+│   │       ├── repository.go       # 仓储接口
+│   │       └── service.go          # 领域服务
+│   │
+│   ├── application/
+│   │   ├── shared/
+│   │   │   └── usecase.go          # 用例基础接口
+│   │   ├── player/
+│   │   │   └── user_usecase.go     # 用户用例
+│   │   ├── admin/
+│   │   │   └── game_usecase.go     # 游戏管理用例
+│   │   └── game/
+│   │       └── game_usecase.go     # 游戏用例
+│   │
+│   ├── infrastructure/
+│   │   ├── database/
+│   │   │   └── db.go               # 数据库连接
+│   │   ├── persistence/
+│   │   │   ├── cockroachdb/
+│   │   │   │   └── user_repository.go
+│   │   │   └── redis/
+│   │   │       └── client.go       # Redis 客户端
+│   │   └── nakama/
+│   │       └── adapter.go          # Nakama 适配器
+│   │
+│   └── interfaces/
+│       ├── nakama/
+│       │   ├── rpc/
+│       │   │   └── game_rpc.go     # 游戏 RPC
+│       │   └── match/
+│       │       └── match_handler.go # Match Handler
+│       └── http/
+│           └── webadmin/
+│               ├── handler/
+│               │   ├── game_handler.go
+│               │   └── user_handler.go
+│               ├── middleware/
+│               │   └── middleware.go
+│               └── router/
+│                   └── router.go
+│
+└── pkg/
+    ├── errors/
+    │   └── errors.go               # 应用错误
+    ├── logger/
+    │   └── logger.go               # 日志工具
+    ├── crypto/
+    │   └── crypto.go               # 加密工具
+    └── utils/
+        └── utils.go                # 工具函数
+```
+
+**详细施工流程：**
+
+```
+Step 1: 创建目录结构
+────────────────────────────────────────────────────────────────
+mkdir -p server/internal/domain/shared
+mkdir -p server/internal/domain/user
+mkdir -p server/internal/domain/game/shared
+mkdir -p server/internal/domain/game/texas
+mkdir -p server/internal/domain/game/niuniu
+mkdir -p server/internal/domain/game/slots
+mkdir -p server/internal/domain/gameconfig
+mkdir -p server/internal/domain/bot
+mkdir -p server/internal/domain/inventory
+
+mkdir -p server/internal/application/shared
+mkdir -p server/internal/application/game
+mkdir -p server/internal/application/player
+mkdir -p server/internal/application/admin
+
+mkdir -p server/internal/infrastructure/persistence/cockroachdb
+mkdir -p server/internal/infrastructure/persistence/redis
+mkdir -p server/internal/infrastructure/nakama
+mkdir -p server/internal/infrastructure/external/email
+mkdir -p server/internal/infrastructure/external/storage
+mkdir -p server/internal/infrastructure/database
+
+mkdir -p server/internal/interfaces/nakama/rpc
+mkdir -p server/internal/interfaces/nakama/match
+mkdir -p server/internal/interfaces/nakama/hooks
+mkdir -p server/internal/interfaces/http/webadmin/handler
+mkdir -p server/internal/interfaces/http/webadmin/middleware
+mkdir -p server/internal/interfaces/http/webadmin/router
+mkdir -p server/internal/interfaces/http/webproxy/handler
+mkdir -p server/internal/interfaces/http/webproxy/middleware
+mkdir -p server/internal/interfaces/http/webproxy/router
+
+mkdir -p server/cmd/nakama
+mkdir -p server/cmd/webadmin
+
+mkdir -p server/pkg/errors
+mkdir -p server/pkg/logger
+mkdir -p server/pkg/crypto
+mkdir -p server/pkg/utils
+
+Step 2: 创建领域层基础文件
+────────────────────────────────────────────────────────────────
+创建 internal/domain/shared/entity.go
+创建 internal/domain/shared/value_object.go
+创建 internal/domain/shared/repository.go
+创建 internal/domain/shared/errors.go
+
+Step 3: 创建用户领域
+────────────────────────────────────────────────────────────────
+创建 internal/domain/user/user.go
+创建 internal/domain/user/player.go
+创建 internal/domain/user/admin.go
+创建 internal/domain/user/role.go
+创建 internal/domain/user/permission.go
+创建 internal/domain/user/value_objects.go
+创建 internal/domain/user/repository.go
+创建 internal/domain/user/service.go
+创建 internal/domain/user/events.go
+
+Step 4: 创建游戏配置领域
+────────────────────────────────────────────────────────────────
+创建 internal/domain/gameconfig/game.go
+创建 internal/domain/gameconfig/room_template.go
+创建 internal/domain/gameconfig/tournament.go
+创建 internal/domain/gameconfig/bot_config.go
+创建 internal/domain/gameconfig/winrate_config.go
+创建 internal/domain/gameconfig/repository.go
+创建 internal/domain/gameconfig/service.go
+
+Step 5: 创建基础设施层
+────────────────────────────────────────────────────────────────
+创建 internal/infrastructure/database/cockroachdb.go
+创建 internal/infrastructure/database/redis.go
+创建 internal/infrastructure/persistence/cockroachdb/user_repo.go
+创建 internal/infrastructure/persistence/cockroachdb/gameconfig_repo.go
+创建 internal/infrastructure/persistence/redis/keys.go
+创建 internal/infrastructure/persistence/redis/session_repo.go
+
+Step 6: 创建应用层
+────────────────────────────────────────────────────────────────
+创建 internal/application/shared/dto.go
+创建 internal/application/shared/mapper.go
+创建 internal/application/player/service.go
+创建 internal/application/player/dto.go
+创建 internal/application/player/commands.go
+创建 internal/application/player/queries.go
+
+Step 7: 创建接口层适配器
+────────────────────────────────────────────────────────────────
+创建 internal/interfaces/nakama/rpc/handler.go
+创建 internal/interfaces/nakama/rpc/player_rpc.go
+创建 internal/interfaces/http/webadmin/handler/player.go
+创建 internal/interfaces/http/webadmin/middleware/auth.go
+创建 internal/interfaces/http/webadmin/router/router.go
+创建 internal/interfaces/http/webadmin/router/player.go
+
+Step 8: 创建公共包
+────────────────────────────────────────────────────────────────
+创建 pkg/errors/errors.go
+创建 pkg/errors/codes.go
+创建 pkg/logger/logger.go
+创建 pkg/crypto/jwt.go
+创建 pkg/crypto/hash.go
+
+Step 9: 迁移入口文件
+────────────────────────────────────────────────────────────────
+移动 cmd/main.go → cmd/nakama/main.go
+创建 cmd/webadmin/main.go
+
+Step 10: 更新配置
+────────────────────────────────────────────────────────────────
+更新 config/config.go 支持环境变量
+更新 config/loader.go 支持多机部署
+```
+
+**验收标准：**
+
+- [ ] 所有现有功能正常运行
+- [ ] Gin 服务可独立编译和部署
+- [ ] 配置文件支持多机部署
+- [ ] 新增游戏只需添加 domain/game/{game_name}/ 目录
+- [ ] 测试覆盖领域层核心逻辑
+
+**详细文档：** [docs/server/11_DDD_ARCHITECTURE.md](./docs/server/11_DDD_ARCHITECTURE.md)
 
 ---
 
@@ -544,7 +858,7 @@ Phase 10 (客户端重构)
 
 - [x] 创建 proxy-web 项目 (Vue3 + TypeScript + NaiveUI)
 - [x] 复制 admin-web 基础框架
-- [x] 配置独立端口 (9528)
+- [x] 配置独立端口 (8207)
 - [x] 更新项目配置和描述
 
 ### Phase 3: Admin API 接口 (进行中)

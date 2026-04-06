@@ -59,9 +59,9 @@ echo [7/8] Starting Nakama server...
 docker run -d ^
   --name warforge-nakama ^
   --network warforge-network ^
-  -p 7349:7349 ^
-  -p 7350:7350 ^
-  -p 7351:7351 ^
+  -p 8204:7349 ^
+  -p 8202:7350 ^
+  -p 8205:7351 ^
   -e TZ=Asia/Shanghai ^
   warforge-nakama
 
@@ -75,10 +75,10 @@ echo   Setup Complete!
 echo ========================================
 echo.
 echo   Services:
-echo     HTTP API:    http://localhost:7350
-echo     WebSocket:   ws://localhost:7350
-echo     gRPC:        localhost:7349
-echo     Console:     http://localhost:7351
+echo     HTTP API:    http://localhost:8202
+echo     WebSocket:   ws://localhost:8205
+echo     gRPC:        localhost:8204
+echo     Console:     http://localhost:8205
 echo     CockroachDB: http://localhost:8765
 echo.
 echo   Console Login:

@@ -21,8 +21,8 @@ import {
   useMessage,
   type DataTableColumns,
 } from 'naive-ui';
-import { contentApi, type ContentCategory, type Content, type ContentTranslation, type ContentWithTranslations } from '@/service/api/content';
-import { languageApi, type Language } from '@/service/api/language';
+import { contentApi, type ContentCategory, type Content, type ContentTranslation, type ContentWithTranslations } from '@/service/api/v2/content';
+import { languageApi, type Language } from '@/service/api/v2/language';
 import RichEditor from '@/components/common/rich-editor.vue';
 
 const message = useMessage();

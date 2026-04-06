@@ -1,4 +1,4 @@
-﻿# Nakama-Common v1.45.0 Runtime API Reference
+# Nakama-Common v1.45.0 Runtime API Reference
 
 > 本文档基于 nakama-common v1.45.0 整理，用于项目开发参考
 >
@@ -768,7 +768,7 @@ func myRpc(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.Na
 
 ```bash
 # 错误：直接发送 JSON 对象
-curl -X POST "http://localhost:7350/v2/rpc/my_rpc?http_key=mykey" \
+curl -X POST "http://localhost:8202/v2/rpc/my_rpc?http_key=mykey" \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}'
 # 结果：{"error":"json: cannot unmarshal object into Go value of type string","code":3}
@@ -778,7 +778,7 @@ curl -X POST "http://localhost:7350/v2/rpc/my_rpc?http_key=mykey" \
 
 ```bash
 # 正确：payload 是 JSON 对象的双重编码字符串
-curl -X POST "http://localhost:7350/v2/rpc/my_rpc?http_key=mykey" \
+curl -X POST "http://localhost:8202/v2/rpc/my_rpc?http_key=mykey" \
   -H "Content-Type: application/json" \
   -d '"{\"username\":\"admin\",\"password\":\"admin123\"}"'
 ```
@@ -828,7 +828,7 @@ func adminLogin(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 在较新版本的 Nakama 中，可以使用 `?unwrap` 参数来跳过双重编码，直接接收原始 JSON：
 
 ```bash
-curl -X POST "http://localhost:7350/v2/rpc/my_rpc?http_key=mykey&unwrap" \
+curl -X POST "http://localhost:8202/v2/rpc/my_rpc?http_key=mykey&unwrap" \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}'
 ```

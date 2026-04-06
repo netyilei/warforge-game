@@ -3,7 +3,7 @@
 > WarForge Server 数据库表结构设计
 >
 > 创建日期：2026-04-03
-> 最后更新：2026-04-04
+> 最后更新：2026-04-06
 
 **数据库名称：** `nakama`
 
@@ -135,12 +135,34 @@ CREATE TABLE permissions (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     code VARCHAR(64) UNIQUE NOT NULL,
-    group_code VARCHAR(32),
-    description VARCHAR(256),
+    type VARCHAR(20) NOT NULL,           -- 'menu' 或 'button'
+    parent_id UUID,                       -- 父权限ID
+    path VARCHAR(255),                    -- 路由路径
+    component VARCHAR(255),               -- 前端组件
+    icon VARCHAR(100),                    -- 图标
+    api_paths JSONB DEFAULT '[]'::jsonb,  -- API路径权限
     sort_order INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    status INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
+
+**api_paths 字段格式**：
+
+```json
+[
+  {"path": "/api/v1/admins", "methods": ["GET", "POST"]},
+  {"path": "/api/v1/admins/*", "methods": ["GET", "PUT", "DELETE"]}
+]
+```
+
+**权限类型**：
+
+| type | 说明 | 用途 |
+|------|------|------|
+| `menu` | 菜单权限 | 控制菜单显示和路由访问 |
+| `button` | 按钮权限 | 控制页面内按钮显示 |
 
 **权限分组：**
 

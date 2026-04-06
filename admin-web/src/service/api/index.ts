@@ -1,5 +1,3 @@
-export * from './auth';
+export * from './v1';
+export * from './v2';
 export * from './nakama';
-export * from './route';
-export * from './admin';
-export * from './support';

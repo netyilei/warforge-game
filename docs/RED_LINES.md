@@ -287,31 +287,62 @@
 
 ### 14.2 SQL 语句封装红线（强制）
 
-- **🔴 红线：SQL 必须在 Model 中**：所有 SQL 语句必须封装在对应的 Model 文件中，**禁止在 Handler、Controller、Service 等其他地方直接编写 SQL 语句**。
-- **封装位置**：统一放在 `server/models/` 目录下，按表名命名文件（如 `admin_user.go`、`admin_permission.go`）。
+- **🔴 红线：SQL 必须在 Repository 中**：所有 SQL 语句必须封装在对应的 Repository 文件中，**禁止在 Handler、Controller、Service 等其他地方直接编写 SQL 语句**。
+- **封装位置**：统一放在 `server/internal/infrastructure/persistence/` 目录下，按领域模块组织（如 `admin/repository.go`、`system/repository.go`）。
 - **方法命名**：使用清晰的业务语义命名，如 `GetRoleCodes()`、`GetMenusByUserID()`、`CheckRouteAccess()`。
-- **调用方式**：Handler 只负责调用 Model 方法，不接触 SQL 细节。
+- **调用方式**：Handler 只负责调用 Repository 方法，不接触 SQL 细节。
 
-### 14.3 Models 组织规范
+### 14.3 DDD 分层规范
 
-- **统一存放位置**：所有数据库 Model 统一存放在 `server/models/` 目录下，便于所有模块共享引用。
-- **按表拆分文件**：每个数据库表对应一个 Model 文件，关联表可合并到主表文件或单独创建 `*_relations.go` 文件。
-- **禁止模块私有 Models**：不得在 `modules/xxx/models/` 下创建重复的 Model 定义，避免代码冗余和维护困难。
+- **遵守 DDD 架构**：数据库操作属于基础设施层，必须放在 `server/internal/infrastructure/persistence/` 目录下。
+- **按领域模块组织**：每个领域模块（admin、system、content、user）有独立的 persistence 目录。
+- **Repository 接口定义**：接口定义在 `server/internal/domain/{模块}/repository.go`，实现在 `server/internal/infrastructure/persistence/{模块}/repository.go`。
+- **禁止 models 目录**：不再使用独立的 `server/models/` 目录，所有数据库操作统一纳入 DDD 分层架构。
+- **共享访问**：Gin 和 Nakama 都可以通过依赖注入使用相同的 Repository 实现。
 
-### 14.4 示例规范
+### 14.4 目录结构示例
+
+```
+server/internal/
+├── domain/                          # 领域层
+│   ├── admin/
+│   │   ├── admin_user.go           # 领域实体
+│   │   └── repository.go           # Repository 接口定义
+│   ├── system/
+│   │   ├── storage.go              # 领域实体
+│   │   └── repository.go           # Repository 接口定义
+│   └── ...
+├── infrastructure/                  # 基础设施层
+│   └── persistence/                 # 持久化实现
+│       ├── admin/
+│       │   └── repository.go       # Admin Repository 实现（含SQL）
+│       ├── system/
+│       │   └── repository.go       # System Repository 实现（含SQL）
+│       └── ...
+└── interfaces/                      # 接口层
+    ├── http/webadmin/handlers/      # Gin Handlers
+    └── nakama/rpc/                  # Nakama RPC
+```
+
+### 14.5 示例规范
 
 **正确做法**：
 
 ```go
-// server/models/admin_user.go
-func (AdminUser) GetRoleCodes(db *sql.DB, userID string) ([]string, error) {
+// server/internal/domain/admin/repository.go
+type Repository interface {
+    GetRoleCodes(ctx context.Context, userID string) ([]string, error)
+}
+
+// server/internal/infrastructure/persistence/admin/repository.go
+func (r *adminRepository) GetRoleCodes(ctx context.Context, userID string) ([]string, error) {
     query := `
         SELECT r.code 
-        FROM admin_roles r 
-        INNER JOIN admin_user_roles ur ON r.id = ur.role_id 
+        FROM wf_admin_roles r 
+        INNER JOIN wf_admin_user_roles ur ON r.id = ur.role_id 
         WHERE ur.user_id = $1 AND r.status = 1
     `
-    rows, err := db.Query(query, userID)
+    rows, err := r.db.QueryContext(ctx, query, userID)
     if err != nil {
         return nil, err
     }
@@ -328,8 +359,12 @@ func (AdminUser) GetRoleCodes(db *sql.DB, userID string) ([]string, error) {
     return codes, nil
 }
 
-// 使用
-codes, err := models.AdminUser{}.GetRoleCodes(db, userID)
+// server/internal/interfaces/http/webadmin/handlers/admin/role.go
+func GetRoleCodes(c *gin.Context) {
+    repo := persistence.NewAdminRepository(db)
+    codes, err := repo.GetRoleCodes(c.Request.Context(), userID)
+    // ...
+}
 ```
 
 ---
@@ -430,9 +465,9 @@ INSERT INTO admin_permissions (code, name, parent_id, path, component) VALUES
 - [ ] **是否考虑了移动端兼容性？（新增）**
 - [ ] **🔴 是否使用项目配置的数据库？（强制）**
 - [ ] **数据库操作是否使用原生 SQL？（新增）**
-- [ ] **🔴 SQL 语句是否封装在 Model 文件中？（强制）**
-- [ ] **查询是否封装在 Model 方法中？（新增）**
-- [ ] **Models 是否统一存放在 server/models/ 目录？（新增）**
+- [ ] **🔴 SQL 语句是否封装在 Repository 文件中？（强制）**
+- [ ] **查询是否封装在 Repository 方法中？（DDD规范）**
+- [ ] **数据库操作是否放在 infrastructure/persistence 目录？（DDD规范）**
 - [ ] **路由配置是否与前端一致？（新增）**
 - [ ] **路由名称是否使用下划线格式？（新增）**
 - [ ] **Redis Key 是否统一定义在 redis_keys.go？（新增）**
@@ -445,6 +480,8 @@ INSERT INTO admin_permissions (code, name, parent_id, path, component) VALUES
 - [ ] **🔴 HTTP API 是否使用统一响应格式？（强制）**
 - [ ] **🔴 Handler 是否使用 MustGetDB() 而非检查 db == nil？（强制）**
 - [ ] **服务启动时是否调用 EnsureDB() 和 EnsureRedis()？（新增）**
+- [ ] **🔴 数据库表前缀是否正确？（强制：wf_ 仅用于非 Nakama 管理的表）**
+- [ ] **是否避免为 Nakama 管理的表创建迁移脚本？（新增）**
 
 ---
 
@@ -489,20 +526,20 @@ redisKey := "admin:token:" + userID
 
 | 模块 | 位置 | 职责 | 数据操作 |
 |------|------|------|----------|
-| `modules/admin` | Nakama RPC | Nakama 核心功能 | 调用 Nakama API |
-| `webadmin` | Gin HTTP API | 后台管理 | 原生SQL操作 |
+| `internal/interfaces/nakama/rpc/` | Nakama RPC | Nakama 核心功能 | 调用 Nakama API |
+| `internal/interfaces/http/webadmin/` | Gin HTTP API | 后台管理 | 原生SQL操作 |
 
 ### 17.2 判断标准
 
 功能是否涉及 Nakama 核心功能（玩家、好友、匹配、房间、排行榜）？
 
-- **是** → `modules/admin/` 实现 RPC
-- **否** → `webadmin/handlers/` 实现 HTTP API
+- **是** → `internal/interfaces/nakama/rpc/` 实现 RPC
+- **否** → `internal/interfaces/http/webadmin/handlers/` 实现 HTTP API
 
 ### 17.3 禁止事项
 
 - ❌ 禁止在 webadmin 中调用 Nakama RPC 处理非核心功能
-- ❌ 禁止在 modules/admin 中处理后台管理业务（用户、角色、权限、内容、设置、存储）
+- ❌ 禁止在 Nakama RPC 中处理后台管理业务（用户、角色、权限、内容、设置、存储）
 
 ---
 
@@ -510,16 +547,16 @@ redisKey := "admin:token:" + userID
 
 ### 19.1 模块隔离原则
 
-- **Gin 代码专属目录**：Gin 相关代码只在 `webadmin/` 目录下，禁止与其他模块混用。
+- **Gin 代码专属目录**：Gin 相关代码只在 `internal/interfaces/http/webadmin/` 目录下，禁止与其他模块混用。
 - **目录结构**：
-  - 路由：`server/webadmin/routes.go`
-  - 处理器：`server/webadmin/handlers/`
-  - 中间件：`server/webadmin/middleware.go`
-  - JWT 工具：`server/webadmin/jwtutil/`
+  - 路由：`internal/interfaces/http/webadmin/router/router.go`
+  - 处理器：`internal/interfaces/http/webadmin/handlers/`
+  - 中间件：`internal/interfaces/http/webadmin/middleware/`
+  - JWT 工具：`internal/interfaces/http/webadmin/auth/jwt.go`
 
 ### 19.2 公共资源
 
-- **全局共用**：`models/`, `database/`, `config/` 可被所有模块引用
+- **全局共用**：`models/`, `database/`, `config/`, `internal/domain/`, `internal/infrastructure/` 可被所有模块引用
 - **禁止复制**：不得在 Gin 模块中复制公共模块的代码
 
 ---
@@ -540,7 +577,7 @@ redisKey := "admin:token:" + userID
 
 ### 18.3 参考文件
 
-- JWT 工具：`server/webadmin/jwtutil/jwt.go`
+- JWT 工具：`internal/interfaces/http/webadmin/auth/jwt.go`
 
 ---
 
@@ -638,7 +675,7 @@ func healthCheck(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runt
 ### 21.1 响应格式规范
 
 - **统一结构**：所有 HTTP API 响应必须使用统一的 `Response` 结构。
-- **封装位置**：统一响应辅助函数定义在 `server/webadmin/response.go`。
+- **封装位置**：统一响应辅助函数定义在 `internal/interfaces/http/webadmin/response/response.go`。
 - **禁止直接返回**：禁止在 Handler 中直接使用 `c.JSON(200, gin.H{...})` 格式返回。
 
 ### 21.2 响应辅助函数
@@ -726,7 +763,7 @@ func GetUser(c *gin.Context) {
 ### 22.3 服务启动流程
 
 ```go
-// server/webadmin/server.go
+// internal/interfaces/http/webadmin/server/server.go
 func StartServer() *http.Server {
     // 1. 启动时确保数据库和 Redis 可用
     database.EnsureDB()
@@ -779,7 +816,69 @@ func GetUser(c *gin.Context) {
 
 ---
 
-## 二十三、代码编辑后检查红线
+## 二十三、数据库表前缀红线
+
+### 23.1 表前缀规则
+
+- **`wf_` 前缀用途**：仅用于非 Nakama 管理的业务表
+  - 管理后台相关表（管理员、角色、权限、操作日志等）
+  - 内容管理表（Banner、内容分类、内容等）
+  - 系统配置表（邮件配置、存储配置、语言配置等）
+  - 上传记录表
+
+- **不加 `wf_` 前缀**：Nakama 核心功能相关的表
+  - Nakama 自带的表（用户、好友、匹配、房间、排行榜等）
+  - 由 Nakama 管理的游戏业务表
+  - 玩家数据表（由 Nakama Storage 管理）
+
+### 23.2 判断标准
+
+| 功能类型 | 是否加 `wf_` 前缀 | 管理方式 |
+|---------|------------------|---------|
+| 管理员用户/角色/权限 | ✅ 是 | Gin HTTP API |
+| 内容管理（Banner/文章） | ✅ 是 | Gin HTTP API |
+| 系统配置（邮件/存储/语言） | ✅ 是 | Gin HTTP API |
+| 上传记录 | ✅ 是 | Gin HTTP API |
+| 游戏玩家数据 | ❌ 否 | Nakama Storage |
+| 游戏房间/匹配 | ❌ 否 | Nakama 内置 |
+| 好友/社交 | ❌ 否 | Nakama 内置 |
+| 排行榜 | ❌ 否 | Nakama 内置 |
+| 游戏配置（房间模板/机器人配置等） | ❌ 否 | Nakama Storage |
+
+### 23.3 禁止事项
+
+- ❌ 禁止为 Nakama 管理的表添加 `wf_` 前缀
+- ❌ 禁止在 Gin 模块中创建游戏玩家相关的表
+- ❌ 禁止绕过 Nakama 直接操作玩家数据
+- ❌ 禁止在迁移脚本中创建 Nakama 已有的表
+
+### 23.4 示例
+
+**正确做法**：
+
+```sql
+-- ✅ 管理后台表使用 wf_ 前缀
+CREATE TABLE wf_admin_users (...);
+CREATE TABLE wf_admin_roles (...);
+CREATE TABLE wf_banner_groups (...);
+CREATE TABLE wf_email_configs (...);
+
+-- ✅ Nakama 表不加前缀（由 Nakama 自动创建）
+-- 不需要在迁移脚本中创建
+```
+
+**错误做法**：
+
+```sql
+-- ❌ 错误：为 Nakama 管理的表添加 wf_ 前缀
+CREATE TABLE wf_game_definitions (...);  -- 游戏定义由 Nakama 管理
+CREATE TABLE wf_user_profiles (...);     -- 玩家档案由 Nakama Storage 管理
+CREATE TABLE wf_game_configs (...);      -- 游戏配置由 Nakama Storage 管理
+```
+
+---
+
+## 二十四、代码编辑后检查红线
 
 ### 23.1 强制检查要求
 

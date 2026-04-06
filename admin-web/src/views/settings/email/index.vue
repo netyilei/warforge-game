@@ -188,7 +188,7 @@
 import { ref, reactive, h, onMounted } from 'vue';
 import { NButton, NSpace, NSwitch, NTag, NIcon, useMessage, useDialog, type DataTableColumns } from 'naive-ui';
 import { Icon } from '@iconify/vue';
-import { emailApi, type EmailTemplate } from '@/service/api/email';
+import { emailApi, type EmailTemplate } from '@/service/api/v1/email';
 import RichEditor from '@/components/common/rich-editor.vue';
 
 const message = useMessage();

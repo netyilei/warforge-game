@@ -17,7 +17,7 @@ import {
   NDivider,
 } from 'naive-ui';
 import { Icon } from '@iconify/vue';
-import { languageApi, type Language } from '@/service/api/language';
+import { languageApi, type Language } from '@/service/api/v2/language';
 import IconPicker from '@/components/common/icon-picker.vue';
 
 const message = useMessage();

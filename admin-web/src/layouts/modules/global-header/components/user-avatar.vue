@@ -4,6 +4,7 @@ import type { VNode } from 'vue';
 import { useAuthStore } from '@/store/modules/auth';
 import { useRouterPush } from '@/hooks/common/router';
 import { useSvgIcon } from '@/hooks/common/icon';
+import { fetchUpdateProfile } from '@/service/api';
 
 defineOptions({
   name: 'UserAvatar'
@@ -21,11 +22,19 @@ const changePasswordForm = ref({
   confirmPassword: ''
 });
 
+const showProfileSettingsModal = ref(false);
+const profileSettingsLoading = ref(false);
+const profileSettingsForm = ref({
+  username: '',
+  email: '',
+  phone: ''
+});
+
 function loginOrRegister() {
   toLogin();
 }
 
-type DropdownKey = 'changePassword' | 'logout';
+type DropdownKey = 'profileSettings' | 'changePassword' | 'logout';
 
 type DropdownOption =
   | {
@@ -40,6 +49,11 @@ type DropdownOption =
 
 const options = computed(() => {
   const opts: DropdownOption[] = [
+    {
+      label: '个人设置',
+      key: 'profileSettings',
+      icon: SvgIconVNode({ icon: 'ph:user-circle-gear', fontSize: 18 })
+    },
     {
       label: '修改密码',
       key: 'changePassword',
@@ -80,6 +94,15 @@ function openChangePasswordModal() {
   showChangePasswordModal.value = true;
 }
 
+function openProfileSettingsModal() {
+  profileSettingsForm.value = {
+    username: authStore.userInfo.userName || '',
+    email: '',
+    phone: ''
+  };
+  showProfileSettingsModal.value = true;
+}
+
 async function handleChangePassword() {
   const { oldPassword, newPassword, confirmPassword } = changePasswordForm.value;
 
@@ -111,11 +134,42 @@ async function handleChangePassword() {
   }
 }
 
+async function handleSaveProfileSettings() {
+  const { username, email, phone } = profileSettingsForm.value;
+
+  if (!username) {
+    window.$message?.error('用户名不能为空');
+    return;
+  }
+
+  profileSettingsLoading.value = true;
+
+  try {
+    const { data, error } = await fetchUpdateProfile({
+      nickname: username,
+      email,
+      phone
+    });
+
+    if (!error && data?.success) {
+      authStore.userInfo.userName = data.nickname || username;
+      window.$message?.success('保存成功');
+      showProfileSettingsModal.value = false;
+    } else {
+      window.$message?.error('保存失败');
+    }
+  } finally {
+    profileSettingsLoading.value = false;
+  }
+}
+
 function handleDropdown(key: DropdownKey) {
   if (key === 'logout') {
     logout();
   } else if (key === 'changePassword') {
     openChangePasswordModal();
+  } else if (key === 'profileSettings') {
+    openProfileSettingsModal();
   } else {
     routerPushByKey(key);
   }
@@ -167,6 +221,28 @@ function handleDropdown(key: DropdownKey) {
         <NButton @click="showChangePasswordModal = false">取消</NButton>
         <NButton type="primary" :loading="changePasswordLoading" @click="handleChangePassword">
           确认
+        </NButton>
+      </NSpace>
+    </template>
+  </NModal>
+
+  <NModal v-model:show="showProfileSettingsModal" preset="card" title="个人设置" :style="{ width: '480px' }">
+    <NForm :model="profileSettingsForm" label-placement="left" label-width="80">
+      <NFormItem label="用户名">
+        <NInput v-model:value="profileSettingsForm.username" placeholder="请输入用户名" />
+      </NFormItem>
+      <NFormItem label="邮箱">
+        <NInput v-model:value="profileSettingsForm.email" placeholder="请输入邮箱" />
+      </NFormItem>
+      <NFormItem label="手机号">
+        <NInput v-model:value="profileSettingsForm.phone" placeholder="请输入手机号" />
+      </NFormItem>
+    </NForm>
+    <template #footer>
+      <NSpace justify="end">
+        <NButton @click="showProfileSettingsModal = false">取消</NButton>
+        <NButton type="primary" :loading="profileSettingsLoading" @click="handleSaveProfileSettings">
+          保存
         </NButton>
       </NSpace>
     </template>

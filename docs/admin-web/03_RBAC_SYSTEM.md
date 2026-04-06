@@ -3,7 +3,7 @@
 > 基于角色的访问控制
 >
 > 创建日期：2026-04-03
-> 最后更新：2026-04-04
+> 最后更新：2026-04-06
 
 ## 模块概述
 
@@ -77,6 +77,34 @@ VALUES
   ('删除用户', 'user:delete', 'button', '用户管理ID'),
   ('编辑用户', 'user:edit', 'button', '用户管理ID');
 ```
+
+### API权限 (api_paths 字段)
+
+控制后端API的访问权限，用于RBAC中间件鉴权。
+
+```sql
+-- 权限表增加 api_paths 字段
+ALTER TABLE admin_permissions ADD COLUMN api_paths JSONB DEFAULT '[]'::jsonb;
+
+-- 示例：管理员管理权限的API路径配置
+UPDATE admin_permissions SET api_paths = '[
+  {"path": "/api/v1/admins", "methods": ["GET", "POST"]},
+  {"path": "/api/v1/admins/*", "methods": ["GET", "PUT", "DELETE"]},
+  {"path": "/api/v1/admins/*/roles", "methods": ["GET", "PUT"]}
+]'::jsonb WHERE code = 'admin_list';
+```
+
+**API路径格式**：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| path | string | API路径，支持通配符 `*` |
+| methods | string[] | 允许的HTTP方法 |
+
+**通配符说明**：
+
+- `/api/v1/admins` - 精确匹配
+- `/api/v1/admins/*` - 匹配 `/api/v1/admins/:id` 等路径
 
 ---
 
@@ -261,6 +289,8 @@ function hasPermission(code: string) {
 
 ## 权限检查流程
 
+### 前端路由权限检查
+
 ```
 用户访问页面
      │
@@ -292,6 +322,64 @@ function hasPermission(code: string) {
          ▼
     进入页面
 ```
+
+### 后端API权限检查
+
+```
+API请求到达
+     │
+     ▼
+┌─────────────────┐
+│ Auth 中间件     │
+│ 验证 JWT Token  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ RBAC 中间件     │
+│ 检查API权限     │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    │         │
+    ▼         ▼
+  通过      拒绝(403)
+    │
+    ▼
+┌─────────────────┐
+│ 执行业务逻辑    │
+└─────────────────┘
+```
+
+### API权限分类
+
+| 分类 | 中间件 | 说明 | 示例 |
+|------|--------|------|------|
+| **公开API** | 无 | 无需登录 | `/api/v1/auth/login` |
+| **登录即可** | `Auth()` | 只需登录状态 | `/api/v1/auth/change-password` |
+| **需要RBAC** | `Auth()` + `RBAC()` | 需要特定权限 | `/api/v1/admins` |
+
+### 不需要RBAC鉴权的API
+
+这些API只需要登录状态即可访问：
+
+| API | 说明 |
+|-----|------|
+| `/api/v1/auth/login` | 登录 |
+| `/api/v1/auth/refresh-token` | 刷新Token |
+| `/api/v1/auth/logout` | 退出登录 |
+| `/api/v1/auth/user-info` | 获取自己的信息 |
+| `/api/v1/auth/change-password` | 修改自己的密码 |
+| `/api/v1/auth/profile` | 修改自己的资料 |
+| `/api/v1/auth/routes` | 获取自己的路由 |
+| `/api/v1/menus` | 获取菜单列表 |
+| `/api/v1/upload-records/presigned` | 获取上传预签名 |
+| `/api/v1/upload-records/confirm` | 确认上传 |
+
+**设计原则**：
+
+- 个人操作（修改密码、修改资料）只能操作自己的数据
+- 通过JWT中的userID确保数据安全
 
 ---
 
@@ -418,7 +506,7 @@ CREATE TABLE admin_operation_logs (
 操作日志通过中间件自动记录：
 
 ```go
-// server/webadmin/middleware.go
+// internal/interfaces/http/webadmin/middleware/middleware.go
 func OperationLogger() gin.HandlerFunc {
     return func(c *gin.Context) {
         // 记录请求信息
@@ -473,7 +561,7 @@ func OperationLogger() gin.HandlerFunc {
 ### 后端路由生成逻辑
 
 ```go
-// server/webadmin/handlers/route.go
+// internal/interfaces/http/webadmin/handlers/admin/route.go
 func GetUserRoutes(c *gin.Context) {
     // 1. 获取用户ID
     userID := c.Get("userID")

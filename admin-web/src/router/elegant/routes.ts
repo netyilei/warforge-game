@@ -11,7 +11,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     path: '/403',
     component: 'layout.blank$view.403',
     meta: {
-      title: '403',
+      title: '无权限',
       i18nKey: 'route.403',
       constant: true,
       hideInMenu: true
@@ -22,7 +22,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     path: '/404',
     component: 'layout.blank$view.404',
     meta: {
-      title: '404',
+      title: '页面不存在',
       i18nKey: 'route.404',
       constant: true,
       hideInMenu: true
@@ -33,11 +33,97 @@ export const generatedRoutes: GeneratedRoute[] = [
     path: '/500',
     component: 'layout.blank$view.500',
     meta: {
-      title: '500',
+      title: '服务器错误',
       i18nKey: 'route.500',
       constant: true,
       hideInMenu: true
     }
+  },
+  {
+    name: 'admin',
+    path: '/admin',
+    component: 'layout.base',
+    meta: {
+      title: '系统管理',
+      i18nKey: 'route.admin',
+      icon: 'mdi:shield-account',
+      order: 6
+    },
+    children: [
+      {
+        name: 'admin_list',
+        path: '/admin/list',
+        component: 'view.admin_list',
+        meta: {
+          title: '管理员列表',
+          i18nKey: 'route.admin_list',
+          icon: 'mdi:account-supervisor'
+        }
+      },
+      {
+        name: 'admin_permission',
+        path: '/admin/permission',
+        component: 'view.admin_permission',
+        meta: {
+          title: '权限管理',
+          i18nKey: 'route.admin_permission',
+          icon: 'mdi:lock-check'
+        }
+      },
+      {
+        name: 'admin_role',
+        path: '/admin/role',
+        component: 'view.admin_role',
+        meta: {
+          title: '角色管理',
+          i18nKey: 'route.admin_role',
+          icon: 'mdi:account-group'
+        }
+      }
+    ]
+  },
+  {
+    name: 'content',
+    path: '/content',
+    component: 'layout.base',
+    meta: {
+      title: '内容管理',
+      i18nKey: 'route.content',
+      icon: 'mdi:file-document-multiple',
+      order: 3
+    },
+    children: [
+      {
+        name: 'content_banner',
+        path: '/content/banner',
+        component: 'view.content_banner',
+        meta: {
+          title: '轮播图管理',
+          i18nKey: 'route.content_banner',
+          icon: 'mdi:image-multiple'
+        }
+      },
+      {
+        name: 'content_category',
+        path: '/content/category',
+        component: 'view.content_category',
+        meta: {
+          title: '分类管理',
+          i18nKey: 'route.content_category',
+          icon: 'mdi:folder-multiple'
+        }
+      },
+      {
+        name: 'content_list',
+        path: '/content/list',
+        component: 'view.content_list',
+        meta: {
+          title: '内容列表',
+          i18nKey: 'route.content_list',
+          icon: 'mdi:format-list-bulleted'
+        }
+      }
+    ]
   },
   {
     name: 'home',
@@ -47,8 +133,7 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: '仪表盘',
       i18nKey: 'route.home',
       icon: 'mdi:monitor-dashboard',
-      order: 0,
-      constant: true
+      order: 1
     }
   },
   {
@@ -57,7 +142,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     component: 'layout.base$view.iframe-page',
     props: true,
     meta: {
-      title: 'iframe-page',
+      title: '内嵌页面',
       i18nKey: 'route.iframe-page',
       constant: true,
       hideInMenu: true,
@@ -69,11 +154,166 @@ export const generatedRoutes: GeneratedRoute[] = [
     path: '/login/:module(pwd-login)?',
     component: 'layout.blank$view.login',
     meta: {
-      title: 'login',
+      title: '登录',
       i18nKey: 'route.login',
       constant: true,
       hideInMenu: true
     },
     props: true
+  },
+  {
+    name: 'operations',
+    path: '/operations',
+    component: 'layout.base',
+    meta: {
+      title: '运营管理',
+      i18nKey: 'route.operations',
+      icon: 'mdi:chart-line',
+      order: 4
+    },
+    children: [
+      {
+        name: 'operations_log',
+        path: '/operations/log',
+        component: 'view.operations_log',
+        meta: {
+          title: '操作日志',
+          i18nKey: 'route.operations_log',
+          icon: 'mdi:history'
+        }
+      }
+    ]
+  },
+  {
+    name: 'settings',
+    path: '/settings',
+    component: 'layout.base',
+    meta: {
+      title: '系统设置',
+      i18nKey: 'route.settings',
+      icon: 'mdi:cogs',
+      order: 8
+    },
+    children: [
+      {
+        name: 'settings_email',
+        path: '/settings/email',
+        component: 'view.settings_email',
+        meta: {
+          title: '邮件配置',
+          i18nKey: 'route.settings_email',
+          icon: 'mdi:email-cog'
+        }
+      },
+      {
+        name: 'settings_language',
+        path: '/settings/language',
+        component: 'view.settings_language',
+        meta: {
+          title: '语言配置',
+          i18nKey: 'route.settings_language',
+          icon: 'mdi:translate'
+        }
+      },
+      {
+        name: 'settings_user',
+        path: '/settings/user',
+        component: 'view.settings_user',
+        meta: {
+          title: '用户配置',
+          i18nKey: 'route.settings_user',
+          icon: 'mdi:account-cog'
+        }
+      }
+    ]
+  },
+  {
+    name: 'storage',
+    path: '/storage',
+    component: 'layout.base',
+    meta: {
+      title: '存储管理',
+      i18nKey: 'route.storage',
+      icon: 'mdi:database',
+      order: 7
+    },
+    children: [
+      {
+        name: 'storage_config',
+        path: '/storage/config',
+        component: 'view.storage_config',
+        meta: {
+          title: '存储配置',
+          i18nKey: 'route.storage_config',
+          icon: 'mdi:database-cog'
+        }
+      },
+      {
+        name: 'storage_records',
+        path: '/storage/records',
+        component: 'view.storage_records',
+        meta: {
+          title: '存储记录',
+          i18nKey: 'route.storage_records',
+          icon: 'mdi:database-eye'
+        }
+      }
+    ]
+  },
+  {
+    name: 'support',
+    path: '/support',
+    component: 'layout.base',
+    meta: {
+      title: '客服支持',
+      i18nKey: 'route.support',
+      icon: 'mdi:headset',
+      order: 5
+    },
+    children: [
+      {
+        name: 'support_send-email',
+        path: '/support/send-email',
+        component: 'view.support_send-email',
+        meta: {
+          title: '发送邮件',
+          i18nKey: 'route.support_send-email',
+          icon: 'mdi:email-send'
+        }
+      }
+    ]
+  },
+  {
+    name: 'user',
+    path: '/user',
+    component: 'layout.base',
+    meta: {
+      title: '用户管理',
+      i18nKey: 'route.user',
+      icon: 'mdi:account-group',
+      order: 2
+    },
+    children: [
+      {
+        name: 'user_approval',
+        path: '/user/approval',
+        component: 'view.user_approval',
+        meta: {
+          title: '用户审批',
+          i18nKey: 'route.user_approval',
+          icon: 'mdi:account-check'
+        }
+      },
+      {
+        name: 'user_manage',
+        path: '/user/manage',
+        component: 'view.user_manage',
+        meta: {
+          title: '用户列表',
+          i18nKey: 'route.user_manage',
+          icon: 'mdi:account-details'
+        }
+      }
+    ]
   }
 ];
