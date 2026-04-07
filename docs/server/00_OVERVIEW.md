@@ -122,7 +122,11 @@ server/
 ├── config/                    # 配置文件和加载
 │   └── config.yaml            # 服务器配置
 │
-├── migrations/                # 数据库迁移文件
+├── migrations/                # 数据库迁移模块
+│   ├── migration.go           # 迁移接口定义
+│   ├── manager.go             # 迁移管理器
+│   ├── registry.go            # 迁移注册表
+│   └── modules/               # 模块化迁移文件
 │
 ├── internal/                  # 私有包（不对外暴露）
 │

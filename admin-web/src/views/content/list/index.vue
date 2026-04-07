@@ -23,7 +23,8 @@ import {
 } from 'naive-ui';
 import { contentApi, type ContentCategory, type Content, type ContentTranslation, type ContentWithTranslations } from '@/service/api/v2/content';
 import { languageApi, type Language } from '@/service/api/v2/language';
-import RichEditor from '@/components/common/rich-editor.vue';
+import ToastEditor from '@/components/common/toast-editor.vue';
+import FileUpload from '@/components/file-upload.vue';
 
 const message = useMessage();
 
@@ -41,6 +42,8 @@ const isEdit = ref(false);
 const saving = ref(false);
 
 const currentTab = ref('');
+
+const editorRefs = ref<Record<string, InstanceType<typeof ToastEditor>>>({});
 
 const formData = ref<{
   content: Partial<Content>;
@@ -72,14 +75,6 @@ const endTimeTs = computed({
   get: () => formData.value.content.endTime ? new Date(formData.value.content.endTime).getTime() : null,
   set: (v: number | null) => { formData.value.content.endTime = v ? new Date(v).toISOString() : null; }
 });
-
-const currentCategory = computed(() => 
-  categories.value.find((c) => c.id === formData.value.content.categoryId)
-);
-
-const editorType = computed(() => 
-  currentCategory.value?.contentType || 'html'
-);
 
 const columns: DataTableColumns<ContentWithTranslations> = [
   {
@@ -244,6 +239,7 @@ const initTranslations = () => {
 const handleAdd = () => {
   isEdit.value = false;
   currentTab.value = defaultLang.value;
+  editorRefs.value = {};
   formData.value = {
     content: {
       categoryId: selectedCategory.value || categories.value[0]?.id || '',
@@ -261,6 +257,7 @@ const handleAdd = () => {
 const handleEdit = async (row: ContentWithTranslations) => {
   isEdit.value = true;
   currentTab.value = defaultLang.value;
+  editorRefs.value = {};
   
   const translations = initTranslations();
   row.translations.forEach((t) => {
@@ -298,6 +295,17 @@ const handleSave = async () => {
 
   saving.value = true;
   try {
+    const translationsWithContent = formData.value.translations.map((t) => {
+      const editorRef = editorRefs.value[t.lang!];
+      const content = editorRef?.getHTML() || t.content || '';
+      return {
+        lang: t.lang!,
+        title: t.title!,
+        summary: t.summary || '',
+        content,
+      };
+    });
+
     const submitData = {
       categoryId: formData.value.content.categoryId!,
       coverImage: formData.value.content.coverImage || undefined,
@@ -307,14 +315,7 @@ const handleSave = async () => {
       endTime: formData.value.content.endTime || undefined,
       sortOrder: formData.value.content.sortOrder,
       status: formData.value.content.status,
-      translations: formData.value.translations
-        .filter((t) => t.title)
-        .map((t) => ({
-          lang: t.lang!,
-          title: t.title!,
-          summary: t.summary || '',
-          content: t.content || '',
-        })),
+      translations: translationsWithContent.filter((t) => t.title),
     };
 
     if (isEdit.value && formData.value.content.id) {
@@ -340,6 +341,12 @@ const getTranslation = (lang: string) => {
     formData.value.translations.push(trans);
   }
   return trans;
+};
+
+const setEditorRef = (lang: string, el: InstanceType<typeof ToastEditor> | null) => {
+  if (el) {
+    editorRefs.value[lang] = el;
+  }
 };
 
 watch(selectedCategory, () => {
@@ -397,7 +404,12 @@ onMounted(() => {
           />
         </NFormItem>
         <NFormItem label="封面图">
-          <NInput v-model:value="formData.content.coverImage" placeholder="封面图片URL" />
+          <FileUpload
+            v-model="formData.content.coverImage"
+            upload-type="content"
+            accept="image/*"
+            :max-size="5 * 1024 * 1024"
+          />
         </NFormItem>
         <NFormItem label="跑马灯">
           <NSwitch v-model:value="formData.content.isMarquee" />
@@ -457,10 +469,13 @@ onMounted(() => {
                     />
                   </NFormItem>
                   <NFormItem label="内容">
-                    <RichEditor
+                    <ToastEditor
+                      :ref="(el: any) => setEditorRef(lang.code, el)"
                       v-model:value="getTranslation(lang.code).content!"
-                      :type="editorType"
+                      mode="wysiwyg"
+                      height="400px"
                       placeholder="请输入内容"
+                      upload-type="content"
                     />
                   </NFormItem>
                 </div>

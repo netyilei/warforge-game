@@ -2,7 +2,6 @@ package content
 
 import (
 	"context"
-	"time"
 
 	contentdomain "warforge-server/internal/domain/content"
 	"warforge-server/pkg/utils"
@@ -37,10 +36,7 @@ type CreateBannerInput struct {
 	ImageURL   string
 	LinkURL    *string
 	LinkTarget string
-	IsExternal bool
 	ExtraData  contentdomain.BannerExtraData
-	StartTime  *time.Time
-	EndTime    *time.Time
 	SortOrder  int
 	Status     int
 }
@@ -49,10 +45,7 @@ func (s *BannerService) CreateBanner(ctx context.Context, input CreateBannerInpu
 	banner := contentdomain.NewBanner(utils.GenerateUUID(), input.GroupID, input.ImageURL)
 	banner.SetLinkURL(input.LinkURL)
 	banner.SetLinkTarget(input.LinkTarget)
-	banner.SetIsExternal(input.IsExternal)
 	banner.SetExtraData(input.ExtraData)
-	banner.SetStartTime(input.StartTime)
-	banner.SetEndTime(input.EndTime)
 	banner.SetSortOrder(input.SortOrder)
 	banner.SetStatus(contentdomain.BannerStatus(input.Status))
 
@@ -68,10 +61,7 @@ type UpdateBannerInput struct {
 	ImageURL   string
 	LinkURL    *string
 	LinkTarget string
-	IsExternal bool
 	ExtraData  contentdomain.BannerExtraData
-	StartTime  *time.Time
-	EndTime    *time.Time
 	SortOrder  int
 	Status     int
 }
@@ -85,10 +75,7 @@ func (s *BannerService) UpdateBanner(ctx context.Context, input UpdateBannerInpu
 	banner.SetImageURL(input.ImageURL)
 	banner.SetLinkURL(input.LinkURL)
 	banner.SetLinkTarget(input.LinkTarget)
-	banner.SetIsExternal(input.IsExternal)
 	banner.SetExtraData(input.ExtraData)
-	banner.SetStartTime(input.StartTime)
-	banner.SetEndTime(input.EndTime)
 	banner.SetSortOrder(input.SortOrder)
 	banner.SetStatus(contentdomain.BannerStatus(input.Status))
 

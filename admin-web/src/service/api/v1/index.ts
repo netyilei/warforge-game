@@ -6,3 +6,4 @@ export * from './storage';
 export * from './email';
 export * from './settings';
 export * from './system-config';
+export * from './support';

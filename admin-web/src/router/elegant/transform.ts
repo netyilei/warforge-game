@@ -181,16 +181,13 @@ const routeMap: RouteMap = {
   "operations_log": "/operations/log",
   "settings": "/settings",
   "settings_email": "/settings/email",
+  "settings_general": "/settings/general",
   "settings_language": "/settings/language",
-  "settings_user": "/settings/user",
   "storage": "/storage",
   "storage_config": "/storage/config",
   "storage_records": "/storage/records",
   "support": "/support",
-  "support_send-email": "/support/send-email",
-  "user": "/user",
-  "user_approval": "/user/approval",
-  "user_manage": "/user/manage"
+  "support_send-email": "/support/send-email"
 };
 
 /**

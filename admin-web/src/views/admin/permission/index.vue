@@ -303,6 +303,11 @@ const handleEdit = (row: FlatPermission) => {
 
 const handleDelete = async (id: string) => {
   try {
+    const { error } = await adminApi.deletePermission(id);
+    if (error) {
+      message.error('删除失败');
+      return;
+    }
     message.success('删除成功');
     fetchData();
   } catch (error) {
@@ -312,6 +317,18 @@ const handleDelete = async (id: string) => {
 
 const handleSubmit = async () => {
   try {
+    let error;
+    if (formData.value.id) {
+      const { error: err } = await adminApi.updatePermission(formData.value.id, formData.value);
+      error = err;
+    } else {
+      const { error: err } = await adminApi.createPermission(formData.value as any);
+      error = err;
+    }
+    if (error) {
+      message.error('保存失败');
+      return;
+    }
     message.success('保存成功');
     showModal.value = false;
     fetchData();

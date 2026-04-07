@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	systempersistence "warforge-server/internal/infrastructure/persistence/system"
+	"warforge-server/database"
 	"warforge-server/pkg/email"
 
 	"github.com/heroiclabs/nakama-common/runtime"
@@ -61,32 +61,28 @@ func sendVerificationCode(ctx context.Context, logger runtime.Logger, db *sql.DB
 		templateCode = "verification_code"
 	}
 
-	templateRepo := systempersistence.NewEmailTemplateRepository(db)
-	configRepo := systempersistence.NewEmailConfigRepository(db)
-
-	template, err := templateRepo.FindByCode(ctx, templateCode)
-	if err != nil {
-		resp := map[string]interface{}{"success": false, "message": "验证码模板不存在"}
+	redisClient := database.GetRedis()
+	if redisClient == nil {
+		resp := map[string]interface{}{"success": false, "message": "Redis 服务不可用"}
 		data, _ := json.Marshal(resp)
 		return string(data), nil
 	}
 
-	config, err := configRepo.FindDefault(ctx)
-	if err != nil {
-		resp := map[string]interface{}{"success": false, "message": "邮箱配置不存在"}
-		data, _ := json.Marshal(resp)
-		return string(data), nil
+	queueService := email.GetQueueService(redisClient)
+
+	task := &email.EmailTask{
+		To:           req.Email,
+		TemplateCode: templateCode,
+		Variables: map[string]interface{}{
+			"code":  code,
+			"email": req.Email,
+		},
+		Source: "nakama",
 	}
 
-	subject := template.Subject()
-	content := template.Content()
-	content = replaceVariable(content, "code", code)
-	content = replaceVariable(content, "email", req.Email)
-	subject = replaceVariable(subject, "code", code)
-
-	if err := email.Send(config.ToDTO(), req.Email, subject, content); err != nil {
-		logger.Error("Failed to send verification code: %v", err)
-		resp := map[string]interface{}{"success": false, "message": fmt.Sprintf("发送失败: %v", err)}
+	if err := queueService.Enqueue(ctx, task); err != nil {
+		logger.Error("Failed to enqueue verification code: %v", err)
+		resp := map[string]interface{}{"success": false, "message": "邮件任务入队失败"}
 		data, _ := json.Marshal(resp)
 		return string(data), nil
 	}
@@ -95,7 +91,7 @@ func sendVerificationCode(ctx context.Context, logger runtime.Logger, db *sql.DB
 	storageKey := fmt.Sprintf("verification_code:%s", req.Email)
 	codeData := fmt.Sprintf(`{"code":"%s","expiry":%d,"type":"verification"}`, code, expiry)
 
-	_, err = nk.StorageWrite(ctx, []*runtime.StorageWrite{
+	_, err := nk.StorageWrite(ctx, []*runtime.StorageWrite{
 		{
 			Collection:      "email_codes",
 			Key:             storageKey,
@@ -108,8 +104,8 @@ func sendVerificationCode(ctx context.Context, logger runtime.Logger, db *sql.DB
 		logger.Error("Failed to store verification code: %v", err)
 	}
 
-	logger.Info("Verification code sent to: %s", req.Email)
-	resp := map[string]interface{}{"success": true, "message": "验证码已发送", "code": code}
+	logger.Info("Verification code enqueued for: %s, taskId: %s", req.Email, task.ID)
+	resp := map[string]interface{}{"success": true, "message": "验证码已加入发送队列", "code": code, "taskId": task.ID}
 	data, _ := json.Marshal(resp)
 	return string(data), nil
 }
@@ -196,32 +192,28 @@ func sendPasswordReset(ctx context.Context, logger runtime.Logger, db *sql.DB, n
 
 	token := generateToken(32)
 
-	templateRepo := systempersistence.NewEmailTemplateRepository(db)
-	configRepo := systempersistence.NewEmailConfigRepository(db)
-
-	template, err := templateRepo.FindByCode(ctx, "password_reset")
-	if err != nil {
-		resp := map[string]interface{}{"success": false, "message": "密码重置模板不存在"}
+	redisClient := database.GetRedis()
+	if redisClient == nil {
+		resp := map[string]interface{}{"success": false, "message": "Redis 服务不可用"}
 		data, _ := json.Marshal(resp)
 		return string(data), nil
 	}
 
-	config, err := configRepo.FindDefault(ctx)
-	if err != nil {
-		resp := map[string]interface{}{"success": false, "message": "邮箱配置不存在"}
-		data, _ := json.Marshal(resp)
-		return string(data), nil
+	queueService := email.GetQueueService(redisClient)
+
+	task := &email.EmailTask{
+		To:           req.Email,
+		TemplateCode: "password_reset",
+		Variables: map[string]interface{}{
+			"token": token,
+			"email": req.Email,
+		},
+		Source: "nakama",
 	}
 
-	subject := template.Subject()
-	content := template.Content()
-	content = replaceVariable(content, "token", token)
-	content = replaceVariable(content, "email", req.Email)
-	subject = replaceVariable(subject, "token", token)
-
-	if err := email.Send(config.ToDTO(), req.Email, subject, content); err != nil {
-		logger.Error("Failed to send password reset email: %v", err)
-		resp := map[string]interface{}{"success": false, "message": fmt.Sprintf("发送失败: %v", err)}
+	if err := queueService.Enqueue(ctx, task); err != nil {
+		logger.Error("Failed to enqueue password reset email: %v", err)
+		resp := map[string]interface{}{"success": false, "message": "邮件任务入队失败"}
 		data, _ := json.Marshal(resp)
 		return string(data), nil
 	}
@@ -230,7 +222,7 @@ func sendPasswordReset(ctx context.Context, logger runtime.Logger, db *sql.DB, n
 	storageKey := fmt.Sprintf("password_reset:%s", req.Email)
 	tokenData := fmt.Sprintf(`{"token":"%s","expiry":%d}`, token, expiry)
 
-	_, err = nk.StorageWrite(ctx, []*runtime.StorageWrite{
+	_, err := nk.StorageWrite(ctx, []*runtime.StorageWrite{
 		{
 			Collection:      "email_codes",
 			Key:             storageKey,
@@ -243,8 +235,8 @@ func sendPasswordReset(ctx context.Context, logger runtime.Logger, db *sql.DB, n
 		logger.Error("Failed to store reset token: %v", err)
 	}
 
-	logger.Info("Password reset email sent to: %s", req.Email)
-	resp := map[string]interface{}{"success": true, "message": "密码重置邮件已发送", "token": token}
+	logger.Info("Password reset email enqueued for: %s, taskId: %s", req.Email, task.ID)
+	resp := map[string]interface{}{"success": true, "message": "密码重置邮件已加入发送队列", "token": token, "taskId": task.ID}
 	data, _ := json.Marshal(resp)
 	return string(data), nil
 }

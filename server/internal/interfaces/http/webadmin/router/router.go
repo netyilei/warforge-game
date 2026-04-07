@@ -1,6 +1,7 @@
 package router
 
 import (
+	"warforge-server/internal/interfaces/http/webadmin/middleware"
 	v1 "warforge-server/internal/interfaces/http/webadmin/router/v1"
 	v2 "warforge-server/internal/interfaces/http/webadmin/router/v2"
 
@@ -9,6 +10,9 @@ import (
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+
+	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.OperationLogMiddleware())
 
 	v1.SetupV1Routes(r)
 	v2.SetupV2Routes(r)

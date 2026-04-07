@@ -204,14 +204,14 @@ func GetEmailTemplate(c *gin.Context) {
 }
 
 type CreateEmailTemplateRequest struct {
-	Name        string              `json:"name" binding:"required"`
-	Code        string              `json:"code" binding:"required"`
-	Subject     string              `json:"subject" binding:"required"`
-	ContentType string              `json:"contentType"`
-	Content     string              `json:"content" binding:"required"`
-	Description string              `json:"description"`
-	Variables   systemdomain.JSONB  `json:"variables"`
-	Status      int                 `json:"status"`
+	Name        string             `json:"name" binding:"required"`
+	Code        string             `json:"code" binding:"required"`
+	Subject     string             `json:"subject" binding:"required"`
+	ContentType string             `json:"contentType"`
+	Content     string             `json:"content" binding:"required"`
+	Description string             `json:"description"`
+	Variables   systemdomain.JSONB `json:"variables"`
+	Status      int                `json:"status"`
 }
 
 func CreateEmailTemplate(c *gin.Context) {
@@ -246,13 +246,13 @@ func CreateEmailTemplate(c *gin.Context) {
 }
 
 type UpdateEmailTemplateRequest struct {
-	Name        string              `json:"name" binding:"required"`
-	Subject     string              `json:"subject" binding:"required"`
-	ContentType string              `json:"contentType"`
-	Content     string              `json:"content" binding:"required"`
-	Description string              `json:"description"`
-	Variables   systemdomain.JSONB  `json:"variables"`
-	Status      int                 `json:"status"`
+	Name        string             `json:"name" binding:"required"`
+	Subject     string             `json:"subject" binding:"required"`
+	ContentType string             `json:"contentType"`
+	Content     string             `json:"content" binding:"required"`
+	Description string             `json:"description"`
+	Variables   systemdomain.JSONB `json:"variables"`
+	Status      int                `json:"status"`
 }
 
 func UpdateEmailTemplate(c *gin.Context) {
@@ -327,27 +327,93 @@ func SendTestEmail(c *gin.Context) {
 		return
 	}
 
-	db := database.MustGetDB()
-	repo := systempersistence.NewEmailConfigRepository(db)
-	var config *systemdomain.EmailConfig
-	var err error
+	redisClient := database.MustGetRedis()
+	queueService := email.GetQueueService(redisClient)
 
-	if req.ConfigID != "" {
-		config, err = repo.FindByID(c.Request.Context(), req.ConfigID)
-	} else {
-		config, err = repo.FindDefault(c.Request.Context())
+	task := &email.EmailTask{
+		To:         req.ToEmail,
+		Subject:    req.Subject,
+		Content:    req.Content,
+		ConfigCode: req.ConfigID,
+		Source:     "gin",
 	}
 
-	if err != nil {
-		response.Error(c, 400, "邮箱配置不存在")
+	if err := queueService.Enqueue(c.Request.Context(), task); err != nil {
+		response.Error(c, 500, "邮件任务入队失败: "+err.Error())
 		return
 	}
 
-	err = email.Send(config.ToDTO(), req.ToEmail, req.Subject, req.Content)
-	if err != nil {
-		response.Error(c, 500, "发送邮件失败: "+err.Error())
+	response.Success(c, gin.H{
+		"success": true,
+		"message": "邮件任务已加入发送队列",
+		"taskId":  task.ID,
+	})
+}
+
+type SendEmailRequest struct {
+	ConfigCode   string                 `json:"configCode,omitempty"`
+	TemplateCode string                 `json:"templateCode,omitempty"`
+	To           string                 `json:"to" binding:"required,email"`
+	Subject      string                 `json:"subject,omitempty"`
+	Content      string                 `json:"content,omitempty"`
+	Variables    map[string]interface{} `json:"variables,omitempty"`
+}
+
+func SendEmail(c *gin.Context) {
+	var req SendEmailRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c)
 		return
 	}
 
-	response.Success(c, gin.H{"success": true, "message": "邮件发送成功"})
+	if req.TemplateCode == "" && (req.Subject == "" || req.Content == "") {
+		response.Error(c, 400, "使用模板时需要提供 templateCode，否则需要提供 subject 和 content")
+		return
+	}
+
+	redisClient := database.MustGetRedis()
+	queueService := email.GetQueueService(redisClient)
+
+	task := &email.EmailTask{
+		To:           req.To,
+		Subject:      req.Subject,
+		Content:      req.Content,
+		TemplateCode: req.TemplateCode,
+		ConfigCode:   req.ConfigCode,
+		Variables:    req.Variables,
+		Source:       "gin",
+	}
+
+	if err := queueService.Enqueue(c.Request.Context(), task); err != nil {
+		response.Error(c, 500, "邮件任务入队失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, gin.H{
+		"success": true,
+		"message": "邮件任务已加入发送队列",
+		"taskId":  task.ID,
+	})
+}
+
+func GetEmailQueueStatus(c *gin.Context) {
+	redisClient := database.MustGetRedis()
+	queueService := email.GetQueueService(redisClient)
+
+	queueLength, err := queueService.GetQueueLength(c.Request.Context())
+	if err != nil {
+		response.Error(c, 500, "获取队列状态失败: "+err.Error())
+		return
+	}
+
+	retryLength, err := queueService.GetRetryQueueLength(c.Request.Context())
+	if err != nil {
+		response.Error(c, 500, "获取重试队列状态失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, gin.H{
+		"queueLength":      queueLength,
+		"retryQueueLength": retryLength,
+	})
 }

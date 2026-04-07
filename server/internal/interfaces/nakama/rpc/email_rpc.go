@@ -4,11 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	"strings"
 
-	systemdomain "warforge-server/internal/domain/system"
-	systempersistence "warforge-server/internal/infrastructure/persistence/system"
+	"warforge-server/database"
 	"warforge-server/pkg/email"
 
 	"github.com/heroiclabs/nakama-common/runtime"
@@ -26,6 +23,7 @@ type SendEmailRequest struct {
 type SendEmailResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message,omitempty"`
+	TaskID  string `json:"taskId,omitempty"`
 }
 
 func RegisterEmailRPC(initializer runtime.Initializer) error {
@@ -49,68 +47,44 @@ func sendEmail(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtim
 		return string(data), nil
 	}
 
-	configRepo := systempersistence.NewEmailConfigRepository(db)
-	templateRepo := systempersistence.NewEmailTemplateRepository(db)
-
-	var config *systemdomain.EmailConfig
-	var err error
-
-	if req.ConfigCode != "" {
-		config, err = configRepo.FindByCode(ctx, req.ConfigCode)
-	} else {
-		config, err = configRepo.FindDefault(ctx)
-	}
-
-	if err != nil {
-		resp := SendEmailResponse{Success: false, Message: "邮箱配置不存在或未设置默认配置"}
+	if req.TemplateCode == "" && (req.Subject == "" || req.Content == "") {
+		resp := SendEmailResponse{Success: false, Message: "使用模板时需要提供 templateCode，否则需要提供 subject 和 content"}
 		data, _ := json.Marshal(resp)
 		return string(data), nil
 	}
 
-	var subject, content string
-
-	if req.TemplateCode != "" {
-		template, err := templateRepo.FindByCode(ctx, req.TemplateCode)
-		if err != nil {
-			resp := SendEmailResponse{Success: false, Message: "邮件模板不存在"}
-			data, _ := json.Marshal(resp)
-			return string(data), nil
-		}
-
-		subject = template.Subject()
-		content = template.Content()
-
-		if req.Variables != nil {
-			for key, value := range req.Variables {
-				placeholder := fmt.Sprintf("{{%s}}", key)
-				content = strings.ReplaceAll(content, placeholder, fmt.Sprintf("%v", value))
-				subject = strings.ReplaceAll(subject, placeholder, fmt.Sprintf("%v", value))
-			}
-		}
-	} else {
-		if req.Subject == "" {
-			resp := SendEmailResponse{Success: false, Message: "邮件主题不能为空"}
-			data, _ := json.Marshal(resp)
-			return string(data), nil
-		}
-		if req.Content == "" {
-			resp := SendEmailResponse{Success: false, Message: "邮件内容不能为空"}
-			data, _ := json.Marshal(resp)
-			return string(data), nil
-		}
-		subject = req.Subject
-		content = req.Content
-	}
-
-	if err := email.Send(config.ToDTO(), req.To, subject, content); err != nil {
-		logger.Error("Failed to send email: %v", err)
-		resp := SendEmailResponse{Success: false, Message: fmt.Sprintf("发送失败: %v", err)}
+	redisClient := database.GetRedis()
+	if redisClient == nil {
+		resp := SendEmailResponse{Success: false, Message: "Redis 服务不可用"}
 		data, _ := json.Marshal(resp)
 		return string(data), nil
 	}
 
-	logger.Info("Email sent successfully to: %s", req.To)
-	resp := SendEmailResponse{Success: true, Message: "邮件发送成功"}
+	queueService := email.GetQueueService(redisClient)
+
+	task := &email.EmailTask{
+		To:           req.To,
+		Subject:      req.Subject,
+		Content:      req.Content,
+		TemplateCode: req.TemplateCode,
+		ConfigCode:   req.ConfigCode,
+		Variables:    req.Variables,
+		Source:       "nakama",
+	}
+
+	if err := queueService.Enqueue(ctx, task); err != nil {
+		logger.Error("Failed to enqueue email task: %v", err)
+		resp := SendEmailResponse{Success: false, Message: "邮件任务入队失败"}
+		data, _ := json.Marshal(resp)
+		return string(data), nil
+	}
+
+	logger.Info("Email task enqueued: %s, to: %s", task.ID, req.To)
+	resp := SendEmailResponse{
+		Success: true,
+		Message: "邮件任务已加入发送队列",
+		TaskID:  task.ID,
+	}
 	data, _ := json.Marshal(resp)
 	return string(data), nil
 }

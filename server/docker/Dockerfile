@@ -1,27 +1,24 @@
 # ============================================
-# Stage 1: Build plugin with official pluginbuilder
+# WarForge Development Environment
+# 基于 nakama-pluginbuilder，预装依赖
 # ============================================
-FROM heroiclabs/nakama-pluginbuilder:latest AS builder
+FROM heroiclabs/nakama-pluginbuilder:latest
 
 ENV GOPROXY=https://goproxy.cn,direct
 
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-COPY go.mod ./
-RUN go mod download github.com/heroiclabs/nakama-common
+# 预下载 Go 模块依赖
+COPY go.mod go.sum ./
+RUN go mod download
 
-COPY . .
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/entrypoint.sh /entrypoint.sh
+COPY docker/bin/nakama /nakama/nakama
+RUN chmod +x /entrypoint.sh /nakama/nakama
 
-RUN go mod tidy && go build -buildmode=plugin -trimpath -o /nakama/data/modules/warforge.so ./cmd/main.go
+EXPOSE 7349 7350 7351 8200
 
-# ============================================
-# Stage 2: Run Nakama with plugin
-# ============================================
-FROM heroiclabs/nakama:latest
-
-COPY --from=builder /nakama/data/modules/warforge.so /nakama/data/modules/
-
-EXPOSE 7349 7350 7351
-
-ENTRYPOINT ["/nakama/nakama"]
-CMD ["--database.address", "root@dev_cockroach:26257/nakama", "--runtime.path", "/nakama/data/modules/", "--socket.server_key", "dev_server_key_2026", "--session.encryption_key", "dev_session_key_2026", "--runtime.http_key", "dev_http_key_2026", "--console.username", "admin", "--console.password", "admin123"]
+ENTRYPOINT ["/entrypoint.sh"]

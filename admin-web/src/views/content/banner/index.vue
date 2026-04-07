@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, h, watch } from 'vue';
+import { ref, onMounted, computed, h } from 'vue';
 import {
   NCard,
   NButton,
@@ -15,15 +15,15 @@ import {
   NTag,
   NTabs,
   NTabPane,
-  NDatePicker,
   NImage,
   NSelect,
   NDynamicInput,
   useMessage,
   type DataTableColumns,
 } from 'naive-ui';
-import { contentApi, type BannerGroup, type Banner, type BannerTranslation, type BannerWithTranslations, type BannerExtraData } from '@/service/api/v2/content';
+import { contentApi, type BannerGroup, type BannerTranslation, type BannerWithTranslations, type BannerExtraData } from '@/service/api/v2/content';
 import { languageApi, type Language } from '@/service/api/v2/language';
+import FileUpload from '@/components/file-upload.vue';
 
 const message = useMessage();
 
@@ -46,10 +46,7 @@ const bannerFormData = ref<{
   imageUrl: string;
   linkUrl: string;
   linkTarget: string;
-  isExternal: boolean;
   extraData: { key: string; value: string }[];
-  startTime: string | null;
-  endTime: string | null;
   sortOrder: number;
   status: number;
   translations: Partial<BannerTranslation>[];
@@ -58,10 +55,7 @@ const bannerFormData = ref<{
   imageUrl: '',
   linkUrl: '',
   linkTarget: '_blank',
-  isExternal: false,
   extraData: [],
-  startTime: null,
-  endTime: null,
   sortOrder: 0,
   status: 1,
   translations: [],
@@ -176,15 +170,6 @@ const bannerColumns: DataTableColumns<BannerWithTranslations> = [
     width: 150,
     ellipsis: { tooltip: true },
     render: (row) => row.banner.linkUrl || '-',
-  },
-  {
-    title: '外部链接',
-    key: 'isExternal',
-    width: 80,
-    render: (row) =>
-      row.banner.isExternal
-        ? h(NTag, { type: 'info' }, () => '是')
-        : h(NTag, { type: 'default' }, () => '否'),
   },
   {
     title: '自定义参数',
@@ -379,10 +364,7 @@ const handleAddBanner = () => {
     imageUrl: '',
     linkUrl: '',
     linkTarget: '_blank',
-    isExternal: false,
     extraData: [],
-    startTime: null,
-    endTime: null,
     sortOrder: banners.value.length + 1,
     status: 1,
     translations: initTranslations(),
@@ -415,10 +397,7 @@ const handleEditBanner = (row: BannerWithTranslations) => {
     imageUrl: row.banner.imageUrl,
     linkUrl: row.banner.linkUrl || '',
     linkTarget: row.banner.linkTarget || '_blank',
-    isExternal: row.banner.isExternal,
     extraData,
-    startTime: row.banner.startTime,
-    endTime: row.banner.endTime,
     sortOrder: row.banner.sortOrder,
     status: row.banner.status,
     translations,
@@ -438,7 +417,7 @@ const handleDeleteBanner = async (id: string) => {
 
 const handleSaveBanner = async () => {
   if (!bannerFormData.value.imageUrl) {
-    message.warning('请填写图片URL');
+    message.warning('请上传图片');
     return;
   }
 
@@ -456,10 +435,7 @@ const handleSaveBanner = async () => {
       imageUrl: bannerFormData.value.imageUrl,
       linkUrl: bannerFormData.value.linkUrl || undefined,
       linkTarget: bannerFormData.value.linkTarget,
-      isExternal: bannerFormData.value.isExternal,
       extraData: Object.keys(extraData).length > 0 ? extraData : undefined,
-      startTime: bannerFormData.value.startTime || undefined,
-      endTime: bannerFormData.value.endTime || undefined,
       sortOrder: bannerFormData.value.sortOrder,
       status: bannerFormData.value.status,
       translations: bannerFormData.value.translations
@@ -498,16 +474,6 @@ const getTranslation = (lang: string) => {
   }
   return trans;
 };
-
-const startTimeTs = computed({
-  get: () => bannerFormData.value.startTime ? new Date(bannerFormData.value.startTime).getTime() : null,
-  set: (v: number | null) => { bannerFormData.value.startTime = v ? new Date(v).toISOString() : null; }
-});
-
-const endTimeTs = computed({
-  get: () => bannerFormData.value.endTime ? new Date(bannerFormData.value.endTime).getTime() : null,
-  set: (v: number | null) => { bannerFormData.value.endTime = v ? new Date(v).toISOString() : null; }
-});
 
 onMounted(() => {
   fetchLanguages();
@@ -593,8 +559,13 @@ onMounted(() => {
       style="width: 900px"
     >
       <NForm label-placement="left" label-width="100">
-        <NFormItem label="图片URL" required>
-          <NInput v-model:value="bannerFormData.imageUrl" placeholder="图片URL" />
+        <NFormItem label="图片上传" required>
+          <FileUpload
+            v-model="bannerFormData.imageUrl"
+            upload-type="banner"
+            accept="image/*"
+            :max-size="5 * 1024 * 1024"
+          />
         </NFormItem>
         <NFormItem label="链接URL">
           <NInput v-model:value="bannerFormData.linkUrl" placeholder="点击跳转URL" />
@@ -609,12 +580,6 @@ onMounted(() => {
             style="width: 200px"
           />
         </NFormItem>
-        <NFormItem label="外部链接">
-          <NSwitch v-model:value="bannerFormData.isExternal">
-            <template #checked>是</template>
-            <template #unchecked>否</template>
-          </NSwitch>
-        </NFormItem>
         <NFormItem label="自定义参数">
           <NDynamicInput
             v-model:value="bannerFormData.extraData"
@@ -627,23 +592,6 @@ onMounted(() => {
               </div>
             </template>
           </NDynamicInput>
-        </NFormItem>
-        <NFormItem label="生效时间">
-          <NSpace>
-            <NDatePicker
-              v-model:value="startTimeTs"
-              type="datetime"
-              clearable
-              placeholder="开始时间"
-            />
-            <span>至</span>
-            <NDatePicker
-              v-model:value="endTimeTs"
-              type="datetime"
-              clearable
-              placeholder="结束时间"
-            />
-          </NSpace>
         </NFormItem>
         <NFormItem label="排序">
           <NInputNumber v-model:value="bannerFormData.sortOrder" :min="0" />

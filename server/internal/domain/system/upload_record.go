@@ -107,6 +107,7 @@ type UploadRecordListDTO struct {
 	UserName     string `json:"userName"`
 	OriginalName string `json:"originalName"`
 	FilePath     string `json:"filePath"`
+	FileURL      string `json:"fileUrl"`
 	FileSize     int64  `json:"fileSize"`
 	MimeType     string `json:"mimeType"`
 	StorageID    string `json:"storageId"`

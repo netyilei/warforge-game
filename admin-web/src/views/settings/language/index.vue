@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, h } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import {
   NCard,
   NButton,
@@ -12,7 +12,6 @@ import {
   NFormItem,
   NInput,
   NInputNumber,
-  NDataTable,
   NTag,
   NDivider,
 } from 'naive-ui';
@@ -20,20 +19,39 @@ import { Icon } from '@iconify/vue';
 import { languageApi, type Language } from '@/service/api/v2/language';
 import IconPicker from '@/components/common/icon-picker.vue';
 
+interface LanguageWithStatus extends Language {
+  isSupported: boolean;
+}
+
 const message = useMessage();
 
 const loading = ref(false);
-const languages = ref<Language[]>([]);
+const dbLanguages = ref<Language[]>([]);
 const showEditModal = ref(false);
+const showAddModal = ref(false);
 const editingLanguage = ref<Partial<Language>>({});
+const newLanguage = ref<Partial<Language>>({
+  code: '',
+  name: '',
+  nativeName: '',
+  icon: '',
+  sortOrder: 0,
+  status: 1
+});
 const saving = ref(false);
 
-const supportedLanguages = computed(() => 
-  languages.value.filter(l => l.status === 1).sort((a, b) => a.sortOrder - b.sortOrder)
+const supportedLanguages = computed<LanguageWithStatus[]>(() => 
+  dbLanguages.value
+    .filter(l => l.status === 1)
+    .map(l => ({ ...l, isSupported: true }))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
 );
 
-const unsupportedLanguages = computed(() => 
-  languages.value.filter(l => l.status !== 1).sort((a, b) => a.sortOrder - b.sortOrder)
+const unsupportedLanguages = computed<LanguageWithStatus[]>(() => 
+  dbLanguages.value
+    .filter(l => l.status === 0)
+    .map(l => ({ ...l, isSupported: false }))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
 );
 
 const fetchLanguages = async () => {
@@ -44,10 +62,7 @@ const fetchLanguages = async () => {
       message.error('获取语言列表失败');
       return;
     }
-    languages.value = (res?.languages || []).map(l => ({
-      ...l,
-      isSupported: l.status === 1
-    }));
+    dbLanguages.value = res?.languages || [];
   } catch (error) {
     message.error('获取语言列表失败');
   } finally {
@@ -55,9 +70,21 @@ const fetchLanguages = async () => {
   }
 };
 
-const handleEditLanguage = (lang: Language) => {
+const handleEditLanguage = (lang: LanguageWithStatus) => {
   editingLanguage.value = { ...lang };
   showEditModal.value = true;
+};
+
+const handleAddLanguage = () => {
+  newLanguage.value = {
+    code: '',
+    name: '',
+    nativeName: '',
+    icon: '',
+    sortOrder: dbLanguages.value.length + 1,
+    status: 1
+  };
+  showAddModal.value = true;
 };
 
 const handleSaveLanguage = async () => {
@@ -69,18 +96,38 @@ const handleSaveLanguage = async () => {
   saving.value = true;
   try {
     await languageApi.updateLanguage(editingLanguage.value);
-    message.success('更新成功');
+    message.success('保存成功');
     showEditModal.value = false;
     fetchLanguages();
   } catch (error) {
-    message.error('更新失败');
+    message.error('保存失败');
   } finally {
     saving.value = false;
   }
 };
 
-const handleToggleSupport = async (lang: Language) => {
-  const newStatus = lang.status === 1 ? 0 : 1;
+const handleCreateLanguage = async () => {
+  if (!newLanguage.value.code || !newLanguage.value.name) {
+    message.warning('请填写语言标识和名称');
+    return;
+  }
+  
+  saving.value = true;
+  try {
+    await languageApi.createLanguage(newLanguage.value as any);
+    message.success('创建成功');
+    showAddModal.value = false;
+    fetchLanguages();
+  } catch (error) {
+    message.error('创建失败');
+  } finally {
+    saving.value = false;
+  }
+};
+
+const handleToggleSupport = async (lang: LanguageWithStatus) => {
+  const newStatus = lang.isSupported ? 0 : 1;
+  
   try {
     await languageApi.updateLanguage({
       ...lang,
@@ -93,81 +140,15 @@ const handleToggleSupport = async (lang: Language) => {
   }
 };
 
-const handleSetDefault = async (id: string) => {
+const handleSetDefault = async (lang: LanguageWithStatus) => {
   try {
-    await languageApi.setDefaultLanguage(id);
+    await languageApi.setDefaultLanguage(lang.id);
     message.success('设置默认语言成功');
     fetchLanguages();
   } catch (error) {
     message.error('设置失败');
   }
 };
-
-const columns = [
-  {
-    title: '图标',
-    key: 'icon',
-    width: 60,
-    render: (row: Language) =>
-      row.icon
-        ? h(Icon, { icon: row.icon, style: 'font-size: 24px' })
-        : h('span', '🌐'),
-  },
-  {
-    title: '语言标识',
-    key: 'code',
-    width: 100,
-  },
-  {
-    title: '语言名称',
-    key: 'name',
-    width: 120,
-  },
-  {
-    title: '本地名称',
-    key: 'nativeName',
-    width: 120,
-  },
-  {
-    title: '状态',
-    key: 'status',
-    width: 80,
-    render: (row: Language) => 
-      row.status === 1
-        ? h(NTag, { type: 'success' }, () => '已启用')
-        : h(NTag, { type: 'default' }, () => '未启用'),
-  },
-  {
-    title: '默认',
-    key: 'isDefault',
-    width: 80,
-    render: (row: Language) => 
-      row.isDefault
-        ? h(NTag, { type: 'info' }, () => '默认')
-        : '',
-  },
-  {
-    title: '操作',
-    key: 'actions',
-    width: 160,
-    render: (row: Language) => {
-      return h(NSpace, {}, () => [
-        h(NButton, {
-          size: 'small',
-          onClick: () => handleEditLanguage(row),
-        }, () => '编辑'),
-        row.status === 1 && !row.isDefault
-          ? h(NButton, {
-              size: 'small',
-              type: 'primary',
-              tertiary: true,
-              onClick: () => handleSetDefault(row.id),
-            }, () => '设为默认')
-          : null,
-      ].filter(Boolean));
-    },
-  },
-];
 
 onMounted(() => {
   fetchLanguages();
@@ -179,6 +160,11 @@ onMounted(() => {
     <NGrid :cols="1" :x-gap="16" :y-gap="16">
       <NGridItem>
         <NCard title="语言设置" :bordered="false" :loading="loading">
+          <template #header-extra>
+            <NButton type="primary" size="small" @click="handleAddLanguage">
+              添加语言
+            </NButton>
+          </template>
           <div class="language-sections">
             <div class="section">
               <div class="section-header">
@@ -188,7 +174,7 @@ onMounted(() => {
               <div class="language-grid">
                 <div
                   v-for="lang in supportedLanguages"
-                  :key="lang.id"
+                  :key="lang.code"
                   class="language-card"
                   :class="{ 'is-default': lang.isDefault }"
                 >
@@ -207,7 +193,7 @@ onMounted(() => {
                       size="tiny"
                       type="primary"
                       tertiary
-                      @click="handleSetDefault(lang.id)"
+                      @click="handleSetDefault(lang)"
                     >
                       设为默认
                     </NButton>
@@ -218,6 +204,13 @@ onMounted(() => {
                       @click="handleToggleSupport(lang)"
                     >
                       禁用
+                    </NButton>
+                    <NButton
+                      size="tiny"
+                      tertiary
+                      @click="handleEditLanguage(lang)"
+                    >
+                      编辑
                     </NButton>
                   </div>
                 </div>
@@ -237,7 +230,7 @@ onMounted(() => {
               <div class="language-grid">
                 <div
                   v-for="lang in unsupportedLanguages"
-                  :key="lang.id"
+                  :key="lang.code"
                   class="language-card disabled"
                 >
                   <div class="card-icon">
@@ -257,6 +250,13 @@ onMounted(() => {
                     >
                       启用
                     </NButton>
+                    <NButton
+                      size="tiny"
+                      tertiary
+                      @click="handleEditLanguage(lang)"
+                    >
+                      编辑
+                    </NButton>
                   </div>
                 </div>
                 <div v-if="unsupportedLanguages.length === 0" class="empty-tip">
@@ -265,17 +265,6 @@ onMounted(() => {
               </div>
             </div>
           </div>
-        </NCard>
-      </NGridItem>
-
-      <NGridItem>
-        <NCard title="语言列表管理" :bordered="false">
-          <NDataTable
-            :columns="columns"
-            :data="languages"
-            :pagination="false"
-            :max-height="400"
-          />
         </NCard>
       </NGridItem>
     </NGrid>
@@ -313,6 +302,43 @@ onMounted(() => {
           <NButton @click="showEditModal = false">取消</NButton>
           <NButton type="primary" :loading="saving" @click="handleSaveLanguage">
             保存
+          </NButton>
+        </NSpace>
+      </template>
+    </NModal>
+
+    <NModal
+      v-model:show="showAddModal"
+      title="添加语言"
+      preset="card"
+      style="width: 500px"
+    >
+      <NForm :model="newLanguage" label-placement="left" label-width="100">
+        <NFormItem label="语言标识" path="code">
+          <NInput 
+            v-model:value="newLanguage.code" 
+            placeholder="如：zh-CN、en、ja"
+          />
+        </NFormItem>
+        <NFormItem label="语言名称" path="name">
+          <NInput v-model:value="newLanguage.name" placeholder="如：简体中文" />
+        </NFormItem>
+        <NFormItem label="本地名称" path="nativeName">
+          <NInput v-model:value="newLanguage.nativeName" placeholder="如：简体中文" />
+        </NFormItem>
+        <NFormItem label="图标" path="icon">
+          <IconPicker v-model:value="newLanguage.icon" />
+        </NFormItem>
+        <NFormItem label="排序" path="sortOrder">
+          <NInputNumber v-model:value="newLanguage.sortOrder" :min="0" />
+        </NFormItem>
+      </NForm>
+
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="showAddModal = false">取消</NButton>
+          <NButton type="primary" :loading="saving" @click="handleCreateLanguage">
+            创建
           </NButton>
         </NSpace>
       </template>
@@ -355,7 +381,7 @@ onMounted(() => {
 
 .language-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px;
 }
 
@@ -367,7 +393,7 @@ onMounted(() => {
   border: 1px solid #e0e0e6;
   border-radius: 12px;
   background: #fff;
-  min-height: 140px;
+  min-height: 130px;
   transition: all 0.2s ease;
   
   &:hover {
@@ -391,35 +417,35 @@ onMounted(() => {
 }
 
 .card-icon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  margin-bottom: 12px;
+  font-size: 24px;
+  margin-bottom: 10px;
 }
 
 .card-content {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   width: 100%;
 }
 
 .card-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .card-code {
-  font-size: 12px;
+  font-size: 11px;
   color: #999;
 }
 
@@ -427,7 +453,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 

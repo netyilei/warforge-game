@@ -1,4 +1,4 @@
-import { request } from '../../request';
+import { requestV2 } from '../../request';
 
 export interface ContentCategory {
   id: string;
@@ -70,10 +70,7 @@ export interface Banner {
   imageUrl: string;
   linkUrl: string;
   linkTarget: string;
-  isExternal: boolean;
   extraData: BannerExtraData;
-  startTime: string | null;
-  endTime: string | null;
   sortOrder: number;
   status: number;
   createdAt: string;
@@ -93,40 +90,40 @@ export interface BannerWithTranslations {
 
 export const contentApi = {
   getCategories: () =>
-    request<{ categories: ContentCategory[] }>({
+    requestV2<{ categories: ContentCategory[] }>({
       url: '/categories',
       method: 'GET'
     }),
 
   createCategory: (data: Partial<ContentCategory>) =>
-    request<ContentCategory>({
+    requestV2<ContentCategory>({
       url: '/categories',
       method: 'POST',
       data
     }),
 
   updateCategory: (data: Partial<ContentCategory>) =>
-    request<ContentCategory>({
+    requestV2<ContentCategory>({
       url: `/categories/${data.id}`,
       method: 'PUT',
       data
     }),
 
   deleteCategory: (id: string) =>
-    request<{ success: boolean }>({
+    requestV2<{ success: boolean }>({
       url: `/categories/${id}`,
       method: 'DELETE'
     }),
 
   getContents: (categoryId?: string, page = 1, pageSize = 20) =>
-    request<{ list: ContentWithTranslations[]; total: number; page: number; pageSize: number }>({
+    requestV2<{ list: ContentWithTranslations[]; total: number; page: number; pageSize: number }>({
       url: '/contents',
       method: 'GET',
       params: { categoryId, page, pageSize }
     }),
 
   getContent: (id: string) =>
-    request<ContentWithTranslations>({
+    requestV2<ContentWithTranslations>({
       url: `/contents/${id}`,
       method: 'GET'
     }),
@@ -143,7 +140,7 @@ export const contentApi = {
     status?: number;
     translations: { lang: string; title: string; summary?: string; content?: string }[];
   }) =>
-    request<ContentWithTranslations>({
+    requestV2<ContentWithTranslations>({
       url: '/contents',
       method: 'POST',
       data
@@ -160,46 +157,46 @@ export const contentApi = {
     status?: number;
     translations?: { lang: string; title: string; summary?: string; content?: string }[];
   }) =>
-    request<ContentWithTranslations>({
+    requestV2<ContentWithTranslations>({
       url: `/contents/${id}`,
       method: 'PUT',
       data
     }),
 
   deleteContent: (id: string) =>
-    request<{ success: boolean }>({
+    requestV2<{ success: boolean }>({
       url: `/contents/${id}`,
       method: 'DELETE'
     }),
 
   getBannerGroups: () =>
-    request<{ groups: BannerGroup[] }>({
+    requestV2<{ groups: BannerGroup[] }>({
       url: '/banner-groups',
       method: 'GET'
     }),
 
   createBannerGroup: (data: Partial<BannerGroup>) =>
-    request<BannerGroup>({
+    requestV2<BannerGroup>({
       url: '/banner-groups',
       method: 'POST',
       data
     }),
 
   updateBannerGroup: (data: Partial<BannerGroup>) =>
-    request<BannerGroup>({
+    requestV2<BannerGroup>({
       url: `/banner-groups/${data.id}`,
       method: 'PUT',
       data
     }),
 
   deleteBannerGroup: (id: string) =>
-    request<{ success: boolean }>({
+    requestV2<{ success: boolean }>({
       url: `/banner-groups/${id}`,
       method: 'DELETE'
     }),
 
   getBanners: (groupId: string) =>
-    request<{ banners: BannerWithTranslations[] }>({
+    requestV2<{ banners: BannerWithTranslations[] }>({
       url: '/banners',
       method: 'GET',
       params: { groupId }
@@ -210,15 +207,12 @@ export const contentApi = {
     imageUrl: string;
     linkUrl?: string;
     linkTarget?: string;
-    isExternal?: boolean;
     extraData?: BannerExtraData;
-    startTime?: string;
-    endTime?: string;
     sortOrder?: number;
     status?: number;
     translations?: BannerTranslation[];
   }) =>
-    request<BannerWithTranslations>({
+    requestV2<BannerWithTranslations>({
       url: '/banners',
       method: 'POST',
       data
@@ -229,22 +223,19 @@ export const contentApi = {
     imageUrl: string;
     linkUrl?: string;
     linkTarget?: string;
-    isExternal?: boolean;
     extraData?: BannerExtraData;
-    startTime?: string;
-    endTime?: string;
     sortOrder?: number;
     status?: number;
     translations?: BannerTranslation[];
   }) =>
-    request<{ success: boolean }>({
+    requestV2<{ success: boolean }>({
       url: `/banners/${data.id}`,
       method: 'PUT',
       data
     }),
 
   deleteBanner: (id: string) =>
-    request<{ success: boolean }>({
+    requestV2<{ success: boolean }>({
       url: `/banners/${id}`,
       method: 'DELETE'
     })

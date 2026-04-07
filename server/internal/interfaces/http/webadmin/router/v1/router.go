@@ -3,15 +3,15 @@ package v1
 import (
 	"warforge-server/internal/interfaces/http/webadmin/handlers/admin"
 	"warforge-server/internal/interfaces/http/webadmin/handlers/auth"
+	"warforge-server/internal/interfaces/http/webadmin/handlers/content"
 	"warforge-server/internal/interfaces/http/webadmin/handlers/system"
-	v1middleware "warforge-server/internal/interfaces/http/webadmin/middleware/v1"
+	"warforge-server/internal/interfaces/http/webadmin/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetupV1Routes(r *gin.Engine) {
 	v1 := r.Group("/api/v1")
-	v1.Use(v1middleware.CORSMiddleware())
 
 	{
 		v1.POST("/auth/login", auth.Login)
@@ -19,7 +19,7 @@ func SetupV1Routes(r *gin.Engine) {
 	}
 
 	authGroup := v1.Group("/auth")
-	authGroup.Use(v1middleware.Auth())
+	authGroup.Use(middleware.Auth())
 	{
 		authGroup.POST("/logout", auth.Logout)
 		authGroup.GET("/user-info", auth.GetUserInfo)
@@ -29,7 +29,7 @@ func SetupV1Routes(r *gin.Engine) {
 	}
 
 	adminsGroup := v1.Group("/admins")
-	adminsGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	adminsGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		adminsGroup.GET("", admin.GetAdmins)
 		adminsGroup.GET("/:id", admin.GetAdmin)
@@ -41,7 +41,7 @@ func SetupV1Routes(r *gin.Engine) {
 	}
 
 	rolesGroup := v1.Group("/roles")
-	rolesGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	rolesGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		rolesGroup.GET("", admin.GetRoles)
 		rolesGroup.GET("/:id", admin.GetRole)
@@ -53,7 +53,7 @@ func SetupV1Routes(r *gin.Engine) {
 	}
 
 	permissionsGroup := v1.Group("/permissions")
-	permissionsGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	permissionsGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		permissionsGroup.GET("", admin.GetPermissions)
 		permissionsGroup.GET("/tree", admin.GetPermissionTree)
@@ -66,19 +66,19 @@ func SetupV1Routes(r *gin.Engine) {
 	}
 
 	menusGroup := v1.Group("/menus")
-	menusGroup.Use(v1middleware.Auth())
+	menusGroup.Use(middleware.Auth())
 	{
 		menusGroup.GET("", admin.GetMenus)
 	}
 
 	operationLogsGroup := v1.Group("/operation-logs")
-	operationLogsGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	operationLogsGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		operationLogsGroup.GET("", admin.GetOperationLogs)
 	}
 
 	storageConfigsGroup := v1.Group("/storage-configs")
-	storageConfigsGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	storageConfigsGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		storageConfigsGroup.GET("", system.GetStorageConfigs)
 		storageConfigsGroup.GET("/:id", system.GetStorageConfig)
@@ -90,21 +90,21 @@ func SetupV1Routes(r *gin.Engine) {
 	}
 
 	uploadRecordsGroup := v1.Group("/upload-records")
-	uploadRecordsGroup.Use(v1middleware.Auth())
+	uploadRecordsGroup.Use(middleware.Auth())
 	{
 		uploadRecordsGroup.POST("/presigned", system.GetPresignedUpload)
 		uploadRecordsGroup.POST("/confirm", system.ConfirmUpload)
 	}
 
 	uploadRecordsAdminGroup := v1.Group("/upload-records")
-	uploadRecordsAdminGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	uploadRecordsAdminGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		uploadRecordsAdminGroup.GET("", system.GetUploadRecords)
 		uploadRecordsAdminGroup.DELETE("/:id", system.DeleteUploadRecord)
 	}
 
 	emailConfigsGroup := v1.Group("/email-configs")
-	emailConfigsGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	emailConfigsGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		emailConfigsGroup.GET("", system.GetEmailConfigs)
 		emailConfigsGroup.GET("/:id", system.GetEmailConfig)
@@ -115,7 +115,7 @@ func SetupV1Routes(r *gin.Engine) {
 	}
 
 	emailTemplatesGroup := v1.Group("/email-templates")
-	emailTemplatesGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	emailTemplatesGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		emailTemplatesGroup.GET("", system.GetEmailTemplates)
 		emailTemplatesGroup.GET("/:id", system.GetEmailTemplate)
@@ -124,8 +124,14 @@ func SetupV1Routes(r *gin.Engine) {
 		emailTemplatesGroup.DELETE("/:id", system.DeleteEmailTemplate)
 	}
 
+	supportGroup := v1.Group("/support")
+	supportGroup.Use(middleware.Auth(), middleware.RBAC())
+	{
+		supportGroup.POST("/email", content.SendSupportEmail)
+	}
+
 	systemConfigsGroup := v1.Group("/system-configs")
-	systemConfigsGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	systemConfigsGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		systemConfigsGroup.GET("", system.GetSystemConfigs)
 		systemConfigsGroup.GET("/:key", system.GetSystemConfig)
@@ -135,7 +141,7 @@ func SetupV1Routes(r *gin.Engine) {
 	}
 
 	settingsGroup := v1.Group("/settings")
-	settingsGroup.Use(v1middleware.Auth(), v1middleware.RBAC())
+	settingsGroup.Use(middleware.Auth(), middleware.RBAC())
 	{
 		settingsGroup.GET("", system.GetSettings)
 		settingsGroup.PUT("", system.UpdateSettings)

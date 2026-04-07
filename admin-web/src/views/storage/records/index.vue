@@ -81,6 +81,13 @@ const columns = [
     key: 'filePath',
     width: 250,
     ellipsis: { tooltip: true },
+    render: (row: UploadRecord) => {
+      if (!row.fileUrl) return row.filePath || '-';
+      return h('span', {
+        style: 'color: #2080f0; cursor: pointer;',
+        onClick: () => window.open(row.fileUrl, '_blank'),
+      }, row.filePath);
+    },
   },
   {
     title: '文件大小',

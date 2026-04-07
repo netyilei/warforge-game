@@ -149,19 +149,19 @@ func main() {
 
 	fmt.Println("\n=== 检查语言设置 ===")
 	var languageCount int
-	err = db.QueryRow(`SELECT COUNT(*) FROM languages`).Scan(&languageCount)
+	err = db.QueryRow(`SELECT COUNT(*) FROM wf_languages`).Scan(&languageCount)
 	if err != nil {
-		fmt.Println("  ✗ languages 表不存在或查询失败:", err)
+		fmt.Println("  ✗ wf_languages 表不存在或查询失败:", err)
 	} else {
-		fmt.Printf("  ✓ languages 表存在，记录数: %d\n", languageCount)
+		fmt.Printf("  ✓ wf_languages 表存在，记录数: %d\n", languageCount)
 	}
 
 	fmt.Println("\n=== 检查存储配置 ===")
 	var storageConfigCount int
-	err = db.QueryRow(`SELECT COUNT(*) FROM storage_configs`).Scan(&storageConfigCount)
+	err = db.QueryRow(`SELECT COUNT(*) FROM wf_storage_configs`).Scan(&storageConfigCount)
 	if err != nil {
-		fmt.Println("  ✗ storage_configs 表不存在或查询失败:", err)
+		fmt.Println("  ✗ wf_storage_configs 表不存在或查询失败:", err)
 	} else {
-		fmt.Printf("  ✓ storage_configs 表存在，记录数: %d\n", storageConfigCount)
+		fmt.Printf("  ✓ wf_storage_configs 表存在，记录数: %d\n", storageConfigCount)
 	}
 }

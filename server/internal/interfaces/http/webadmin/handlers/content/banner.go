@@ -1,8 +1,6 @@
 package content
 
 import (
-	"time"
-
 	"warforge-server/database"
 	contentdomain "warforge-server/internal/domain/content"
 	contentpersistence "warforge-server/internal/infrastructure/persistence/content"
@@ -156,16 +154,13 @@ func GetBanners(c *gin.Context) {
 }
 
 type CreateBannerRequest struct {
-	GroupID      string                            `json:"groupId" binding:"required"`
-	ImageURL     string                            `json:"imageUrl" binding:"required"`
-	LinkURL      *string                           `json:"linkUrl"`
-	LinkTarget   string                            `json:"linkTarget"`
-	IsExternal   bool                              `json:"isExternal"`
-	ExtraData    contentdomain.BannerExtraData     `json:"extraData"`
-	StartTime    *time.Time                        `json:"startTime"`
-	EndTime      *time.Time                        `json:"endTime"`
-	SortOrder    int                               `json:"sortOrder"`
-	Status       int                               `json:"status"`
+	GroupID      string                               `json:"groupId" binding:"required"`
+	ImageURL     string                               `json:"imageUrl" binding:"required"`
+	LinkURL      *string                              `json:"linkUrl"`
+	LinkTarget   string                               `json:"linkTarget"`
+	ExtraData    contentdomain.BannerExtraData        `json:"extraData"`
+	SortOrder    int                                  `json:"sortOrder"`
+	Status       int                                  `json:"status"`
 	Translations []contentdomain.BannerTranslationDTO `json:"translations"`
 }
 
@@ -189,10 +184,7 @@ func CreateBanner(c *gin.Context) {
 	banner := contentdomain.NewBanner(utils.GenerateUUID(), req.GroupID, req.ImageURL)
 	banner.SetLinkURL(req.LinkURL)
 	banner.SetLinkTarget(req.LinkTarget)
-	banner.SetIsExternal(req.IsExternal)
 	banner.SetExtraData(req.ExtraData)
-	banner.SetStartTime(req.StartTime)
-	banner.SetEndTime(req.EndTime)
 	banner.SetSortOrder(req.SortOrder)
 	banner.SetStatus(contentdomain.BannerStatus(req.Status))
 
@@ -215,15 +207,12 @@ func CreateBanner(c *gin.Context) {
 }
 
 type UpdateBannerRequest struct {
-	ImageURL     string                            `json:"imageUrl" binding:"required"`
-	LinkURL      *string                           `json:"linkUrl"`
-	LinkTarget   string                            `json:"linkTarget"`
-	IsExternal   bool                              `json:"isExternal"`
-	ExtraData    contentdomain.BannerExtraData     `json:"extraData"`
-	StartTime    *time.Time                        `json:"startTime"`
-	EndTime      *time.Time                        `json:"endTime"`
-	SortOrder    int                               `json:"sortOrder"`
-	Status       int                               `json:"status"`
+	ImageURL     string                               `json:"imageUrl" binding:"required"`
+	LinkURL      *string                              `json:"linkUrl"`
+	LinkTarget   string                               `json:"linkTarget"`
+	ExtraData    contentdomain.BannerExtraData        `json:"extraData"`
+	SortOrder    int                                  `json:"sortOrder"`
+	Status       int                                  `json:"status"`
 	Translations []contentdomain.BannerTranslationDTO `json:"translations"`
 }
 
@@ -253,12 +242,10 @@ func UpdateBanner(c *gin.Context) {
 		return
 	}
 
+	banner.SetImageURL(req.ImageURL)
 	banner.SetLinkURL(req.LinkURL)
 	banner.SetLinkTarget(req.LinkTarget)
-	banner.SetIsExternal(req.IsExternal)
 	banner.SetExtraData(req.ExtraData)
-	banner.SetStartTime(req.StartTime)
-	banner.SetEndTime(req.EndTime)
 	banner.SetSortOrder(req.SortOrder)
 	banner.SetStatus(contentdomain.BannerStatus(req.Status))
 

@@ -1,64 +1,68 @@
 <script setup lang="ts">
-import { ref, reactive, shallowRef, onBeforeUnmount } from 'vue';
-import { NCard, NForm, NFormItem, NInput, NButton, NSpace, useMessage } from 'naive-ui';
-import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
-import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/editor';
-import { supportApi } from '@/service/api/v2/support';
-import '@wangeditor/editor/dist/css/style.css';
+import { ref, reactive, computed } from 'vue';
+import { NCard, NForm, NFormItem, NInput, NButton, NSpace, NDynamicTags, useMessage } from 'naive-ui';
+import ToastEditor from '@/components/common/toast-editor.vue';
+import { supportApi } from '@/service/api/v1/support';
 
 const message = useMessage();
 
 const formRef = ref();
+const editorRef = ref<InstanceType<typeof ToastEditor>>();
 const loading = ref(false);
 
 const form = reactive({
-  to: '',
+  toList: [] as string[],
   subject: '',
   content: ''
 });
 
-const editorRef = shallowRef<IDomEditor>();
-
-const editorConfig: Partial<IEditorConfig> = {
-  placeholder: '请输入邮件内容...',
-  MENU_CONF: {}
-};
-
-const toolbarConfig: Partial<IToolbarConfig> = {
-  excludeKeys: ['fullScreen', 'group-video']
-};
-
-const handleCreated = (editor: IDomEditor) => {
-  editorRef.value = editor;
-};
+const isBatchSend = computed(() => form.toList.length > 1);
 
 const rules = {
-  to: [
-    { required: true, message: '请输入收件人邮箱', trigger: 'blur' },
-    { type: 'email' as const, message: '请输入有效的邮箱地址', trigger: 'blur' }
+  toList: [
+    { 
+      required: true, 
+      type: 'array' as const, 
+      min: 1, 
+      message: '请输入收件人邮箱', 
+      trigger: 'change' 
+    }
   ],
   subject: { required: true, message: '请输入邮件主题', trigger: 'blur' },
   content: { required: true, message: '请输入邮件内容', trigger: 'blur' }
 };
 
+const validateEmail = (value: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(value);
+};
+
 const handleSend = async () => {
   await formRef.value?.validate();
   
+  const invalidEmails = form.toList.filter(email => !validateEmail(email));
+  if (invalidEmails.length > 0) {
+    message.error(`以下邮箱地址格式无效: ${invalidEmails.join(', ')}`);
+    return;
+  }
+  
   loading.value = true;
   try {
+    const htmlContent = editorRef.value?.getHTML() || '';
     const { data } = await supportApi.sendEmail({
-      to: form.to,
+      to: form.toList,
       subject: form.subject,
-      content: form.content
+      content: htmlContent
     });
     if (data) {
-      message.success('邮件发送成功');
-      form.to = '';
+      const successMsg = isBatchSend.value 
+        ? `批量邮件已加入发送队列，共 ${form.toList.length} 封`
+        : '邮件发送成功';
+      message.success(successMsg);
+      form.toList = [];
       form.subject = '';
       form.content = '';
-      if (editorRef.value) {
-        editorRef.value.clear();
-      }
+      editorRef.value?.setMarkdown('');
     }
   } catch (error: any) {
     const errorMsg = error?.response?.data?.msg || error?.message || '发送失败';
@@ -70,20 +74,11 @@ const handleSend = async () => {
 
 const handleReset = () => {
   formRef.value?.restoreValidation();
-  form.to = '';
+  form.toList = [];
   form.subject = '';
   form.content = '';
-  if (editorRef.value) {
-    editorRef.value.clear();
-  }
+  editorRef.value?.setMarkdown('');
 };
-
-onBeforeUnmount(() => {
-  const editor = editorRef.value;
-  if (editor) {
-    editor.destroy();
-  }
-});
 </script>
 
 <template>
@@ -91,33 +86,49 @@ onBeforeUnmount(() => {
     <NCard title="发送邮件" :bordered="false" class="card-wrapper rounded-16px shadow-sm">
       <div class="max-w-1100px mx-auto">
         <NForm ref="formRef" :model="form" :rules="rules" label-placement="left" label-width="100">
-          <NFormItem label="收件人" path="to">
-            <NInput v-model:value="form.to" placeholder="请输入收件人邮箱地址" />
+          <NFormItem label="收件人" path="toList">
+            <div class="w-full">
+              <NDynamicTags 
+                v-model:value="form.toList" 
+                :max="100"
+              >
+                <template #trigger="{ activate, disabled }">
+                  <NButton
+                    size="small"
+                    type="primary"
+                    dashed
+                    :disabled="disabled"
+                    @click="activate()"
+                  >
+                    + 添加邮箱
+                  </NButton>
+                </template>
+              </NDynamicTags>
+              <div class="text-12px text-gray-500 mt-4px">
+                输入邮箱地址后按回车添加，支持批量发送（最多100个）
+              </div>
+            </div>
           </NFormItem>
           <NFormItem label="主题" path="subject">
             <NInput v-model:value="form.subject" placeholder="请输入邮件主题" />
           </NFormItem>
           <NFormItem label="内容" path="content">
-            <div class="w-full editor-container">
-              <Toolbar
-                :editor="editorRef"
-                :default-config="toolbarConfig"
-                :mode="'default'"
-                class="toolbar"
-              />
-              <Editor
-                v-model="form.content"
-                :default-config="editorConfig"
-                :mode="'default'"
-                class="editor"
-                @on-created="handleCreated"
+            <div class="w-full">
+              <ToastEditor
+                ref="editorRef"
+                v-model:value="form.content"
+                mode="wysiwyg"
+                height="500px"
+                placeholder="请输入邮件内容..."
+                upload-type="email"
+                hide-mode-switch
               />
             </div>
           </NFormItem>
           <NFormItem :show-label="false">
             <NSpace>
               <NButton type="primary" :loading="loading" @click="handleSend">
-                发送邮件
+                {{ isBatchSend ? `批量发送 (${form.toList.length}封)` : '发送邮件' }}
               </NButton>
               <NButton @click="handleReset">
                 重置
@@ -145,54 +156,15 @@ onBeforeUnmount(() => {
   max-width: 1100px;
 }
 
-.editor-container {
-  border: 1px solid #e0e0e6;
-  border-radius: 8px;
-  overflow: hidden;
+.text-12px {
+  font-size: 12px;
 }
 
-.toolbar {
-  border-bottom: 1px solid #e0e0e6;
-  background: #fafafa;
+.text-gray-500 {
+  color: #6b7280;
 }
 
-.editor {
-  height: 600px !important;
-  overflow-y: auto;
-}
-
-.editor :deep(.w-e-text-container) {
-  height: 600px !important;
-  min-height: 600px !important;
-}
-
-.editor :deep(.w-e-scroll) {
-  height: 100% !important;
-}
-
-@media (max-width: 768px) {
-  .page-container {
-    padding: 8px;
-  }
-
-  .editor {
-    height: 400px !important;
-  }
-
-  .editor :deep(.w-e-text-container) {
-    height: 400px !important;
-    min-height: 400px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .editor {
-    height: 300px !important;
-  }
-
-  .editor :deep(.w-e-text-container) {
-    height: 300px !important;
-    min-height: 300px !important;
-  }
+.mt-4px {
+  margin-top: 4px;
 }
 </style>

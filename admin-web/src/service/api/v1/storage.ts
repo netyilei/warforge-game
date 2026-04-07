@@ -34,6 +34,7 @@ export interface UploadRecord {
   userName: string;
   originalName: string;
   filePath: string;
+  fileUrl: string;
   fileSize: number;
   mimeType: string;
   storageId: string;

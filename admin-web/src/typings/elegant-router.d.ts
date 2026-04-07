@@ -35,16 +35,13 @@ declare module "@elegant-router/types" {
     "operations_log": "/operations/log";
     "settings": "/settings";
     "settings_email": "/settings/email";
+    "settings_general": "/settings/general";
     "settings_language": "/settings/language";
-    "settings_user": "/settings/user";
     "storage": "/storage";
     "storage_config": "/storage/config";
     "storage_records": "/storage/records";
     "support": "/support";
     "support_send-email": "/support/send-email";
-    "user": "/user";
-    "user_approval": "/user/approval";
-    "user_manage": "/user/manage";
   };
 
   /**
@@ -88,7 +85,6 @@ declare module "@elegant-router/types" {
     | "settings"
     | "storage"
     | "support"
-    | "user"
   >;
 
   /**
@@ -119,13 +115,11 @@ declare module "@elegant-router/types" {
     | "home"
     | "operations_log"
     | "settings_email"
+    | "settings_general"
     | "settings_language"
-    | "settings_user"
     | "storage_config"
     | "storage_records"
     | "support_send-email"
-    | "user_approval"
-    | "user_manage"
   >;
 
   /**

@@ -34,20 +34,20 @@ export default defineConfig(configEnv => {
     },
     server: {
       host: '0.0.0.0',
-      port: 8203,
+      port: 8202,
       open: true,
       proxy: {
         ...createViteProxy(viteEnv, enableProxy),
         '/api/v1': {
-          target: 'http://localhost:8201',
+          target: 'http://localhost:8200',
           changeOrigin: true
         },
         '/api/v2': {
-          target: 'http://localhost:8201',
+          target: 'http://localhost:8200',
           changeOrigin: true
         },
         '/nakama-api': {
-          target: 'http://localhost:8202',
+          target: 'http://localhost:7350',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/nakama-api/, ''),
           configure: (proxy) => {

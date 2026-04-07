@@ -48,6 +48,7 @@ declare module 'vue' {
     NCheckbox: typeof import('naive-ui')['NCheckbox']
     NColorPicker: typeof import('naive-ui')['NColorPicker']
     NDataTable: typeof import('naive-ui')['NDataTable']
+    NDatePicker: typeof import('naive-ui')['NDatePicker']
     NDialogProvider: typeof import('naive-ui')['NDialogProvider']
     NDivider: typeof import('naive-ui')['NDivider']
     NDrawer: typeof import('naive-ui')['NDrawer']
@@ -93,6 +94,7 @@ declare module 'vue' {
     TableColumnSetting: typeof import('./../components/advanced/table-column-setting.vue')['default']
     TableHeaderOperation: typeof import('./../components/advanced/table-header-operation.vue')['default']
     ThemeSchemaSwitch: typeof import('./../components/common/theme-schema-switch.vue')['default']
+    ToastEditor: typeof import('./../components/common/toast-editor.vue')['default']
     WarforgeAvatar: typeof import('./../components/custom/warforge-avatar.vue')['default']
     WaveBg: typeof import('./../components/custom/wave-bg.vue')['default']
   }
@@ -136,6 +138,7 @@ declare global {
   const NCheckbox: typeof import('naive-ui')['NCheckbox']
   const NColorPicker: typeof import('naive-ui')['NColorPicker']
   const NDataTable: typeof import('naive-ui')['NDataTable']
+  const NDatePicker: typeof import('naive-ui')['NDatePicker']
   const NDialogProvider: typeof import('naive-ui')['NDialogProvider']
   const NDivider: typeof import('naive-ui')['NDivider']
   const NDrawer: typeof import('naive-ui')['NDrawer']
@@ -181,6 +184,7 @@ declare global {
   const TableColumnSetting: typeof import('./../components/advanced/table-column-setting.vue')['default']
   const TableHeaderOperation: typeof import('./../components/advanced/table-header-operation.vue')['default']
   const ThemeSchemaSwitch: typeof import('./../components/common/theme-schema-switch.vue')['default']
+  const ToastEditor: typeof import('./../components/common/toast-editor.vue')['default']
   const WarforgeAvatar: typeof import('./../components/custom/warforge-avatar.vue')['default']
   const WaveBg: typeof import('./../components/custom/wave-bg.vue')['default']
 }

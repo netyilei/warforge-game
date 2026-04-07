@@ -21,8 +21,8 @@ func NewBannerRepository(db *sql.DB) *BannerRepository {
 
 func (r *BannerRepository) FindByID(ctx context.Context, id string) (*content.Banner, error) {
 	query := fmt.Sprintf(`
-		SELECT id, group_id, image_url, link_url, link_target, is_external, extra_data,
-		       start_time, end_time, sort_order, status, created_at, updated_at, deleted_at
+		SELECT id, group_id, image_url, link_url, link_target, extra_data,
+		       sort_order, status, created_at, updated_at, deleted_at
 		FROM %s WHERE id = $1 AND deleted_at IS NULL
 	`, config.GetTableName("banners"))
 
@@ -31,37 +31,25 @@ func (r *BannerRepository) FindByID(ctx context.Context, id string) (*content.Ba
 
 func (r *BannerRepository) scanBannerRow(row *sql.Row) (*content.Banner, error) {
 	var id, groupID, imageURL, linkTarget string
-	var linkURL, startTime, endTime sql.NullString
+	var linkURL sql.NullString
 	var extraData []byte
-	var isExternal bool
 	var sortOrder, status int
 	var createdAt, updatedAt time.Time
 	var deletedAt sql.NullTime
 
-	err := row.Scan(&id, &groupID, &imageURL, &linkURL, &linkTarget, &isExternal, &extraData,
-		&startTime, &endTime, &sortOrder, &status, &createdAt, &updatedAt, &deletedAt)
+	err := row.Scan(&id, &groupID, &imageURL, &linkURL, &linkTarget, &extraData,
+		&sortOrder, &status, &createdAt, &updatedAt, &deletedAt)
 	if err != nil {
 		return nil, err
 	}
 
 	banner := content.NewBanner(id, groupID, imageURL)
 	banner.SetLinkTarget(linkTarget)
-	banner.SetIsExternal(isExternal)
 	banner.SetSortOrder(sortOrder)
 	banner.SetStatus(content.BannerStatus(status))
 
 	if linkURL.Valid {
 		banner.SetLinkURL(&linkURL.String)
-	}
-	if startTime.Valid {
-		t := startTime.String
-		parsed, _ := time.Parse(time.RFC3339, t)
-		banner.SetStartTime(&parsed)
-	}
-	if endTime.Valid {
-		t := endTime.String
-		parsed, _ := time.Parse(time.RFC3339, t)
-		banner.SetEndTime(&parsed)
 	}
 	if extraData != nil {
 		var data content.BannerExtraData
@@ -74,8 +62,8 @@ func (r *BannerRepository) scanBannerRow(row *sql.Row) (*content.Banner, error) 
 
 func (r *BannerRepository) FindByGroupID(ctx context.Context, groupID string) ([]*content.Banner, error) {
 	query := fmt.Sprintf(`
-		SELECT id, group_id, image_url, link_url, link_target, is_external, extra_data,
-		       start_time, end_time, sort_order, status, created_at, updated_at, deleted_at
+		SELECT id, group_id, image_url, link_url, link_target, extra_data,
+		       sort_order, status, created_at, updated_at, deleted_at
 		FROM %s WHERE group_id = $1 AND deleted_at IS NULL
 		ORDER BY sort_order ASC, created_at ASC
 	`, config.GetTableName("banners"))
@@ -89,37 +77,25 @@ func (r *BannerRepository) FindByGroupID(ctx context.Context, groupID string) ([
 	var banners []*content.Banner
 	for rows.Next() {
 		var id, gID, imageURL, linkTarget string
-		var linkURL, startTime, endTime sql.NullString
+		var linkURL sql.NullString
 		var extraData []byte
-		var isExternal bool
 		var sortOrder, status int
 		var createdAt, updatedAt time.Time
 		var deletedAt sql.NullTime
 
-		err := rows.Scan(&id, &gID, &imageURL, &linkURL, &linkTarget, &isExternal, &extraData,
-			&startTime, &endTime, &sortOrder, &status, &createdAt, &updatedAt, &deletedAt)
+		err := rows.Scan(&id, &gID, &imageURL, &linkURL, &linkTarget, &extraData,
+			&sortOrder, &status, &createdAt, &updatedAt, &deletedAt)
 		if err != nil {
 			return nil, err
 		}
 
 		banner := content.NewBanner(id, gID, imageURL)
 		banner.SetLinkTarget(linkTarget)
-		banner.SetIsExternal(isExternal)
 		banner.SetSortOrder(sortOrder)
 		banner.SetStatus(content.BannerStatus(status))
 
 		if linkURL.Valid {
 			banner.SetLinkURL(&linkURL.String)
-		}
-		if startTime.Valid {
-			t := startTime.String
-			parsed, _ := time.Parse(time.RFC3339, t)
-			banner.SetStartTime(&parsed)
-		}
-		if endTime.Valid {
-			t := endTime.String
-			parsed, _ := time.Parse(time.RFC3339, t)
-			banner.SetEndTime(&parsed)
 		}
 		if extraData != nil {
 			var data content.BannerExtraData
@@ -135,8 +111,8 @@ func (r *BannerRepository) FindByGroupID(ctx context.Context, groupID string) ([
 
 func (r *BannerRepository) ListAll(ctx context.Context) ([]*content.Banner, error) {
 	query := fmt.Sprintf(`
-		SELECT id, group_id, image_url, link_url, link_target, is_external, extra_data,
-		       start_time, end_time, sort_order, status, created_at, updated_at, deleted_at
+		SELECT id, group_id, image_url, link_url, link_target, extra_data,
+		       sort_order, status, created_at, updated_at, deleted_at
 		FROM %s WHERE deleted_at IS NULL
 		ORDER BY sort_order ASC, created_at ASC
 	`, config.GetTableName("banners"))
@@ -150,22 +126,20 @@ func (r *BannerRepository) ListAll(ctx context.Context) ([]*content.Banner, erro
 	var banners []*content.Banner
 	for rows.Next() {
 		var id, groupID, imageURL, linkTarget string
-		var linkURL, startTime, endTime sql.NullString
+		var linkURL sql.NullString
 		var extraData []byte
-		var isExternal bool
 		var sortOrder, status int
 		var createdAt, updatedAt time.Time
 		var deletedAt sql.NullTime
 
-		err := rows.Scan(&id, &groupID, &imageURL, &linkURL, &linkTarget, &isExternal, &extraData,
-			&startTime, &endTime, &sortOrder, &status, &createdAt, &updatedAt, &deletedAt)
+		err := rows.Scan(&id, &groupID, &imageURL, &linkURL, &linkTarget, &extraData,
+			&sortOrder, &status, &createdAt, &updatedAt, &deletedAt)
 		if err != nil {
 			return nil, err
 		}
 
 		banner := content.NewBanner(id, groupID, imageURL)
 		banner.SetLinkTarget(linkTarget)
-		banner.SetIsExternal(isExternal)
 		banner.SetSortOrder(sortOrder)
 		banner.SetStatus(content.BannerStatus(status))
 
@@ -186,12 +160,12 @@ func (r *BannerRepository) ListAll(ctx context.Context) ([]*content.Banner, erro
 
 func (r *BannerRepository) Save(ctx context.Context, banner *content.Banner) error {
 	query := fmt.Sprintf(`
-		INSERT INTO %s (id, group_id, image_url, link_url, link_target, is_external, extra_data,
-		                start_time, end_time, sort_order, status, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		INSERT INTO %s (id, group_id, image_url, link_url, link_target, extra_data,
+		                sort_order, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 		ON CONFLICT (id) DO UPDATE SET
-			image_url = $3, link_url = $4, link_target = $5, is_external = $6, extra_data = $7,
-			start_time = $8, end_time = $9, sort_order = $10, status = $11, updated_at = $13
+			image_url = $3, link_url = $4, link_target = $5, extra_data = $6,
+			sort_order = $7, status = $8, updated_at = $10
 	`, config.GetTableName("banners"))
 
 	var extraDataBytes []byte
@@ -201,7 +175,7 @@ func (r *BannerRepository) Save(ctx context.Context, banner *content.Banner) err
 
 	_, err := r.db.ExecContext(ctx, query,
 		banner.ID(), banner.GroupID(), banner.ImageURL(), banner.LinkURL(), banner.LinkTarget(),
-		banner.IsExternal(), extraDataBytes, banner.StartTime(), banner.EndTime(),
+		extraDataBytes,
 		banner.SortOrder(), int(banner.Status()), banner.CreatedAt(), banner.UpdatedAt())
 
 	return err
@@ -273,7 +247,8 @@ func (r *BannerGroupRepository) FindByID(ctx context.Context, id string) (*conte
 
 	var name, code string
 	var description sql.NullString
-	var width, height, sortOrder, status int
+	var width, height sql.NullInt64
+	var sortOrder, status int
 	var createdAt, updatedAt time.Time
 	var deletedAt sql.NullTime
 
@@ -283,7 +258,9 @@ func (r *BannerGroupRepository) FindByID(ctx context.Context, id string) (*conte
 	}
 
 	group := content.NewBannerGroup(id, name, code)
-	group.SetSize(width, height)
+	if width.Valid && height.Valid {
+		group.SetSize(int(width.Int64), int(height.Int64))
+	}
 	group.SetSortOrder(sortOrder)
 	group.SetStatus(content.BannerGroupStatus(status))
 	if description.Valid {
@@ -301,7 +278,8 @@ func (r *BannerGroupRepository) FindByCode(ctx context.Context, code string) (*c
 
 	var id, name, c string
 	var description sql.NullString
-	var width, height, sortOrder, status int
+	var width, height sql.NullInt64
+	var sortOrder, status int
 	var createdAt, updatedAt time.Time
 	var deletedAt sql.NullTime
 
@@ -311,7 +289,9 @@ func (r *BannerGroupRepository) FindByCode(ctx context.Context, code string) (*c
 	}
 
 	group := content.NewBannerGroup(id, name, c)
-	group.SetSize(width, height)
+	if width.Valid && height.Valid {
+		group.SetSize(int(width.Int64), int(height.Int64))
+	}
 	group.SetSortOrder(sortOrder)
 	group.SetStatus(content.BannerGroupStatus(status))
 	if description.Valid {
@@ -338,7 +318,8 @@ func (r *BannerGroupRepository) ListAll(ctx context.Context) ([]*content.BannerG
 	for rows.Next() {
 		var id, name, code string
 		var description sql.NullString
-		var width, height, sortOrder, status int
+		var width, height sql.NullInt64
+		var sortOrder, status int
 		var createdAt, updatedAt time.Time
 		var deletedAt sql.NullTime
 
@@ -348,7 +329,9 @@ func (r *BannerGroupRepository) ListAll(ctx context.Context) ([]*content.BannerG
 		}
 
 		group := content.NewBannerGroup(id, name, code)
-		group.SetSize(width, height)
+		if width.Valid && height.Valid {
+			group.SetSize(int(width.Int64), int(height.Int64))
+		}
 		group.SetSortOrder(sortOrder)
 		group.SetStatus(content.BannerGroupStatus(status))
 		if description.Valid {

@@ -20,7 +20,7 @@
 | Nakama RPC | `server/internal/interfaces/nakama/rpc/*.go` |
 | Nakama 匹配器 | `server/internal/interfaces/nakama/match/*.go` |
 | 配置文件 | `server/config/config.yaml` |
-| 数据库迁移 | `server/migrations/*.sql` |
+| 数据库迁移 | `server/migrations/modules/*.go` |
 
 ---
 
@@ -118,6 +118,7 @@ server/
 - Gin 仅服务于管理后台和代理后台的 HTTP API
 - 所有 WebSocket 连接（游戏客户端、客服）都直接连接 Nakama
 - 客户端不与 Gin 直接通信，全部通过 Nginx 反向代理
+- 在docker中运行服务端，本地环境运行node
 
 ---
 
@@ -155,3 +156,75 @@ server/
 - 仓库接口：`Repository`
 - 用例：`UseCase` 后缀（如 `GetUserUseCase`）
 - 服务：`Service` 后缀（如 `UserService`）
+
+---
+
+## 数据库迁移模块
+
+### 模块架构
+
+```
+server/migrations/
+├── migration.go           # 迁移接口定义
+├── manager.go             # 迁移管理器
+├── registry.go            # 迁移注册表
+└── modules/               # 模块化迁移文件
+    ├── 001_admin.go       # 管理员模块 (用户、角色、权限)
+    ├── 002_content.go     # 内容模块 (语言、内容、Banner)
+    ├── 003_email.go       # 邮件模块 (配置、模板、日志)
+    ├── 004_system.go      # 系统模块 (系统配置)
+    └── 005_storage.go     # 存储模块 (存储配置、上传记录)
+```
+
+### 迁移接口
+
+```go
+type Migration interface {
+    Version() string      // 版本号 (如 "001")
+    Module() string       // 模块名 (如 "admin")
+    Up(db *sql.DB) error  // 创建/更新表结构
+    Down(db *sql.DB) error // 回滚（可选）
+    Seed(db *sql.DB) error // 插入默认数据
+}
+```
+
+### 配置开关
+
+```yaml
+# config/config.yaml
+migration:
+  auto_run: true   # 是否自动运行迁移（生产环境建议关闭）
+  auto_seed: true  # 是否自动插入默认数据
+```
+
+### 迁移执行流程
+
+1. 服务启动时检查配置 `migration.auto_run`
+2. 创建版本控制表 `wf_schema_migrations`
+3. 扫描 `modules/` 目录下的迁移文件
+4. 按版本号排序执行未执行的迁移
+5. 记录执行结果到版本控制表
+
+### 添加新迁移模块
+
+1. 在 `migrations/modules/` 创建新文件，如 `006_newmodule.go`
+2. 实现 `Migration` 接口
+3. 在 `init()` 函数中注册：`migrations.Register(NewNewModuleMigration())`
+
+### 版本控制表
+
+```sql
+CREATE TABLE wf_schema_migrations (
+    version VARCHAR(50) PRIMARY KEY,
+    module VARCHAR(50) NOT NULL,
+    executed_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### 默认数据
+
+每个迁移模块的 `Seed()` 方法负责插入默认数据：
+
+- 使用 `INSERT ... ON CONFLICT DO NOTHING` 避免重复插入
+- 使用 `INSERT ... ON CONFLICT DO UPDATE` 更新已有数据
+- 可通过配置 `auto_seed` 控制是否执行

@@ -27,6 +27,10 @@ func (e *BaseEntity) ID() string {
 	return e.id
 }
 
+func (e *BaseEntity) SetID(id string) {
+	e.id = id
+}
+
 func (e *BaseEntity) CreatedAt() time.Time {
 	return e.createdAt
 }

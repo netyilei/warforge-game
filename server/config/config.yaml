@@ -1,13 +1,13 @@
 server:
-  port: 8202
-  grpc_port: 8204
-  websocket_port: 8205
+  port: 7350
+  grpc_port: 7349
+  websocket_port: 7350
 
 database:
-  host: localhost
+  host: dev_cockroach
   port: 26257
   user: root
-  password: "123456"
+  password: ""
   name: nakama
   sslmode: disable
   max_open_conns: 100
@@ -15,16 +15,26 @@ database:
   table_prefix: "wf_"
 
 redis:
-  host: localhost
+  host: dev_redis
   port: 6379
   password: ""
   db: 2
 
 web_admin:
   enabled: true
-  port: 8201
+  port: 8200
   secret_key: "warforge-admin-secret-key-2024"
+
+nakama:
+  http_url: "http://localhost:7350"
+  grpc_url: "localhost:7349"
+  server_key: "defaultkey"
+  http_key: "dev_http_key_2026"
 
 log:
   level: debug
   format: json
+
+migration:
+  auto_run: true # 是否自动运行迁移（生产环境建议关闭）
+  auto_seed: true # 是否自动插入默认数据

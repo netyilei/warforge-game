@@ -19,6 +19,8 @@ import (
 	"warforge-server/config"
 	"warforge-server/database"
 	webadminRouter "warforge-server/internal/interfaces/http/webadmin/router"
+	"warforge-server/migrations"
+	_ "warforge-server/migrations/modules"
 	"warforge-server/pkg/logger"
 )
 
@@ -62,6 +64,13 @@ func main() {
 
 	database.InitDB(db)
 	appLogger.Info("Connected to database")
+
+	migrations.InitGlobalManager(db, &cfg.Migration)
+	if err := migrations.RunGlobal(); err != nil {
+		appLogger.Error("Failed to run migrations: %v", err)
+		log.Fatalf("[FATAL] Failed to run migrations: %v", err)
+	}
+	appLogger.Info("Database migrations completed")
 
 	if cfg.Redis.Host != "" {
 		redisClient := redis.NewClient(&redis.Options{

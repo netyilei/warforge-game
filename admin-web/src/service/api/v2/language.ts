@@ -1,4 +1,4 @@
-import { request } from '../../request';
+import { requestV2 } from '../../request';
 
 export interface Language {
   id: string;
@@ -16,45 +16,45 @@ export interface Language {
 
 export const languageApi = {
   getLanguages: () =>
-    request<{ languages: Language[] }>({
+    requestV2<{ languages: Language[] }>({
       url: '/languages',
       method: 'GET'
     }),
 
   getSupportedLanguages: () =>
-    request<{ languages: Language[] }>({
+    requestV2<{ languages: Language[] }>({
       url: '/languages/supported',
       method: 'GET'
     }),
 
   createLanguage: (data: Partial<Language>) =>
-    request<Language>({
+    requestV2<Language>({
       url: '/languages',
       method: 'POST',
       data
     }),
 
   updateLanguage: (data: Partial<Language>) =>
-    request<Language>({
+    requestV2<Language>({
       url: `/languages/${data.id}`,
       method: 'PUT',
       data
     }),
 
   deleteLanguage: (id: string) =>
-    request<{ success: boolean }>({
+    requestV2<{ success: boolean }>({
       url: `/languages/${id}`,
       method: 'DELETE'
     }),
 
   setDefaultLanguage: (id: string) =>
-    request<{ success: boolean }>({
+    requestV2<{ success: boolean }>({
       url: `/languages/${id}/default`,
       method: 'PUT'
     }),
 
   setSupportedLanguages: (languageIds: string[]) =>
-    request<{ success: boolean }>({
+    requestV2<{ success: boolean }>({
       url: '/languages/supported',
       method: 'PUT',
       data: { languageIds }

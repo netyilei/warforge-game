@@ -134,7 +134,7 @@ func main() {
 		"wf_email_templates",
 		"wf_storage_configs",
 		"wf_upload_records",
-		"wf_system_settings",
+		"wf_system_configs",
 	}
 
 	for _, table := range tables {

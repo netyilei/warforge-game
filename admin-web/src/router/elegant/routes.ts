@@ -44,7 +44,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     path: '/admin',
     component: 'layout.base',
     meta: {
-      title: '系统管理',
+      title: '管理员',
       i18nKey: 'route.admin',
       icon: 'mdi:shield-account',
       order: 6
@@ -57,7 +57,7 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: '管理员列表',
           i18nKey: 'route.admin_list',
-          icon: 'mdi:account-supervisor'
+          icon: 'carbon:user'
         }
       },
       {
@@ -67,7 +67,7 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: '权限管理',
           i18nKey: 'route.admin_permission',
-          icon: 'mdi:lock-check'
+          icon: 'carbon:locked'
         }
       },
       {
@@ -77,7 +77,7 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: '角色管理',
           i18nKey: 'route.admin_role',
-          icon: 'mdi:account-group'
+          icon: 'carbon:user-role'
         }
       }
     ]
@@ -89,7 +89,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: '内容管理',
       i18nKey: 'route.content',
-      icon: 'mdi:file-document-multiple',
+      icon: 'mdi:file-document-outline',
       order: 3
     },
     children: [
@@ -98,9 +98,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         path: '/content/banner',
         component: 'view.content_banner',
         meta: {
-          title: '轮播图管理',
+          title: 'Banner管理',
           i18nKey: 'route.content_banner',
-          icon: 'mdi:image-multiple'
+          icon: 'carbon:image'
         }
       },
       {
@@ -108,9 +108,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         path: '/content/category',
         component: 'view.content_category',
         meta: {
-          title: '分类管理',
+          title: '内容分类',
           i18nKey: 'route.content_category',
-          icon: 'mdi:folder-multiple'
+          icon: 'carbon:folder'
         }
       },
       {
@@ -120,7 +120,7 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: '内容列表',
           i18nKey: 'route.content_list',
-          icon: 'mdi:format-list-bulleted'
+          icon: 'carbon:document'
         }
       }
     ]
@@ -130,9 +130,9 @@ export const generatedRoutes: GeneratedRoute[] = [
     path: '/home',
     component: 'layout.base$view.home',
     meta: {
-      title: '仪表盘',
+      title: '首页',
       i18nKey: 'route.home',
-      icon: 'mdi:monitor-dashboard',
+      icon: 'mdi:home',
       order: 1
     }
   },
@@ -166,9 +166,9 @@ export const generatedRoutes: GeneratedRoute[] = [
     path: '/operations',
     component: 'layout.base',
     meta: {
-      title: '运营管理',
+      title: '其他',
       i18nKey: 'route.operations',
-      icon: 'mdi:chart-line',
+      icon: 'carbon:activity',
       order: 4
     },
     children: [
@@ -179,7 +179,7 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: '操作日志',
           i18nKey: 'route.operations_log',
-          icon: 'mdi:history'
+          icon: 'carbon:document'
         }
       }
     ]
@@ -191,7 +191,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: '系统设置',
       i18nKey: 'route.settings',
-      icon: 'mdi:cogs',
+      icon: 'mdi:cog',
       order: 8
     },
     children: [
@@ -202,7 +202,17 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: '邮件配置',
           i18nKey: 'route.settings_email',
-          icon: 'mdi:email-cog'
+          icon: 'carbon:email'
+        }
+      },
+      {
+        name: 'settings_general',
+        path: '/settings/general',
+        component: 'view.settings_general',
+        meta: {
+          title: '基础设置',
+          i18nKey: 'route.settings_general',
+          icon: 'carbon:settings-adjust'
         }
       },
       {
@@ -210,19 +220,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         path: '/settings/language',
         component: 'view.settings_language',
         meta: {
-          title: '语言配置',
+          title: '语言设置',
           i18nKey: 'route.settings_language',
-          icon: 'mdi:translate'
-        }
-      },
-      {
-        name: 'settings_user',
-        path: '/settings/user',
-        component: 'view.settings_user',
-        meta: {
-          title: '用户配置',
-          i18nKey: 'route.settings_user',
-          icon: 'mdi:account-cog'
+          icon: 'carbon:language'
         }
       }
     ]
@@ -234,7 +234,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: '存储管理',
       i18nKey: 'route.storage',
-      icon: 'mdi:database',
+      icon: 'mdi:cloud-upload',
       order: 7
     },
     children: [
@@ -245,7 +245,7 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: '存储配置',
           i18nKey: 'route.storage_config',
-          icon: 'mdi:database-cog'
+          icon: 'carbon:cloud-upload'
         }
       },
       {
@@ -253,9 +253,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         path: '/storage/records',
         component: 'view.storage_records',
         meta: {
-          title: '存储记录',
+          title: '上传记录',
           i18nKey: 'route.storage_records',
-          icon: 'mdi:database-eye'
+          icon: 'carbon:document'
         }
       }
     ]
@@ -265,7 +265,7 @@ export const generatedRoutes: GeneratedRoute[] = [
     path: '/support',
     component: 'layout.base',
     meta: {
-      title: '客服支持',
+      title: '客服管理',
       i18nKey: 'route.support',
       icon: 'mdi:headset',
       order: 5
@@ -278,40 +278,7 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: '发送邮件',
           i18nKey: 'route.support_send-email',
-          icon: 'mdi:email-send'
-        }
-      }
-    ]
-  },
-  {
-    name: 'user',
-    path: '/user',
-    component: 'layout.base',
-    meta: {
-      title: '用户管理',
-      i18nKey: 'route.user',
-      icon: 'mdi:account-group',
-      order: 2
-    },
-    children: [
-      {
-        name: 'user_approval',
-        path: '/user/approval',
-        component: 'view.user_approval',
-        meta: {
-          title: '用户审批',
-          i18nKey: 'route.user_approval',
-          icon: 'mdi:account-check'
-        }
-      },
-      {
-        name: 'user_manage',
-        path: '/user/manage',
-        component: 'view.user_manage',
-        meta: {
-          title: '用户列表',
-          i18nKey: 'route.user_manage',
-          icon: 'mdi:account-details'
+          icon: 'carbon:email'
         }
       }
     ]

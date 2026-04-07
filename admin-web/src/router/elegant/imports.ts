@@ -29,11 +29,9 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   home: () => import("@/views/home/index.vue"),
   operations_log: () => import("@/views/operations_log/index.vue"),
   settings_email: () => import("@/views/settings/email/index.vue"),
+  settings_general: () => import("@/views/settings/general/index.vue"),
   settings_language: () => import("@/views/settings/language/index.vue"),
-  settings_user: () => import("@/views/settings/user/index.vue"),
   storage_config: () => import("@/views/storage/config/index.vue"),
   storage_records: () => import("@/views/storage/records/index.vue"),
   "support_send-email": () => import("@/views/support/send-email/index.vue"),
-  user_approval: () => import("@/views/user_approval/index.vue"),
-  user_manage: () => import("@/views/user_manage/index.vue"),
 };

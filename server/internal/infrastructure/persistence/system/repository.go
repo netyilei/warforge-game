@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"warforge-server/config"
@@ -457,6 +458,16 @@ func (r *StorageConfigRepository) ListAll(ctx context.Context) ([]*systemdomain.
 }
 
 func (r *StorageConfigRepository) Save(ctx context.Context, c *systemdomain.StorageConfig) error {
+	id := c.ID()
+	if id == "" {
+		var err error
+		err = r.db.QueryRowContext(ctx, "SELECT gen_random_uuid()").Scan(&id)
+		if err != nil {
+			return err
+		}
+		c.SetID(id)
+	}
+
 	query := fmt.Sprintf(`
 		INSERT INTO %s (id, name, code, driver, bucket, endpoint, region, access_key, secret_key,
 		                custom_url, is_default, status, sort_order, max_file_size, allowed_types, created_at, updated_at)
@@ -468,7 +479,7 @@ func (r *StorageConfigRepository) Save(ctx context.Context, c *systemdomain.Stor
 	`, config.GetTableName("storage_configs"))
 
 	_, err := r.db.ExecContext(ctx, query,
-		c.ID(), c.Name(), c.Code(), string(c.Driver()), c.Bucket(), c.Endpoint(), c.Region(),
+		id, c.Name(), c.Code(), string(c.Driver()), c.Bucket(), c.Endpoint(), c.Region(),
 		c.AccessKey(), c.SecretKey(), c.CustomURL(), c.IsDefault(), int(c.Status()),
 		c.SortOrder(), c.MaxFileSize(), c.AllowedTypes(), c.CreatedAt(), c.UpdatedAt())
 
@@ -516,7 +527,7 @@ func NewLanguageRepository(db *sql.DB) *LanguageRepository {
 }
 
 func (r *LanguageRepository) FindByID(ctx context.Context, id string) (*systemdomain.Language, error) {
-	query := `SELECT id, code, name, native_name, icon, status, is_default, sort_order FROM languages WHERE id = $1`
+	query := fmt.Sprintf(`SELECT id, code, name, native_name, icon, status, is_default, sort_order FROM %s WHERE id = $1`, config.GetTableName("languages"))
 
 	var code, name string
 	var nativeName, icon sql.NullString
@@ -543,7 +554,7 @@ func (r *LanguageRepository) FindByID(ctx context.Context, id string) (*systemdo
 }
 
 func (r *LanguageRepository) FindByCode(ctx context.Context, code string) (*systemdomain.Language, error) {
-	query := `SELECT id, code, name, native_name, icon, status, is_default, sort_order FROM languages WHERE code = $1`
+	query := fmt.Sprintf(`SELECT id, code, name, native_name, icon, status, is_default, sort_order FROM %s WHERE code = $1`, config.GetTableName("languages"))
 
 	var id, name string
 	var nativeName, icon sql.NullString
@@ -570,7 +581,7 @@ func (r *LanguageRepository) FindByCode(ctx context.Context, code string) (*syst
 }
 
 func (r *LanguageRepository) ListAll(ctx context.Context) ([]*systemdomain.Language, error) {
-	query := `SELECT id, code, name, native_name, icon, status, is_default, sort_order FROM languages ORDER BY sort_order`
+	query := fmt.Sprintf(`SELECT id, code, name, native_name, icon, status, is_default, sort_order FROM %s ORDER BY sort_order`, config.GetTableName("languages"))
 
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
@@ -607,12 +618,12 @@ func (r *LanguageRepository) ListAll(ctx context.Context) ([]*systemdomain.Langu
 }
 
 func (r *LanguageRepository) Save(ctx context.Context, lang *systemdomain.Language) error {
-	query := `
-		INSERT INTO languages (id, code, name, native_name, icon, status, is_default, sort_order)
+	query := fmt.Sprintf(`
+		INSERT INTO %s (id, code, name, native_name, icon, status, is_default, sort_order)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		ON CONFLICT (id) DO UPDATE SET
 			name = $3, native_name = $4, icon = $5, status = $6, is_default = $7, sort_order = $8
-	`
+	`, config.GetTableName("languages"))
 
 	_, err := r.db.ExecContext(ctx, query,
 		lang.ID(), lang.Code(), lang.Name(), lang.NativeName(), lang.Icon(),
@@ -622,7 +633,7 @@ func (r *LanguageRepository) Save(ctx context.Context, lang *systemdomain.Langua
 }
 
 func (r *LanguageRepository) Delete(ctx context.Context, id string) error {
-	query := `DELETE FROM languages WHERE id = $1`
+	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, config.GetTableName("languages"))
 	_, err := r.db.ExecContext(ctx, query, id)
 	return err
 }
@@ -634,11 +645,11 @@ func (r *LanguageRepository) SetDefault(ctx context.Context, id string) error {
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.ExecContext(ctx, `UPDATE languages SET is_default = false`); err != nil {
+	if _, err := tx.ExecContext(ctx, fmt.Sprintf(`UPDATE %s SET is_default = false`, config.GetTableName("languages"))); err != nil {
 		return err
 	}
 
-	if _, err := tx.ExecContext(ctx, `UPDATE languages SET is_default = true WHERE id = $1`, id); err != nil {
+	if _, err := tx.ExecContext(ctx, fmt.Sprintf(`UPDATE %s SET is_default = true WHERE id = $1`, config.GetTableName("languages")), id); err != nil {
 		return err
 	}
 
@@ -652,12 +663,12 @@ func (r *LanguageRepository) SetSupported(ctx context.Context, languageIDs []str
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.ExecContext(ctx, `UPDATE languages SET status = 0`); err != nil {
+	if _, err := tx.ExecContext(ctx, fmt.Sprintf(`UPDATE %s SET status = 0`, config.GetTableName("languages"))); err != nil {
 		return err
 	}
 
 	for _, id := range languageIDs {
-		if _, err := tx.ExecContext(ctx, `UPDATE languages SET status = 1 WHERE id = $1`, id); err != nil {
+		if _, err := tx.ExecContext(ctx, fmt.Sprintf(`UPDATE %s SET status = 1 WHERE id = $1`, config.GetTableName("languages")), id); err != nil {
 			return err
 		}
 	}
@@ -956,9 +967,10 @@ func (r *UploadRecordRepository) ListWithDetails(ctx context.Context, page, page
 		SELECT ur.id, ur.user_id, ur.user_type, ur.original_name, ur.file_path, 
 			   ur.file_size, ur.mime_type, ur.storage_id, ur.upload_type, ur.created_at,
 			   COALESCE(au.username, '') as user_name,
-			   COALESCE(sc.name, '') as storage_name
+			   COALESCE(sc.name, '') as storage_name,
+			   COALESCE(sc.public_domain, '') as public_domain
 		FROM %s ur
-		LEFT JOIN %s au ON ur.user_id = CAST(au.id AS VARCHAR) AND ur.user_type = 'admin'
+		LEFT JOIN %s au ON ur.user_id = au.id AND ur.user_type = 'admin'
 		LEFT JOIN %s sc ON ur.storage_id = sc.id
 	`, uploadRecordsTable, adminUsersTable, storageConfigsTable) + whereClause + fmt.Sprintf(`
 		ORDER BY ur.created_at DESC
@@ -976,16 +988,20 @@ func (r *UploadRecordRepository) ListWithDetails(ctx context.Context, page, page
 	for rows.Next() {
 		var record systemdomain.UploadRecordListDTO
 		var createdAt time.Time
+		var publicDomain string
 		err := rows.Scan(
 			&record.ID, &record.UserID, &record.UserType, &record.OriginalName,
 			&record.FilePath, &record.FileSize, &record.MimeType,
 			&record.StorageID, &record.UploadType, &createdAt,
-			&record.UserName, &record.StorageName,
+			&record.UserName, &record.StorageName, &publicDomain,
 		)
 		if err != nil {
 			return nil, 0, err
 		}
 		record.CreatedAt = createdAt.Format("2006-01-02T15:04:05Z07:00")
+		if publicDomain != "" && record.FilePath != "" {
+			record.FileURL = strings.TrimSuffix(publicDomain, "/") + "/" + strings.TrimPrefix(record.FilePath, "/")
+		}
 		records = append(records, record)
 	}
 	return records, total, nil

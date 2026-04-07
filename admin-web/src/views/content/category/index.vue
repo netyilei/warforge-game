@@ -30,12 +30,6 @@ const isEdit = ref(false);
 const saving = ref(false);
 const formData = ref<Partial<ContentCategory>>({});
 
-const contentTypeOptions = [
-  { label: '纯文本', value: 'text' },
-  { label: 'HTML', value: 'html' },
-  { label: 'Markdown', value: 'markdown' },
-];
-
 const columns: DataTableColumns<ContentCategory> = [
   {
     title: '图标',
@@ -55,19 +49,6 @@ const columns: DataTableColumns<ContentCategory> = [
     title: '分类标识',
     key: 'code',
     width: 120,
-  },
-  {
-    title: '内容类型',
-    key: 'contentType',
-    width: 100,
-    render: (row) => {
-      const typeMap: Record<string, string> = {
-        text: '纯文本',
-        html: 'HTML',
-        markdown: 'Markdown',
-      };
-      return typeMap[row.contentType] || row.contentType;
-    },
   },
   {
     title: '描述',
@@ -193,6 +174,10 @@ const handleSave = async () => {
     saving.value = false;
   }
 };
+
+onMounted(() => {
+  fetchCategories();
+});
 </script>
 
 <template>
@@ -224,12 +209,6 @@ const handleSave = async () => {
             v-model:value="formData.code"
             placeholder="请输入分类标识（英文）"
             :disabled="isEdit"
-          />
-        </NFormItem>
-        <NFormItem label="内容类型">
-          <NSelect
-            v-model:value="formData.contentType"
-            :options="contentTypeOptions"
           />
         </NFormItem>
         <NFormItem label="图标">

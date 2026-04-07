@@ -17,11 +17,13 @@ import (
 
 // Config 应用配置结构
 type Config struct {
-	Server   ServerConfig   `yaml:"server"`
-	Database DatabaseConfig `yaml:"database"`
-	Redis    RedisConfig    `yaml:"redis"`
-	WebAdmin WebAdminConfig `yaml:"web_admin"`
-	Log      LogConfig      `yaml:"log"`
+	Server    ServerConfig    `yaml:"server"`
+	Database  DatabaseConfig  `yaml:"database"`
+	Redis     RedisConfig     `yaml:"redis"`
+	WebAdmin  WebAdminConfig  `yaml:"web_admin"`
+	Nakama    NakamaConfig    `yaml:"nakama"`
+	Log       LogConfig       `yaml:"log"`
+	Migration MigrationConfig `yaml:"migration"`
 }
 
 // ServerConfig 服务器配置
@@ -59,10 +61,24 @@ type WebAdminConfig struct {
 	SecretKey string `yaml:"secret_key"`
 }
 
+// NakamaConfig Nakama 服务连接配置
+type NakamaConfig struct {
+	HttpUrl   string `yaml:"http_url"`   // Nakama HTTP API 地址
+	GrpcUrl   string `yaml:"grpc_url"`   // Nakama gRPC 地址
+	ServerKey string `yaml:"server_key"` // Nakama Server Key
+	HttpKey   string `yaml:"http_key"`   // Nakama HTTP Key
+}
+
 // LogConfig 日志配置
 type LogConfig struct {
 	Level  string `yaml:"level"`
 	Format string `yaml:"format"`
+}
+
+// MigrationConfig 迁移配置
+type MigrationConfig struct {
+	AutoRun  bool `yaml:"auto_run"`  // 是否自动运行迁移
+	AutoSeed bool `yaml:"auto_seed"` // 是否自动插入默认数据
 }
 
 // AppConfig 全局配置实例
@@ -159,5 +175,17 @@ func expandEnvVars(cfg *Config) {
 		if port, err := strconv.Atoi(v); err == nil {
 			cfg.WebAdmin.Port = port
 		}
+	}
+	if v := os.Getenv("NAKAMA_HTTP_URL"); v != "" {
+		cfg.Nakama.HttpUrl = v
+	}
+	if v := os.Getenv("NAKAMA_GRPC_URL"); v != "" {
+		cfg.Nakama.GrpcUrl = v
+	}
+	if v := os.Getenv("NAKAMA_SERVER_KEY"); v != "" {
+		cfg.Nakama.ServerKey = v
+	}
+	if v := os.Getenv("NAKAMA_HTTP_KEY"); v != "" {
+		cfg.Nakama.HttpKey = v
 	}
 }

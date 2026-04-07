@@ -20,17 +20,14 @@ const routePermissions: Record<RouteKey, string[]> = {
   operations: ['operations'],
   operations_log: ['operations', 'operations_log'],
   settings: ['settings'],
+  settings_general: ['settings', 'settings_general'],
   settings_email: ['settings', 'settings_email'],
   settings_language: ['settings', 'settings_language'],
-  settings_user: ['settings', 'settings_user'],
   storage: ['storage'],
   storage_config: ['storage', 'storage_config'],
   storage_records: ['storage', 'storage_records'],
   support: ['support'],
-  'support_send-email': ['support', 'support_send_email'],
-  user: ['user'],
-  user_approval: ['user', 'user_approval'],
-  user_manage: ['user', 'user_manage']
+  'support_send-email': ['support', 'support_send_email']
 };
 
 export function getRoutePermissions(routeName: RouteKey): string[] {

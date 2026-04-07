@@ -26,34 +26,83 @@
 
 ## 数据库迁移
 
-### 迁移脚本位置
+### 模块化迁移系统
 
-所有迁移脚本位于 `server/migrations/` 目录。
+项目采用 Go 模块化迁移系统，服务启动时自动执行迁移。
 
-### 主迁移脚本
+### 迁移模块架构
 
-`000_init_complete.sql` - 整合所有表结构和初始数据：
-
-- 所有表使用 `IF NOT EXISTS` 创建
-- 所有数据使用 `ON CONFLICT DO NOTHING` 插入
-- 不会覆盖已存在的测试数据
-
-### 执行迁移
-
-```powershell
-# 方式1：使用 docker cp（推荐，避免编码问题）
-docker cp d:\geme\server\migrations\000_init_complete.sql dev_cockroach:/tmp/migration.sql
-docker exec dev_cockroach cockroach sql --insecure -d nakama -f /tmp/migration.sql
-
-# 方式2：直接执行（可能有编码问题）
-Get-Content d:\geme\server\migrations\000_init_complete.sql | docker exec -i dev_cockroach cockroach sql --insecure -d nakama
 ```
+server/migrations/
+├── migration.go           # 迁移接口定义
+├── manager.go             # 迁移管理器
+├── registry.go            # 迁移注册表
+└── modules/               # 模块化迁移文件
+    ├── 001_admin.go       # 管理员模块 (用户、角色、权限)
+    ├── 002_content.go     # 内容模块 (语言、内容、Banner)
+    ├── 003_email.go       # 邮件模块 (配置、模板、日志)
+    ├── 004_system.go      # 系统模块 (系统配置)
+    └── 005_storage.go     # 存储模块 (存储配置、上传记录)
+```
+
+### 迁移接口
+
+```go
+type Migration interface {
+    Version() string      // 版本号 (如 "001")
+    Module() string       // 模块名 (如 "admin")
+    Up(db *sql.DB) error  // 创建/更新表结构
+    Down(db *sql.DB) error // 回滚（可选）
+    Seed(db *sql.DB) error // 插入默认数据
+}
+```
+
+### 配置开关
+
+```yaml
+# config/config.yaml
+migration:
+  auto_run: true   # 是否自动运行迁移（生产环境建议关闭）
+  auto_seed: true  # 是否自动插入默认数据
+```
+
+### 迁移执行流程
+
+1. 服务启动时检查配置 `migration.auto_run`
+2. 创建版本控制表 `wf_schema_migrations`
+3. 扫描 `modules/` 目录下的迁移文件
+4. 按版本号排序执行未执行的迁移
+5. 记录执行结果到版本控制表
+
+### 版本控制表
+
+```sql
+CREATE TABLE wf_schema_migrations (
+    version VARCHAR(50) PRIMARY KEY,
+    module VARCHAR(50) NOT NULL,
+    executed_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### 添加新迁移模块
+
+1. 在 `migrations/modules/` 创建新文件，如 `006_newmodule.go`
+2. 实现 `Migration` 接口
+3. 在 `init()` 函数中注册：`migrations.Register(NewNewModuleMigration())`
+
+### 默认数据管理
+
+每个迁移模块的 `Seed()` 方法负责插入默认数据：
+
+- 使用 `INSERT ... ON CONFLICT DO NOTHING` 避免重复插入
+- 使用 `INSERT ... ON CONFLICT DO UPDATE` 更新已有数据
+- 可通过配置 `auto_seed` 控制是否执行
 
 ### 注意事项
 
-1. **编码问题**：PowerShell 管道传输可能导致 UTF-8 编码问题，建议使用 `docker cp` 方式
-2. **幂等性**：迁移脚本设计为可重复执行，不会破坏现有数据
-3. **测试数据**：开发阶段的测试数据会被保留
+1. **幂等性**：迁移脚本设计为可重复执行，不会破坏现有数据
+2. **生产环境**：建议关闭 `auto_run`，手动执行迁移
+3. **测试环境**：开启 `auto_run`，每次启动自动同步表结构
 
 ---
 

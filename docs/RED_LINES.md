@@ -482,6 +482,9 @@ INSERT INTO admin_permissions (code, name, parent_id, path, component) VALUES
 - [ ] **服务启动时是否调用 EnsureDB() 和 EnsureRedis()？（新增）**
 - [ ] **🔴 数据库表前缀是否正确？（强制：wf_ 仅用于非 Nakama 管理的表）**
 - [ ] **是否避免为 Nakama 管理的表创建迁移脚本？（新增）**
+- [ ] **🔴 需求落地是否完成全部必做工作？（强制：CRUD、逻辑、RBAC、迁移脚本、数据库记录、前端、测试）**
+- [ ] **🔴 服务端是否在 Docker 中编译启动？（强制）**
+- [ ] **是否使用项目目录中的 Nakama 二进制文件？（新增）**
 
 ---
 
@@ -552,12 +555,57 @@ redisKey := "admin:token:" + userID
   - 路由：`internal/interfaces/http/webadmin/router/router.go`
   - 处理器：`internal/interfaces/http/webadmin/handlers/`
   - 中间件：`internal/interfaces/http/webadmin/middleware/`
-  - JWT 工具：`internal/interfaces/http/webadmin/auth/jwt.go`
 
-### 19.2 公共资源
+---
 
-- **全局共用**：`models/`, `database/`, `config/`, `internal/domain/`, `internal/infrastructure/` 可被所有模块引用
-- **禁止复制**：不得在 Gin 模块中复制公共模块的代码
+## 二十、需求落地完整性红线
+
+### 20.1 需求落地必做清单
+
+任何需求的落地必须完成以下全部工作，缺一不可：
+
+| 序号 | 工作项 | 说明 |
+|------|--------|------|
+| 1 | 后端 CRUD 代码 | 数据库增删改查接口实现 |
+| 2 | 后端逻辑代码 | 业务逻辑处理代码 |
+| 3 | RBAC 权限配置 | 路由权限、菜单权限、按钮权限 |
+| 4 | 迁移脚本更新 | 数据库表结构、默认数据、权限数据 |
+| 5 | 数据库记录更新 | 现有数据库中的权限记录等 |
+| 6 | 前端页面更新 | admin-web、proxy-web 页面开发（如涉及） |
+| 7 | 前端路由配置 | 路由定义、API 路径（如涉及） |
+| 8 | MCP 工具测试 | 完成后必须使用 MCP 工具进行功能测试 |
+
+### 20.2 禁止事项
+
+- ❌ 禁止只完成后端不更新迁移脚本
+- ❌ 禁止只更新迁移脚本不更新现有数据库记录
+- ❌ 禁止只完成功能不进行测试验证
+- ❌ 禁止遗漏任何一项必做工作
+
+---
+
+## 二十一、服务端运行环境红线
+
+### 21.1 Docker 编译启动原则
+
+- **🔴 红线：服务端必须在 Docker 中编译启动**：禁止在本地环境编译启动服务端代码。
+- **Nakama 二进制文件**：已保存在项目目录中，禁止再建立 Docker 容器获取 Nakama 二进制文件。
+
+### 21.2 正确做法
+
+```bash
+# 正确：在 Docker 中编译启动
+docker restart warforge-server
+
+# 错误：在本地环境编译启动
+go run main.go  # ❌ 禁止
+```
+
+### 21.3 禁止事项
+
+- ❌ 禁止在本地环境运行 `go run main.go` 启动服务端
+- ❌ 禁止为获取 Nakama 二进制文件创建新的 Docker 容器
+- ❌ 禁止绕过 Docker 直接编译运行服务端代码
 
 ---
 

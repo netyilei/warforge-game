@@ -153,20 +153,19 @@
         <NFormItem label="邮件主题" path="subject">
           <NInput v-model:value="templateForm.subject" placeholder="请输入邮件主题" />
         </NFormItem>
-        <NFormItem label="内容类型" path="contentType">
-          <NRadioGroup v-model:value="templateForm.contentType">
-            <NRadio value="html">HTML</NRadio>
-            <NRadio value="text">纯文本</NRadio>
-          </NRadioGroup>
-        </NFormItem>
         <NFormItem label="模板描述" path="description">
           <NInput v-model:value="templateForm.description" type="textarea" placeholder="请输入模板描述" :rows="2" />
         </NFormItem>
         <NFormItem label="模板内容" path="content">
           <div class="editor-container">
-            <RichEditor
+            <ToastEditor
+              ref="templateEditorRef"
               v-model:value="templateForm.content"
-              :type="templateForm.contentType"
+              mode="wysiwyg"
+              height="400px"
+              placeholder="请输入模板内容"
+              upload-type="email"
+              hide-mode-switch
             />
           </div>
         </NFormItem>
@@ -189,7 +188,7 @@ import { ref, reactive, h, onMounted } from 'vue';
 import { NButton, NSpace, NSwitch, NTag, NIcon, useMessage, useDialog, type DataTableColumns } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 import { emailApi, type EmailTemplate } from '@/service/api/v1/email';
-import RichEditor from '@/components/common/rich-editor.vue';
+import ToastEditor from '@/components/common/toast-editor.vue';
 
 const message = useMessage();
 const dialog = useDialog();
@@ -204,6 +203,7 @@ const showConfigModal = ref(false);
 const showTemplateModal = ref(false);
 
 const editingTemplate = ref<EmailTemplate | null>(null);
+const templateEditorRef = ref<InstanceType<typeof ToastEditor>>();
 
 const encryptionOptions = [
   { label: 'STARTTLS', value: 'tls' },
@@ -239,7 +239,6 @@ const templateForm = reactive({
   name: '',
   code: '',
   subject: '',
-  contentType: 'html' as 'html' | 'text',
   content: '',
   description: '',
   status: 1
@@ -263,7 +262,6 @@ const templateColumns: DataTableColumns<EmailTemplate> = [
   { title: '名称', key: 'name' },
   { title: '标识', key: 'code' },
   { title: '主题', key: 'subject' },
-  { title: '类型', key: 'contentType' },
   { title: '描述', key: 'description', ellipsis: { tooltip: true } },
   {
     title: '状态',
@@ -375,7 +373,6 @@ const resetTemplateForm = () => {
   templateForm.name = '';
   templateForm.code = '';
   templateForm.subject = '';
-  templateForm.contentType = 'html';
   templateForm.content = '';
   templateForm.description = '';
   templateForm.status = 1;
@@ -388,7 +385,6 @@ const openTemplateModal = (template?: EmailTemplate) => {
     templateForm.name = template.name;
     templateForm.code = template.code;
     templateForm.subject = template.subject;
-    templateForm.contentType = template.contentType as 'html' | 'text';
     templateForm.content = template.content;
     templateForm.description = template.description;
     templateForm.status = template.status;
@@ -405,11 +401,19 @@ const editTemplate = (template: EmailTemplate) => {
 const submitTemplate = async () => {
   submitLoading.value = true;
   try {
+    const content = templateEditorRef.value?.getHTML() || templateForm.content;
+    
+    const submitData = {
+      ...templateForm,
+      content,
+      contentType: 'html' as const
+    };
+    
     if (editingTemplate.value) {
-      await emailApi.updateTemplate(editingTemplate.value.id, templateForm);
+      await emailApi.updateTemplate(editingTemplate.value.id, submitData);
       message.success('更新成功');
     } else {
-      await emailApi.createTemplate(templateForm);
+      await emailApi.createTemplate(submitData);
       message.success('创建成功');
     }
     showTemplateModal.value = false;

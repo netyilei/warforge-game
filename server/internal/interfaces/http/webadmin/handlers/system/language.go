@@ -5,6 +5,7 @@ import (
 	systemdomain "warforge-server/internal/domain/system"
 	systempersistence "warforge-server/internal/infrastructure/persistence/system"
 	"warforge-server/internal/interfaces/http/webadmin/response"
+	"warforge-server/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,6 +31,7 @@ type CreateLanguageRequest struct {
 	NativeName string `json:"nativeName" binding:"required"`
 	Icon       string `json:"icon"`
 	SortOrder  int    `json:"sortOrder"`
+	Status     int    `json:"status"`
 }
 
 func CreateLanguage(c *gin.Context) {
@@ -41,9 +43,13 @@ func CreateLanguage(c *gin.Context) {
 	db := database.MustGetDB()
 	repo := systempersistence.NewLanguageRepository(db)
 
-	lang := systemdomain.NewLanguage("", req.Code, req.Name)
+	lang := systemdomain.NewLanguage(utils.GenerateUUID(), req.Code, req.Name)
 	lang.SetNativeName(req.NativeName)
-	lang.SetStatus(systemdomain.LanguageStatusActive)
+	if req.Status > 0 {
+		lang.SetStatus(systemdomain.LanguageStatus(req.Status))
+	} else {
+		lang.SetStatus(systemdomain.LanguageStatusActive)
+	}
 	lang.SetSortOrder(req.SortOrder)
 	if req.Icon != "" {
 		lang.SetIcon(&req.Icon)
